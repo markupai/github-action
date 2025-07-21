@@ -2,9 +2,9 @@ name: Example Workflow - Acrolinx Analysis
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   analyze-commits-and-acrolinx:

@@ -131,10 +131,7 @@ describe('main.ts', () => {
     await run()
 
     // Verify the commits-analyzed output was set.
-    expect(core.setOutput).toHaveBeenCalledWith(
-      'commits-analyzed',
-      '1'
-    )
+    expect(core.setOutput).toHaveBeenCalledWith('commits-analyzed', '1')
   })
 
   it('Fails when Acrolinx API token is missing', async () => {
@@ -161,6 +158,8 @@ describe('main.ts', () => {
     await run()
 
     // Verify that the action was marked as failed.
-    expect(core.setFailed).toHaveBeenCalledWith('Acrolinx API token is required. Please provide it via input or ACROLINX_API_TOKEN environment variable.')
+    expect(core.setFailed).toHaveBeenCalledWith(
+      'Acrolinx API token is required'
+    )
   })
 })

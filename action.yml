@@ -15,7 +15,9 @@ inputs:
     description: Acrolinx API token for style checking (can also be provided via ACROLINX_API_TOKEN environment variable)
     required: false
   dialect:
-    description: Language dialect for Acrolinx analysis (e.g., american_english, british_english)
+    description:
+      Language dialect for Acrolinx analysis (e.g., american_english,
+      british_english)
     required: false
     default: 'american_english'
   tone:

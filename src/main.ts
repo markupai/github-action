@@ -1,6 +1,11 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import { styleCheck, Config, StyleAnalysisReq, StyleAnalysisSuccessResp } from '@acrolinx/typescript-sdk'
+import {
+  styleCheck,
+  Config,
+  StyleAnalysisReq,
+  StyleAnalysisSuccessResp
+} from '@acrolinx/typescript-sdk'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 
@@ -280,7 +285,10 @@ async function runAcrolinxAnalysis(
   for (const commit of commits) {
     for (const change of commit.changes) {
       // Only process supported files that haven't been processed yet
-      if (isSupportedFile(change.filename) && !processedFiles.has(change.filename)) {
+      if (
+        isSupportedFile(change.filename) &&
+        !processedFiles.has(change.filename)
+      ) {
         processedFiles.add(change.filename)
 
         // Try to read the file content
@@ -313,7 +321,9 @@ async function runAcrolinxAnalysis(
 export async function run(): Promise<void> {
   try {
     // Get inputs
-    const acrolinxApiToken = core.getInput('acrolinx-api-token') || process.env.ACROLINX_API_TOKEN
+    const acrolinxApiToken = core.getInput('acrolinx-api-token', {
+      required: true
+    })
     const dialect = core.getInput('dialect') || 'american_english'
     const tone = core.getInput('tone') || 'formal'
     const styleGuide = core.getInput('style-guide') || 'ap'
@@ -331,9 +341,12 @@ export async function run(): Promise<void> {
     }
 
     // Get GitHub token and context
-    const githubToken = core.getInput('github-token') || process.env.GITHUB_TOKEN
+    const githubToken =
+      core.getInput('github-token') || process.env.GITHUB_TOKEN
     if (!githubToken) {
-      core.warning('GitHub token not provided. Cannot fetch commit information.')
+      core.warning(
+        'GitHub token not provided. Cannot fetch commit information.'
+      )
       return
     }
 

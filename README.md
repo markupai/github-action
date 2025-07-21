@@ -1,35 +1,39 @@
 # Acrolinx Analyzer
 
-A GitHub Action that analyzes and displays recent commit changes with detailed diffs and file modifications, and runs Acrolinx style checks on modified files.
+A GitHub Action that analyzes and displays recent commit changes with detailed
+diffs and file modifications, and runs Acrolinx style checks on modified files.
 
 ## Features
 
 - 📝 **Commit analysis**: Show recent commits with detailed information
-- 📊 **Change statistics**: Display additions, deletions, and total changes per file
+- 📊 **Change statistics**: Display additions, deletions, and total changes per
+  file
 - 🔍 **Diff preview**: Show patch previews for modified files
-- 🎯 **Configurable**: Control how many commits to show and which branch to analyze
-- 📈 **Output data**: Provides commit count and latest commit SHA for downstream steps
+- 🎯 **Configurable**: Control how many commits to show and which branch to
+  analyze
+- 📈 **Output data**: Provides commit count and latest commit SHA for downstream
+  steps
 - ✨ **Acrolinx Integration**: Run style checks on markdown and text files
 - 📋 **Style Analysis**: Comprehensive grammar, tone, and style guide checking
 - 📊 **Detailed Scores**: Quality, clarity, grammar, and tone scoring
 
 ## Inputs
 
-| Input | Description | Required | Default |
-|-------|-------------|----------|---------|
-| `acrolinx-api-token` | Acrolinx API token for style checking (can also be provided via `ACROLINX_API_TOKEN` environment variable) | No | - |
-| `dialect` | Language dialect for Acrolinx analysis (e.g., american_english, british_english) | No | `american_english` |
-| `tone` | Tone for Acrolinx analysis (e.g., formal, informal, academic) | No | `formal` |
-| `style-guide` | Style guide for Acrolinx analysis (e.g., ap, chicago, apa) | No | `ap` |
-| `commit-limit` | Number of recent commits to show (max 10) | No | `3` |
-| `github-token` | GitHub token for API access (uses `GITHUB_TOKEN` by default) | No | - |
+| Input                | Description                                                                      | Required | Default            |
+| -------------------- | -------------------------------------------------------------------------------- | -------- | ------------------ |
+| `acrolinx-api-token` | Acrolinx API token for style checking                                            | Yes      | -                  |
+| `dialect`            | Language dialect for Acrolinx analysis (e.g., american_english, british_english) | No       | `american_english` |
+| `tone`               | Tone for Acrolinx analysis (e.g., formal, informal, academic)                    | No       | `formal`           |
+| `style-guide`        | Style guide for Acrolinx analysis (e.g., ap, chicago, apa)                       | No       | `ap`               |
+| `commit-limit`       | Number of recent commits to show (max 10)                                        | No       | `3`                |
+| `github-token`       | GitHub token for API access (uses `GITHUB_TOKEN` by default)                     | No       | -                  |
 
 ## Outputs
 
-| Output | Description |
-|--------|-------------|
-| `commits-analyzed` | Number of commits that were analyzed |
-| `last-commit-sha` | SHA of the most recent commit analyzed |
+| Output             | Description                                      |
+| ------------------ | ------------------------------------------------ |
+| `commits-analyzed` | Number of commits that were analyzed             |
+| `last-commit-sha`  | SHA of the most recent commit analyzed           |
 | `acrolinx-results` | JSON string containing Acrolinx analysis results |
 
 ## Usage
@@ -111,7 +115,7 @@ jobs:
         with:
           acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
           commit-limit: '3'
-      
+
       - name: Use Analysis Results
         run: |
           echo "Analyzed ${{ steps.analyzer.outputs.commits-analyzed }} commits"
@@ -121,7 +125,8 @@ jobs:
 
 ## Example Output
 
-The action will output detailed commit information and Acrolinx analysis results:
+The action will output detailed commit information and Acrolinx analysis
+results:
 
 ```
 🔍 Fetching recent commit changes...
@@ -203,12 +208,14 @@ The action will output detailed commit information and Acrolinx analysis results
 ### Acrolinx Analysis Features
 
 #### Supported File Types
+
 - **Markdown**: `.md`, `.markdown`
 - **Text**: `.txt`
 - **ReStructuredText**: `.rst`
 - **AsciiDoc**: `.adoc`
 
 #### Analysis Categories
+
 - **Quality Score**: Overall content quality assessment
 - **Clarity Score**: Readability and comprehension metrics
 - **Grammar Issues**: Grammar and syntax problems
@@ -217,17 +224,20 @@ The action will output detailed commit information and Acrolinx analysis results
 - **Terminology Issues**: Terminology consistency problems
 
 #### Available Dialects
+
 - `american_english`
 - `british_english`
 - And more supported by Acrolinx
 
 #### Available Tones
+
 - `formal`
 - `informal`
 - `academic`
 - And more supported by Acrolinx
 
 #### Available Style Guides
+
 - `ap` (Associated Press)
 - `chicago` (Chicago Manual of Style)
 - `apa` (American Psychological Association)
@@ -236,6 +246,7 @@ The action will output detailed commit information and Acrolinx analysis results
 ### File Change Statistics
 
 For each file, the action shows:
+
 - **Filename**: Path to the modified file
 - **Status**: Type of change (added, modified, deleted, renamed)
 - **Additions**: Number of lines added
@@ -245,6 +256,7 @@ For each file, the action shows:
 ### Patch Preview
 
 The action provides a preview of the actual code changes:
+
 - **Green lines** (`+`) show added code
 - **Red lines** (`-`) show removed code
 - **Context lines** show surrounding code for context
@@ -253,6 +265,7 @@ The action provides a preview of the actual code changes:
 ## Error Handling
 
 The action gracefully handles various error scenarios:
+
 - **Missing Acrolinx token**: Fails the workflow with clear error message
 - **Missing GitHub token**: Shows warning and exits gracefully
 - **API rate limits**: Logs error and continues execution
