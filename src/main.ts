@@ -321,7 +321,7 @@ async function runAcrolinxAnalysis(
 export async function run(): Promise<void> {
   try {
     // Get inputs
-    const acrolinxApiToken = core.getInput('acrolinx-api-token', {
+    const acrolinxApiToken = core.getInput('acrolinx_token', {
       required: true
     })
     const dialect = core.getInput('dialect') || 'american_english'
@@ -341,7 +341,7 @@ export async function run(): Promise<void> {
     }
 
     // Get GitHub token and context
-    const githubToken = core.getInput('github-token', { required: true })
+    const githubToken = core.getInput('github_token', { required: true })
     if (!githubToken) {
       core.warning(
         'GitHub token not provided. Cannot fetch commit information.'

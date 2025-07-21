@@ -11,7 +11,7 @@ branding:
 
 # Define your inputs here.
 inputs:
-  acrolinx-api-token:
+  acrolinx_token:
     description:
       Acrolinx API token for style checking (can also be provided via
       ACROLINX_API_TOKEN environment variable)
@@ -34,9 +34,9 @@ inputs:
     description: Number of recent commits to show (max 10)
     required: false
     default: '3'
-  github-token:
+  github_token:
     description: GitHub token for API access (uses GITHUB_TOKEN by default)
-    required: true
+    required: false
 
 # Define your outputs here.
 outputs:
