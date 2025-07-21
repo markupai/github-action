@@ -31,6 +31,8 @@ jobs:
       - name: Install Dependencies
         id: npm-ci
         run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
       - name: Check Format
         id: npm-format-check
