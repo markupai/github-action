@@ -14,9 +14,25 @@ jest.unstable_mockModule('@actions/github', () => ({
   getOctokit: jest.fn(() => ({
     rest: {
       repos: {
-        listCommits: jest.fn().mockResolvedValue({
-          data: [
-            {
+        listCommits: jest.fn(() =>
+          Promise.resolve({
+            data: [
+              {
+                sha: 'abc123456789',
+                commit: {
+                  message: 'test commit',
+                  author: {
+                    name: 'Test User',
+                    date: '2024-01-15T10:30:00Z'
+                  }
+                }
+              }
+            ]
+          })
+        ),
+        getCommit: jest.fn(() =>
+          Promise.resolve({
+            data: {
               sha: 'abc123456789',
               commit: {
                 message: 'test commit',
@@ -24,32 +40,20 @@ jest.unstable_mockModule('@actions/github', () => ({
                   name: 'Test User',
                   date: '2024-01-15T10:30:00Z'
                 }
-              }
+              },
+              files: [
+                {
+                  filename: 'README.md',
+                  status: 'modified',
+                  additions: 5,
+                  deletions: 2,
+                  changes: 7,
+                  patch: '@@ -1,3 +1,5 @@\n-test\n+new test\n'
+                }
+              ]
             }
-          ]
-        }),
-        getCommit: jest.fn().mockResolvedValue({
-          data: {
-            sha: 'abc123456789',
-            commit: {
-              message: 'test commit',
-              author: {
-                name: 'Test User',
-                date: '2024-01-15T10:30:00Z'
-              }
-            },
-            files: [
-              {
-                filename: 'README.md',
-                status: 'modified',
-                additions: 5,
-                deletions: 2,
-                changes: 7,
-                patch: '@@ -1,3 +1,5 @@\n-test\n+new test\n'
-              }
-            ]
-          }
-        })
+          })
+        )
       }
     }
   })),
@@ -64,32 +68,34 @@ jest.unstable_mockModule('@actions/github', () => ({
 
 // Mock the Acrolinx SDK
 jest.unstable_mockModule('@acrolinx/typescript-sdk', () => ({
-  styleCheck: jest.fn().mockResolvedValue({
-    workflow_id: 'test-workflow-123',
-    status: 'completed',
-    scores: {
-      quality: { score: 85.2 },
-      clarity: { score: 78.5 },
-      grammar: { score: 90.1, issues: 2 },
-      style_guide: { score: 88.3, issues: 1 },
-      tone: { score: 82.3 },
-      terminology: { score: 95.0, issues: 0 }
-    },
-    issues: [
-      {
-        original: 'test text',
-        char_index: 10,
-        subcategory: 'passive_voice',
-        category: 'style_guide'
-      }
-    ]
-  }),
+  styleCheck: jest.fn(() =>
+    Promise.resolve({
+      workflow_id: 'test-workflow-123',
+      status: 'completed',
+      scores: {
+        quality: { score: 85.2 },
+        clarity: { score: 78.5 },
+        grammar: { score: 90.1, issues: 2 },
+        style_guide: { score: 88.3, issues: 1 },
+        tone: { score: 82.3 },
+        terminology: { score: 95.0, issues: 0 }
+      },
+      issues: [
+        {
+          original: 'test text',
+          char_index: 10,
+          subcategory: 'passive_voice',
+          category: 'style_guide'
+        }
+      ]
+    })
+  ),
   Config: jest.fn()
 }))
 
 // Mock fs/promises
 jest.unstable_mockModule('fs/promises', () => ({
-  readFile: jest.fn().mockResolvedValue('Test content for Acrolinx analysis')
+  readFile: jest.fn(() => Promise.resolve('Test content for Acrolinx analysis'))
 }))
 
 // The module being tested should be imported dynamically. This ensures that the
