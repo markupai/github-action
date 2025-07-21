@@ -331,7 +331,7 @@ export async function run(): Promise<void> {
 
     // Validate Acrolinx API token
     if (!acrolinxApiToken) {
-      core.setFailed('Acrolinx API token is required. Please provide it via input or ACROLINX_API_TOKEN environment variable.')
+      core.setFailed('Acrolinx API token is required')
       return
     }
 

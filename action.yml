@@ -12,7 +12,9 @@ branding:
 # Define your inputs here.
 inputs:
   acrolinx-api-token:
-    description: Acrolinx API token for style checking (can also be provided via ACROLINX_API_TOKEN environment variable)
+    description:
+      Acrolinx API token for style checking (can also be provided via
+      ACROLINX_API_TOKEN environment variable)
     required: false
   dialect:
     description:
