@@ -17,7 +17,7 @@ A GitHub Action that analyzes and displays recent commit changes with detailed d
 
 | Input | Description | Required | Default |
 |-------|-------------|----------|---------|
-| `acrolinx-api-token` | Acrolinx API token for style checking | Yes | - |
+| `acrolinx-api-token` | Acrolinx API token for style checking (can also be provided via `ACROLINX_API_TOKEN` environment variable) | No | - |
 | `dialect` | Language dialect for Acrolinx analysis (e.g., american_english, british_english) | No | `american_english` |
 | `tone` | Tone for Acrolinx analysis (e.g., formal, informal, academic) | No | `formal` |
 | `style-guide` | Style guide for Acrolinx analysis (e.g., ap, chicago, apa) | No | `ap` |
@@ -69,6 +69,30 @@ jobs:
           tone: 'academic'
           style-guide: 'chicago'
           commit-limit: '3'
+```
+
+### Local Testing with Environment Variables
+
+For local testing, you can use environment variables instead of GitHub secrets:
+
+```bash
+# Set the environment variable
+export ACROLINX_API_TOKEN=your-acrolinx-api-token
+
+# Run the action locally
+npm run local-action
+```
+
+Or create a `.env` file in your project root:
+
+```env
+ACROLINX_API_TOKEN=your-acrolinx-api-token
+```
+
+Then run:
+
+```bash
+npm run local-action
 ```
 
 ### Using Outputs

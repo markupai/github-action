@@ -313,7 +313,7 @@ async function runAcrolinxAnalysis(
 export async function run(): Promise<void> {
   try {
     // Get inputs
-    const acrolinxApiToken = core.getInput('acrolinx-api-token', { required: true })
+    const acrolinxApiToken = core.getInput('acrolinx-api-token') || process.env.ACROLINX_API_TOKEN
     const dialect = core.getInput('dialect') || 'american_english'
     const tone = core.getInput('tone') || 'formal'
     const styleGuide = core.getInput('style-guide') || 'ap'
@@ -321,7 +321,7 @@ export async function run(): Promise<void> {
 
     // Validate Acrolinx API token
     if (!acrolinxApiToken) {
-      core.setFailed('Acrolinx API token is required')
+      core.setFailed('Acrolinx API token is required. Please provide it via input or ACROLINX_API_TOKEN environment variable.')
       return
     }
 

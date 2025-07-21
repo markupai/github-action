@@ -161,6 +161,6 @@ describe('main.ts', () => {
     await run()
 
     // Verify that the action was marked as failed.
-    expect(core.setFailed).toHaveBeenCalledWith('Acrolinx API token is required')
+    expect(core.setFailed).toHaveBeenCalledWith('Acrolinx API token is required. Please provide it via input or ACROLINX_API_TOKEN environment variable.')
   })
 })
