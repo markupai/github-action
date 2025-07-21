@@ -30,20 +30,15 @@ inputs:
     description: Style guide for Acrolinx analysis (e.g., ap, chicago, apa)
     required: false
     default: 'ap'
-  commit-limit:
-    description: Number of recent commits to show (max 10)
-    required: false
-    default: '3'
+
   github_token:
     description: GitHub token for API access (uses GITHUB_TOKEN by default)
     required: false
 
 # Define your outputs here.
 outputs:
-  commits-analyzed:
-    description: Number of commits that were analyzed
-  last-commit-sha:
-    description: SHA of the most recent commit analyzed
+  commit-sha:
+    description: SHA of the commit that was analyzed
   acrolinx-results:
     description: JSON string containing Acrolinx analysis results
 

@@ -5,14 +5,12 @@ diffs and file modifications, and runs Acrolinx style checks on modified files.
 
 ## Features
 
-- 📝 **Commit analysis**: Show recent commits with detailed information
+- 📝 **Commit analysis**: Show current commit with detailed information
 - 📊 **Change statistics**: Display additions, deletions, and total changes per
   file
 - 🔍 **Diff preview**: Show patch previews for modified files
-- 🎯 **Configurable**: Control how many commits to show and which branch to
-  analyze
-- 📈 **Output data**: Provides commit count and latest commit SHA for downstream
-  steps
+- 🎯 **Configurable**: Control which branch to analyze
+- 📈 **Output data**: Provides commit SHA for downstream steps
 - ✨ **Acrolinx Integration**: Run style checks on markdown and text files
 - 📋 **Style Analysis**: Comprehensive grammar, tone, and style guide checking
 - 📊 **Detailed Scores**: Quality, clarity, grammar, and tone scoring
@@ -25,15 +23,15 @@ diffs and file modifications, and runs Acrolinx style checks on modified files.
 | `dialect`            | Language dialect for Acrolinx analysis (e.g., american_english, british_english) | No       | `american_english` |
 | `tone`               | Tone for Acrolinx analysis (e.g., formal, informal, academic)                    | No       | `formal`           |
 | `style-guide`        | Style guide for Acrolinx analysis (e.g., ap, chicago, apa)                       | No       | `ap`               |
-| `commit-limit`       | Number of recent commits to show (max 10)                                        | No       | `3`                |
-| `github-token`       | GitHub token for API access (uses `GITHUB_TOKEN` by default)                     | No       | -                  |
+
+| `github-token` | GitHub token for API access (uses `GITHUB_TOKEN` by default)
+| No | - |
 
 ## Outputs
 
 | Output             | Description                                      |
 | ------------------ | ------------------------------------------------ |
-| `commits-analyzed` | Number of commits that were analyzed             |
-| `last-commit-sha`  | SHA of the most recent commit analyzed           |
+| `commit-sha`       | SHA of the commit that was analyzed              |
 | `acrolinx-results` | JSON string containing Acrolinx analysis results |
 
 ## Usage
@@ -52,7 +50,6 @@ jobs:
         uses: ./
         with:
           acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
-          commit-limit: '5'
 ```
 
 ### Custom Acrolinx Configuration
@@ -72,7 +69,6 @@ jobs:
           dialect: 'british_english'
           tone: 'academic'
           style-guide: 'chicago'
-          commit-limit: '3'
 ```
 
 ### Local Testing with Environment Variables
@@ -118,8 +114,7 @@ jobs:
 
       - name: Use Analysis Results
         run: |
-          echo "Analyzed ${{ steps.analyzer.outputs.commits-analyzed }} commits"
-          echo "Latest commit: ${{ steps.analyzer.outputs.last-commit-sha }}"
+          echo "Analyzed commit: ${{ steps.analyzer.outputs.commit-sha }}"
           echo "Acrolinx results: ${{ steps.analyzer.outputs.acrolinx-results }}"
 ```
 
@@ -129,11 +124,11 @@ The action will output detailed commit information and Acrolinx analysis
 results:
 
 ```
-🔍 Fetching recent commit changes...
-📋 Found 3 recent commits:
+🔍 Fetching current commit changes...
+📋 Current commit:
 ==================================================
 
-📌 Commit 1:
+📌 Commit:
 📝 Commit: abc12345
 📄 Message: feat: add new documentation
 👤 Author: John Doe

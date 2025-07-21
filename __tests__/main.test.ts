@@ -115,8 +115,6 @@ describe('main.ts', () => {
           return 'formal'
         case 'style-guide':
           return 'ap'
-        case 'commit-limit':
-          return '3'
         case 'github-token':
           return 'test-token'
         default:
@@ -135,11 +133,11 @@ describe('main.ts', () => {
     delete process.env.GITHUB_REPOSITORY
   })
 
-  it('Sets the commits-analyzed output', async () => {
+  it('Sets the commit-sha output', async () => {
     await run()
 
-    // Verify the commits-analyzed output was set.
-    expect(core.setOutput).toHaveBeenCalledWith('commits-analyzed', '1')
+    // Verify the commit-sha output was set.
+    expect(core.setOutput).toHaveBeenCalledWith('commit-sha', 'abc123456789')
   })
 
   it('Fails when Acrolinx API token is missing', async () => {
@@ -154,8 +152,6 @@ describe('main.ts', () => {
           return 'formal'
         case 'style-guide':
           return 'ap'
-        case 'commit-limit':
-          return '3'
         case 'github-token':
           return 'test-token'
         default:

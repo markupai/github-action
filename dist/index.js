@@ -32951,49 +32951,32 @@ function displayAcrolinxResults(results) {
     });
 }
 /**
- * Get recent commits from the repository
+ * Get current commit from the repository
  */
-async function getRecentCommits(octokit, owner, repo, branch = 'main', limit = 5) {
+async function getCurrentCommit(octokit, owner, repo, sha) {
     try {
-        const response = await octokit.rest.repos.listCommits({
-            owner,
-            repo,
-            sha: branch,
-            per_page: limit
-        });
-        const commits = [];
-        for (const commit of response.data) {
-            const commitInfo = await getCommitChanges(octokit, owner, repo, commit.sha);
-            if (commitInfo) {
-                commits.push(commitInfo);
-            }
-        }
-        return commits;
+        const commitInfo = await getCommitChanges(octokit, owner, repo, sha);
+        return commitInfo;
     }
     catch (error) {
-        coreExports.error(`Failed to get recent commits: ${error}`);
-        return [];
+        coreExports.error(`Failed to get current commit: ${error}`);
+        return null;
     }
 }
 /**
- * Run Acrolinx analysis on modified files
+ * Run Acrolinx analysis on modified files from a commit
  */
-async function runAcrolinxAnalysis(commits, acrolinxConfig, dialect, tone, styleGuide) {
+async function runAcrolinxAnalysis(commit, acrolinxConfig, dialect, tone, styleGuide) {
     const results = [];
-    const processedFiles = new Set();
-    for (const commit of commits) {
-        for (const change of commit.changes) {
-            // Only process supported files that haven't been processed yet
-            if (isSupportedFile(change.filename) &&
-                !processedFiles.has(change.filename)) {
-                processedFiles.add(change.filename);
-                // Try to read the file content
-                const content = await readFileContent(change.filename);
-                if (content) {
-                    const result = await runAcrolinxCheck(change.filename, content, acrolinxConfig, dialect, tone, styleGuide);
-                    if (result) {
-                        results.push(result);
-                    }
+    for (const change of commit.changes) {
+        // Only process supported files
+        if (isSupportedFile(change.filename)) {
+            // Try to read the file content
+            const content = await readFileContent(change.filename);
+            if (content) {
+                const result = await runAcrolinxCheck(change.filename, content, acrolinxConfig, dialect, tone, styleGuide);
+                if (result) {
+                    results.push(result);
                 }
             }
         }
@@ -33012,7 +32995,6 @@ async function run() {
         const dialect = coreExports.getInput('dialect') || 'american_english';
         const tone = coreExports.getInput('tone') || 'formal';
         const styleGuide = coreExports.getInput('style-guide') || 'ap';
-        const commitLimit = parseInt(coreExports.getInput('commit-limit') || '3', 10);
         // Validate Acrolinx API token
         if (!acrolinxApiToken) {
             coreExports.setFailed('Acrolinx API token is required');
@@ -33030,27 +33012,21 @@ async function run() {
         }
         const octokit = githubExports.getOctokit(githubToken);
         const context = githubExports.context;
-        coreExports.info('🔍 Fetching recent commit changes...');
-        // Get recent commits
-        const commits = await getRecentCommits(octokit, context.repo.owner, context.repo.repo, context.ref.replace('refs/heads/', ''), commitLimit);
-        if (commits.length > 0) {
-            coreExports.info(`📋 Found ${commits.length} recent commits:`);
+        coreExports.info('🔍 Fetching current commit changes...');
+        // Get current commit
+        const commit = await getCurrentCommit(octokit, context.repo.owner, context.repo.repo, context.sha);
+        if (commit) {
+            coreExports.info(`📋 Current commit:`);
             coreExports.info('='.repeat(50));
-            commits.forEach((commit, index) => {
-                coreExports.info(`\n📌 Commit ${index + 1}:`);
-                displayCommitChanges(commit);
-                if (index < commits.length - 1) {
-                    coreExports.info('─'.repeat(50));
-                }
-            });
+            coreExports.info(`\n📌 Commit:`);
+            displayCommitChanges(commit);
             // Run Acrolinx analysis on modified files
             coreExports.info('\n🔍 Running Acrolinx analysis on modified files...');
-            const acrolinxResults = await runAcrolinxAnalysis(commits, acrolinxConfig, dialect, tone, styleGuide);
+            const acrolinxResults = await runAcrolinxAnalysis(commit, acrolinxConfig, dialect, tone, styleGuide);
             // Display Acrolinx results
             displayAcrolinxResults(acrolinxResults);
             // Set outputs
-            coreExports.setOutput('commits-analyzed', commits.length.toString());
-            coreExports.setOutput('last-commit-sha', commits[0]?.sha || '');
+            coreExports.setOutput('commit-sha', commit.sha);
             coreExports.setOutput('acrolinx-results', JSON.stringify(acrolinxResults));
             // Print JSON results to console as requested
             coreExports.info('\n📊 Acrolinx Analysis Results (JSON):');
@@ -33058,7 +33034,7 @@ async function run() {
             coreExports.info(JSON.stringify(acrolinxResults, null, 2));
         }
         else {
-            coreExports.info('No commits found or failed to fetch commit information.');
+            coreExports.info('No commit found or failed to fetch commit information.');
         }
     }
     catch (error) {

@@ -231,80 +231,51 @@ function displayAcrolinxResults(results: AcrolinxAnalysisResult[]): void {
 }
 
 /**
- * Get recent commits from the repository
+ * Get current commit from the repository
  */
-async function getRecentCommits(
+async function getCurrentCommit(
   octokit: ReturnType<typeof github.getOctokit>,
   owner: string,
   repo: string,
-  branch: string = 'main',
-  limit: number = 5
-): Promise<CommitInfo[]> {
+  sha: string
+): Promise<CommitInfo | null> {
   try {
-    const response = await octokit.rest.repos.listCommits({
-      owner,
-      repo,
-      sha: branch,
-      per_page: limit
-    })
-
-    const commits: CommitInfo[] = []
-
-    for (const commit of response.data) {
-      const commitInfo = await getCommitChanges(
-        octokit,
-        owner,
-        repo,
-        commit.sha
-      )
-      if (commitInfo) {
-        commits.push(commitInfo)
-      }
-    }
-
-    return commits
+    const commitInfo = await getCommitChanges(octokit, owner, repo, sha)
+    return commitInfo
   } catch (error) {
-    core.error(`Failed to get recent commits: ${error}`)
-    return []
+    core.error(`Failed to get current commit: ${error}`)
+    return null
   }
 }
 
 /**
- * Run Acrolinx analysis on modified files
+ * Run Acrolinx analysis on modified files from a commit
  */
 async function runAcrolinxAnalysis(
-  commits: CommitInfo[],
+  commit: CommitInfo,
   acrolinxConfig: Config,
   dialect: string,
   tone: string,
   styleGuide: string
 ): Promise<AcrolinxAnalysisResult[]> {
   const results: AcrolinxAnalysisResult[] = []
-  const processedFiles = new Set<string>()
 
-  for (const commit of commits) {
-    for (const change of commit.changes) {
-      // Only process supported files that haven't been processed yet
-      if (
-        isSupportedFile(change.filename) &&
-        !processedFiles.has(change.filename)
-      ) {
-        processedFiles.add(change.filename)
-
-        // Try to read the file content
-        const content = await readFileContent(change.filename)
-        if (content) {
-          const result = await runAcrolinxCheck(
-            change.filename,
-            content,
-            acrolinxConfig,
-            dialect,
-            tone,
-            styleGuide
-          )
-          if (result) {
-            results.push(result)
-          }
+  for (const change of commit.changes) {
+    // Only process supported files
+    if (isSupportedFile(change.filename)) {
+      // Try to read the file content
+      const content = await readFileContent(change.filename)
+      if (content) {
+        const result = await runAcrolinxCheck(
+          change.filename,
+          content,
+          acrolinxConfig,
+          dialect,
+          tone,
+          styleGuide
+        )
+        if (result) {
+          results.push(result)
         }
       }
     }
@@ -326,7 +297,6 @@ export async function run(): Promise<void> {
     const dialect = core.getInput('dialect') || 'american_english'
     const tone = core.getInput('tone') || 'formal'
     const styleGuide = core.getInput('style-guide') || 'ap'
-    const commitLimit = parseInt(core.getInput('commit-limit') || '3', 10)
 
     // Validate Acrolinx API token
     if (!acrolinxApiToken) {
@@ -352,33 +322,27 @@ export async function run(): Promise<void> {
     const octokit = github.getOctokit(githubToken)
     const context = github.context
 
-    core.info('🔍 Fetching recent commit changes...')
+    core.info('🔍 Fetching current commit changes...')
 
-    // Get recent commits
-    const commits = await getRecentCommits(
+    // Get current commit
+    const commit = await getCurrentCommit(
       octokit,
       context.repo.owner,
       context.repo.repo,
-      context.ref.replace('refs/heads/', ''),
-      commitLimit
+      context.sha
     )
 
-    if (commits.length > 0) {
-      core.info(`📋 Found ${commits.length} recent commits:`)
+    if (commit) {
+      core.info(`📋 Current commit:`)
       core.info('='.repeat(50))
 
-      commits.forEach((commit, index) => {
-        core.info(`\n📌 Commit ${index + 1}:`)
-        displayCommitChanges(commit)
-        if (index < commits.length - 1) {
-          core.info('─'.repeat(50))
-        }
-      })
+      core.info(`\n📌 Commit:`)
+      displayCommitChanges(commit)
 
       // Run Acrolinx analysis on modified files
       core.info('\n🔍 Running Acrolinx analysis on modified files...')
       const acrolinxResults = await runAcrolinxAnalysis(
-        commits,
+        commit,
         acrolinxConfig,
         dialect,
         tone,
@@ -389,8 +353,7 @@ export async function run(): Promise<void> {
       displayAcrolinxResults(acrolinxResults)
 
       // Set outputs
-      core.setOutput('commits-analyzed', commits.length.toString())
-      core.setOutput('last-commit-sha', commits[0]?.sha || '')
+      core.setOutput('commit-sha', commit.sha)
       core.setOutput('acrolinx-results', JSON.stringify(acrolinxResults))
 
       // Print JSON results to console as requested
@@ -398,7 +361,7 @@ export async function run(): Promise<void> {
       core.info('='.repeat(50))
       core.info(JSON.stringify(acrolinxResults, null, 2))
     } else {
-      core.info('No commits found or failed to fetch commit information.')
+      core.info('No commit found or failed to fetch commit information.')
     }
   } catch (error) {
     // Fail the workflow run if an error occurs

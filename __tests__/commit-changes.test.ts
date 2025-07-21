@@ -38,12 +38,4 @@ describe('Commit Changes Functionality', () => {
     // Test error handling
     expect(mockError.message).toBe('API rate limit exceeded')
   })
-
-  test('should validate commit limit input', () => {
-    const validLimit = 5
-    const invalidLimit = 15
-
-    expect(validLimit).toBeLessThanOrEqual(10)
-    expect(invalidLimit).toBeGreaterThan(10)
-  })
 })
