@@ -1,37 +1,45 @@
-name: Example Workflow - Commit Analysis
+name: Example Workflow - Acrolinx Analysis
 
 on:
   push:
-    branches: [main, develop]
+    branches: [ main, develop ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
-  analyze-commits:
+  analyze-commits-and-acrolinx:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Analyze Recent Commits
-        id: commit-analyzer
+      - name: Analyze Commits and Run Acrolinx
+        id: analyzer
         uses: ./
         with:
+          acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
           commit-limit: '5'
+          dialect: 'american_english'
+          tone: 'formal'
+          style-guide: 'ap'
 
       - name: Use Analysis Results
         run: |
-          echo "Analyzed ${{ steps.commit-analyzer.outputs.commits-analyzed }} commits"
-          echo "Latest commit SHA: ${{ steps.commit-analyzer.outputs.last-commit-sha }}"
+          echo "Analyzed ${{ steps.analyzer.outputs.commits-analyzed }} commits"
+          echo "Latest commit SHA: ${{ steps.analyzer.outputs.last-commit-sha }}"
+          echo "Acrolinx results available in outputs"
 
-  custom-token-example:
+  custom-acrolinx-config:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Analyze with Custom Token
+      - name: Run Custom Acrolinx Analysis
         uses: ./
         with:
+          acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
+          dialect: 'british_english'
+          tone: 'academic'
+          style-guide: 'chicago'
           commit-limit: '3'
-          github-token: ${{ secrets.GITHUB_TOKEN }}

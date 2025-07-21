@@ -1,7 +1,7 @@
 name: Acrolinx Analyzer
 description:
   A GitHub Action that analyzes and displays recent commit changes with detailed
-  diffs and file modifications
+  diffs and file modifications, and runs Acrolinx style checks on modified files
 author: Your name or organization here
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
@@ -11,6 +11,21 @@ branding:
 
 # Define your inputs here.
 inputs:
+  acrolinx-api-token:
+    description: Acrolinx API token for style checking (required)
+    required: true
+  dialect:
+    description: Language dialect for Acrolinx analysis (e.g., american_english, british_english)
+    required: false
+    default: 'american_english'
+  tone:
+    description: Tone for Acrolinx analysis (e.g., formal, informal, academic)
+    required: false
+    default: 'formal'
+  style-guide:
+    description: Style guide for Acrolinx analysis (e.g., ap, chicago, apa)
+    required: false
+    default: 'ap'
   commit-limit:
     description: Number of recent commits to show (max 10)
     required: false
@@ -25,6 +40,8 @@ outputs:
     description: Number of commits that were analyzed
   last-commit-sha:
     description: SHA of the most recent commit analyzed
+  acrolinx-results:
+    description: JSON string containing Acrolinx analysis results
 
 runs:
   using: node20
