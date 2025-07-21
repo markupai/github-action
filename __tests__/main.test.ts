@@ -107,7 +107,7 @@ describe('main.ts', () => {
     // Set the action's inputs as return values from core.getInput().
     core.getInput.mockImplementation((name: string) => {
       switch (name) {
-        case 'acrolinx-api-token':
+        case 'acrolinx_token':
           return 'test-acrolinx-token'
         case 'dialect':
           return 'american_english'
@@ -143,10 +143,10 @@ describe('main.ts', () => {
   })
 
   it('Fails when Acrolinx API token is missing', async () => {
-    // Clear the getInput mock and return empty for acrolinx-api-token
+    // Clear the getInput mock and return empty for acrolinx_token
     core.getInput.mockClear().mockImplementation((name: string) => {
       switch (name) {
-        case 'acrolinx-api-token':
+        case 'acrolinx_token':
           return ''
         case 'dialect':
           return 'american_english'
