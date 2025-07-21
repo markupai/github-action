@@ -32984,7 +32984,8 @@ async function runAcrolinxAnalysis(commits, acrolinxConfig, dialect, tone, style
     for (const commit of commits) {
         for (const change of commit.changes) {
             // Only process supported files that haven't been processed yet
-            if (isSupportedFile(change.filename) && !processedFiles.has(change.filename)) {
+            if (isSupportedFile(change.filename) &&
+                !processedFiles.has(change.filename)) {
                 processedFiles.add(change.filename);
                 // Try to read the file content
                 const content = await readFileContent(change.filename);
@@ -33007,14 +33008,16 @@ async function runAcrolinxAnalysis(commits, acrolinxConfig, dialect, tone, style
 async function run() {
     try {
         // Get inputs
-        const acrolinxApiToken = coreExports.getInput('acrolinx-api-token') || process.env.ACROLINX_API_TOKEN;
+        const acrolinxApiToken = coreExports.getInput('acrolinx-api-token', {
+            required: true
+        });
         const dialect = coreExports.getInput('dialect') || 'american_english';
         const tone = coreExports.getInput('tone') || 'formal';
         const styleGuide = coreExports.getInput('style-guide') || 'ap';
         const commitLimit = parseInt(coreExports.getInput('commit-limit') || '3', 10);
         // Validate Acrolinx API token
         if (!acrolinxApiToken) {
-            coreExports.setFailed('Acrolinx API token is required. Please provide it via input or ACROLINX_API_TOKEN environment variable.');
+            coreExports.setFailed('Acrolinx API token is required');
             return;
         }
         // Configure Acrolinx
@@ -33022,7 +33025,7 @@ async function run() {
             apiKey: acrolinxApiToken
         };
         // Get GitHub token and context
-        const githubToken = coreExports.getInput('github-token') || process.env.GITHUB_TOKEN;
+        const githubToken = coreExports.getInput('github-token', { required: true });
         if (!githubToken) {
             coreExports.warning('GitHub token not provided. Cannot fetch commit information.');
             return;

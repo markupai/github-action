@@ -341,8 +341,7 @@ export async function run(): Promise<void> {
     }
 
     // Get GitHub token and context
-    const githubToken =
-      core.getInput('github-token') || process.env.GITHUB_TOKEN
+    const githubToken = core.getInput('github-token', { required: true })
     if (!githubToken) {
       core.warning(
         'GitHub token not provided. Cannot fetch commit information.'
