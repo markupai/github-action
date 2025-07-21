@@ -33008,9 +33008,7 @@ async function runAcrolinxAnalysis(commits, acrolinxConfig, dialect, tone, style
 async function run() {
     try {
         // Get inputs
-        const acrolinxApiToken = coreExports.getInput('acrolinx-api-token', {
-            required: true
-        });
+        const acrolinxApiToken = coreExports.getInput('acrolinx_token') || process.env.ACROLNX_TOKEN;
         const dialect = coreExports.getInput('dialect') || 'american_english';
         const tone = coreExports.getInput('tone') || 'formal';
         const styleGuide = coreExports.getInput('style-guide') || 'ap';
@@ -33025,7 +33023,7 @@ async function run() {
             apiKey: acrolinxApiToken
         };
         // Get GitHub token and context
-        const githubToken = coreExports.getInput('github-token', { required: true });
+        const githubToken = coreExports.getInput('github_token') || process.env.GITHUB_TOKEN;
         if (!githubToken) {
             coreExports.warning('GitHub token not provided. Cannot fetch commit information.');
             return;
