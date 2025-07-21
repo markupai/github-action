@@ -1,23 +1,30 @@
-name: The name of your action here
-description: Provide a description here
+name: Acrolinx Analyzer
+description:
+  A GitHub Action that analyzes and displays recent commit changes with detailed
+  diffs and file modifications
 author: Your name or organization here
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: heart
-  color: red
+  icon: check-circle
+  color: green
 
 # Define your inputs here.
 inputs:
-  milliseconds:
-    description: Your input description here
-    required: true
-    default: '1000'
+  commit-limit:
+    description: Number of recent commits to show (max 10)
+    required: false
+    default: '3'
+  github-token:
+    description: GitHub token for API access (uses GITHUB_TOKEN by default)
+    required: false
 
 # Define your outputs here.
 outputs:
-  time:
-    description: Your output description here
+  commits-analyzed:
+    description: Number of commits that were analyzed
+  last-commit-sha:
+    description: SHA of the most recent commit analyzed
 
 runs:
   using: node20

@@ -1,0 +1,37 @@
+name: Example Workflow - Commit Analysis
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  analyze-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Analyze Recent Commits
+        id: commit-analyzer
+        uses: ./
+        with:
+          commit-limit: '5'
+
+      - name: Use Analysis Results
+        run: |
+          echo "Analyzed ${{ steps.commit-analyzer.outputs.commits-analyzed }} commits"
+          echo "Latest commit SHA: ${{ steps.commit-analyzer.outputs.last-commit-sha }}"
+
+  custom-token-example:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Analyze with Custom Token
+        uses: ./
+        with:
+          commit-limit: '3'
+          github-token: ${{ secrets.GITHUB_TOKEN }}

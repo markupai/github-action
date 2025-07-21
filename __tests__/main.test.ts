@@ -7,11 +7,60 @@
  */
 import { jest } from '@jest/globals'
 import * as core from '../__fixtures__/core.js'
-import { wait } from '../__fixtures__/wait.js'
 
 // Mocks should be declared before the module being tested is imported.
 jest.unstable_mockModule('@actions/core', () => core)
-jest.unstable_mockModule('../src/wait.js', () => ({ wait }))
+jest.unstable_mockModule('@actions/github', () => ({
+  getOctokit: jest.fn(() => ({
+    rest: {
+      repos: {
+        listCommits: jest.fn().mockResolvedValue({
+          data: [
+            {
+              sha: 'abc123456789',
+              commit: {
+                message: 'test commit',
+                author: {
+                  name: 'Test User',
+                  date: '2024-01-15T10:30:00Z'
+                }
+              }
+            }
+          ]
+        }),
+        getCommit: jest.fn().mockResolvedValue({
+          data: {
+            sha: 'abc123456789',
+            commit: {
+              message: 'test commit',
+              author: {
+                name: 'Test User',
+                date: '2024-01-15T10:30:00Z'
+              }
+            },
+            files: [
+              {
+                filename: 'test.ts',
+                status: 'modified',
+                additions: 5,
+                deletions: 2,
+                changes: 7,
+                patch: '@@ -1,3 +1,5 @@\n-test\n+new test\n'
+              }
+            ]
+          }
+        })
+      }
+    }
+  })),
+  context: {
+    repo: {
+      owner: 'test-owner',
+      repo: 'test-repo'
+    },
+    ref: 'refs/heads/main'
+  }
+}))
 
 // The module being tested should be imported dynamically. This ensures that the
 // mocks are used in place of any actual dependencies.
@@ -20,43 +69,54 @@ const { run } = await import('../src/main.js')
 describe('main.ts', () => {
   beforeEach(() => {
     // Set the action's inputs as return values from core.getInput().
-    core.getInput.mockImplementation(() => '500')
+    core.getInput.mockImplementation((name: string) => {
+      switch (name) {
+        case 'commit-limit':
+          return '3'
+        case 'github-token':
+          return 'test-token'
+        default:
+          return ''
+      }
+    })
 
-    // Mock the wait function so that it does not actually wait.
-    wait.mockImplementation(() => Promise.resolve('done!'))
+    // Mock process.env.GITHUB_TOKEN
+    process.env.GITHUB_TOKEN = 'test-token'
   })
 
   afterEach(() => {
     jest.resetAllMocks()
+    delete process.env.GITHUB_TOKEN
   })
 
-  it('Sets the time output', async () => {
+  it('Sets the commits-analyzed output', async () => {
     await run()
 
-    // Verify the time output was set.
-    expect(core.setOutput).toHaveBeenNthCalledWith(
-      1,
-      'time',
-      // Simple regex to match a time string in the format HH:MM:SS.
-      expect.stringMatching(/^\d{2}:\d{2}:\d{2}/)
-    )
+    // Verify the commits-analyzed output was set.
+    expect(core.setOutput).toHaveBeenCalledWith('commits-analyzed', '1')
   })
 
-  it('Sets a failed status', async () => {
-    // Clear the getInput mock and return an invalid value.
-    core.getInput.mockClear().mockReturnValueOnce('this is not a number')
+  it('Sets a failed status when GitHub token is missing', async () => {
+    // Clear the getInput mock and return empty for github-token
+    core.getInput.mockClear().mockImplementation((name: string) => {
+      switch (name) {
+        case 'commit-limit':
+          return '3'
+        case 'github-token':
+          return ''
+        default:
+          return ''
+      }
+    })
 
-    // Clear the wait mock and return a rejected promise.
-    wait
-      .mockClear()
-      .mockRejectedValueOnce(new Error('milliseconds is not a number'))
+    // Remove GITHUB_TOKEN from process.env
+    delete process.env.GITHUB_TOKEN
 
     await run()
 
-    // Verify that the action was marked as failed.
-    expect(core.setFailed).toHaveBeenNthCalledWith(
-      1,
-      'milliseconds is not a number'
+    // Verify that a warning was logged about missing token
+    expect(core.warning).toHaveBeenCalledWith(
+      'GitHub token not provided. Cannot fetch commit information.'
     )
   })
 })
