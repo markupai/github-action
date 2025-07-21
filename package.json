@@ -1,5 +1,5 @@
 {
-  "name": "typescript-action",
+  "name": "acrolinx-action",
   "description": "GitHub Actions TypeScript template",
   "version": "0.0.0",
   "author": "",
@@ -35,7 +35,6 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 npx jest",
     "all": "npm run format:write && npm run lint && npm run test && npm run coverage && npm run package"
   },
-  "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.11.1"
   },
