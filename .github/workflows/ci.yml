@@ -59,8 +59,9 @@ jobs:
         id: test-action
         uses: ./
         with:
-          acrolinx_token: ${{ secrets.ACROLNX_TOKEN }}
+          acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Print Output
         id: output
