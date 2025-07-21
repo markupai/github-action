@@ -36,7 +36,7 @@ inputs:
     default: '3'
   github-token:
     description: GitHub token for API access (uses GITHUB_TOKEN by default)
-    required: false
+    required: true
 
 # Define your outputs here.
 outputs:

@@ -59,8 +59,8 @@ jest.unstable_mockModule('@actions/github', () => ({
   })),
   context: {
     repo: {
-      owner: 'test-owner',
-      repo: 'test-repo'
+      owner: 'pcdeshmukh',
+      repo: 'doc-test'
     },
     ref: 'refs/heads/main'
   }
@@ -124,13 +124,15 @@ describe('main.ts', () => {
       }
     })
 
-    // Mock process.env.GITHUB_TOKEN
+    // Mock process.env.GITHUB_TOKEN and GITHUB_REPOSITORY
     process.env.GITHUB_TOKEN = 'test-token'
+    process.env.GITHUB_REPOSITORY = 'pcdeshmukh/doc-test'
   })
 
   afterEach(() => {
     jest.resetAllMocks()
     delete process.env.GITHUB_TOKEN
+    delete process.env.GITHUB_REPOSITORY
   })
 
   it('Sets the commits-analyzed output', async () => {
