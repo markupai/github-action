@@ -5,12 +5,17 @@ diffs and file modifications, and runs Acrolinx style checks on modified files.
 
 ## Features
 
-- 📝 **Commit analysis**: Show current commit with detailed information
+- 📝 **Event-based Analysis**: Automatically adapts to different GitHub event
+  types
+- 🔄 **Push Events**: Analyzes files modified in push events
+- 🔀 **Pull Request Events**: Analyzes files changed in pull requests
+- 🚀 **Manual Workflows**: Analyzes all files in repository when manually
+  triggered
 - 📊 **Change statistics**: Display additions, deletions, and total changes per
   file
 - 🔍 **Diff preview**: Show patch previews for modified files
 - 🎯 **Configurable**: Control which branch to analyze
-- 📈 **Output data**: Provides commit SHA for downstream steps
+- 📈 **Output data**: Provides event type and file count for downstream steps
 - ✨ **Acrolinx Integration**: Run style checks on markdown and text files
 - 📋 **Style Analysis**: Comprehensive grammar, tone, and style guide checking
 - 📊 **Detailed Scores**: Quality, clarity, grammar, and tone scoring
@@ -31,7 +36,8 @@ diffs and file modifications, and runs Acrolinx style checks on modified files.
 
 | Output             | Description                                      |
 | ------------------ | ------------------------------------------------ |
-| `commit-sha`       | SHA of the commit that was analyzed              |
+| `event-type`       | Type of GitHub event that triggered the action   |
+| `files-analyzed`   | Number of files analyzed                         |
 | `acrolinx-results` | JSON string containing Acrolinx analysis results |
 
 ## Usage
@@ -93,6 +99,96 @@ Then run:
 
 ```bash
 npm run local-action
+```
+
+## Event Types and File Discovery
+
+The action automatically adapts its behavior based on the GitHub event type that
+triggered it:
+
+### 🔄 Push Events (`on: [push]`)
+
+- **Behavior**: Analyzes only files that were modified in the push
+- **Use Case**: Quick analysis of changes in direct commits
+- **Files Analyzed**: Files changed in the commit
+
+```yaml
+name: Analyze Push Changes
+on: [push]
+jobs:
+  analyze-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Analyze Push Changes
+        uses: ./
+        with:
+          acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
+```
+
+### 🔀 Pull Request Events (`on: [pull_request]`)
+
+- **Behavior**: Analyzes files changed in the pull request
+- **Use Case**: Pre-merge quality checks on PR changes
+- **Files Analyzed**: Files modified in the PR (compared to base branch)
+
+```yaml
+name: Analyze PR Changes
+on: [pull_request]
+jobs:
+  analyze-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Analyze PR Changes
+        uses: ./
+        with:
+          acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
+```
+
+### 🚀 Manual Workflow (`on: [workflow_dispatch]`)
+
+- **Behavior**: Analyzes all files in the repository
+- **Use Case**: Comprehensive repository-wide analysis
+- **Files Analyzed**: All supported files in the repository
+
+```yaml
+name: Full Repository Analysis
+on: [workflow_dispatch]
+jobs:
+  full-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Full Repository Analysis
+        uses: ./
+        with:
+          acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
+```
+
+### 🔧 Other Events
+
+- **Behavior**: Defaults to push strategy for unsupported events
+- **Use Case**: Fallback behavior for custom events
+- **Files Analyzed**: Files in the current commit
+
+### 📊 Event Information Output
+
+The action provides detailed information about the event type and analysis
+scope:
+
+```yaml
+- name: Get Analysis Results
+  id: analysis
+  uses: ./
+  with:
+    acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
+
+- name: Display Results
+  run: |
+    echo "Event Type: ${{ steps.analysis.outputs.event-type }}"
+    echo "Files Analyzed: ${{ steps.analysis.outputs.files-analyzed }}"
+    echo "Results: ${{ steps.analysis.outputs.acrolinx-results }}"
 ```
 
 ### Using Outputs

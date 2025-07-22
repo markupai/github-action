@@ -133,11 +133,16 @@ describe('main.ts', () => {
     delete process.env.GITHUB_REPOSITORY
   })
 
-  it('Sets the commit-sha output', async () => {
+  it('Sets the event-type and files-analyzed outputs', async () => {
     await run()
 
-    // Verify the commit-sha output was set.
-    expect(core.setOutput).toHaveBeenCalledWith('commit-sha', 'abc123456789')
+    // Verify the new outputs were set correctly
+    expect(core.setOutput).toHaveBeenCalledWith('event-type', 'push')
+    expect(core.setOutput).toHaveBeenCalledWith('files-analyzed', '1')
+    expect(core.setOutput).toHaveBeenCalledWith(
+      'acrolinx-results',
+      expect.any(String)
+    )
   })
 
   it('Fails when Acrolinx API token is missing', async () => {

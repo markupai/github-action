@@ -32879,39 +32879,6 @@ async function getCommitChanges(octokit, owner, repo, sha) {
     }
 }
 /**
- * Display commit changes in a formatted way
- */
-function displayCommitChanges(commitInfo) {
-    coreExports.info(`📝 Commit: ${commitInfo.sha.substring(0, 8)}`);
-    coreExports.info(`📄 Message: ${commitInfo.message}`);
-    coreExports.info(`👤 Author: ${commitInfo.author}`);
-    coreExports.info(`📅 Date: ${commitInfo.date}`);
-    coreExports.info(`📊 Changes:`);
-    commitInfo.changes.forEach((change, index) => {
-        coreExports.info(`  ${index + 1}. ${change.filename} (${change.status})`);
-        coreExports.info(`     +${change.additions} -${change.deletions} (${change.changes} total changes)`);
-        if (change.patch) {
-            coreExports.info(`     Patch preview:`);
-            const patchLines = change.patch.split('\n').slice(0, 10); // Show first 10 lines
-            patchLines.forEach((line) => {
-                if (line.startsWith('+')) {
-                    coreExports.info(`     + ${line.substring(1)}`);
-                }
-                else if (line.startsWith('-')) {
-                    coreExports.info(`     - ${line.substring(1)}`);
-                }
-                else {
-                    coreExports.info(`       ${line}`);
-                }
-            });
-            if (change.patch.split('\n').length > 10) {
-                coreExports.info(`     ... (truncated)`);
-            }
-        }
-        coreExports.info('');
-    });
-}
-/**
  * Display Acrolinx analysis results
  */
 function displayAcrolinxResults(results) {
@@ -32951,30 +32918,17 @@ function displayAcrolinxResults(results) {
     });
 }
 /**
- * Get current commit from the repository
+ * Run Acrolinx analysis on a list of files
  */
-async function getCurrentCommit(octokit, owner, repo, sha) {
-    try {
-        const commitInfo = await getCommitChanges(octokit, owner, repo, sha);
-        return commitInfo;
-    }
-    catch (error) {
-        coreExports.error(`Failed to get current commit: ${error}`);
-        return null;
-    }
-}
-/**
- * Run Acrolinx analysis on modified files from a commit
- */
-async function runAcrolinxAnalysis(commit, acrolinxConfig, dialect, tone, styleGuide) {
+async function runAcrolinxAnalysis(files, acrolinxConfig, dialect, tone, styleGuide) {
     const results = [];
-    for (const change of commit.changes) {
+    for (const filePath of files) {
         // Only process supported files
-        if (isSupportedFile(change.filename)) {
+        if (isSupportedFile(filePath)) {
             // Try to read the file content
-            const content = await readFileContent(change.filename);
+            const content = await readFileContent(filePath);
             if (content) {
-                const result = await runAcrolinxCheck(change.filename, content, acrolinxConfig, dialect, tone, styleGuide);
+                const result = await runAcrolinxCheck(filePath, content, acrolinxConfig, dialect, tone, styleGuide);
                 if (result) {
                     results.push(result);
                 }
@@ -32982,6 +32936,157 @@ async function runAcrolinxAnalysis(commit, acrolinxConfig, dialect, tone, styleG
         }
     }
     return results;
+}
+/**
+ * Push Event Strategy - Analyze files modified in the push
+ */
+class PushEventStrategy {
+    octokit;
+    owner;
+    repo;
+    sha;
+    constructor(octokit, owner, repo, sha) {
+        this.octokit = octokit;
+        this.owner = owner;
+        this.repo = repo;
+        this.sha = sha;
+    }
+    async getFilesToAnalyze() {
+        const commit = await getCommitChanges(this.octokit, this.owner, this.repo, this.sha);
+        if (!commit) {
+            return [];
+        }
+        return commit.changes.map((change) => change.filename);
+    }
+    getEventInfo() {
+        return {
+            eventType: 'push',
+            description: 'Files modified in push event',
+            filesCount: 0, // Will be updated after file discovery
+            additionalInfo: {
+                commitSha: this.sha
+            }
+        };
+    }
+}
+/**
+ * Pull Request Event Strategy - Analyze files changed in the PR
+ */
+class PullRequestEventStrategy {
+    octokit;
+    owner;
+    repo;
+    prNumber;
+    constructor(octokit, owner, repo, prNumber) {
+        this.octokit = octokit;
+        this.owner = owner;
+        this.repo = repo;
+        this.prNumber = prNumber;
+    }
+    async getFilesToAnalyze() {
+        try {
+            const response = await this.octokit.rest.pulls.listFiles({
+                owner: this.owner,
+                repo: this.repo,
+                pull_number: this.prNumber
+            });
+            return response.data.map((file) => file.filename);
+        }
+        catch (error) {
+            coreExports.error(`Failed to get PR files: ${error}`);
+            return [];
+        }
+    }
+    getEventInfo() {
+        return {
+            eventType: 'pull_request',
+            description: 'Files changed in pull request',
+            filesCount: 0, // Will be updated after file discovery
+            additionalInfo: {
+                prNumber: this.prNumber
+            }
+        };
+    }
+}
+/**
+ * Manual Workflow Strategy - Analyze all files in repository
+ */
+class ManualWorkflowStrategy {
+    octokit;
+    owner;
+    repo;
+    ref;
+    constructor(octokit, owner, repo, ref = 'main') {
+        this.octokit = octokit;
+        this.owner = owner;
+        this.repo = repo;
+        this.ref = ref;
+    }
+    async getFilesToAnalyze() {
+        try {
+            const response = await this.octokit.rest.git.getTree({
+                owner: this.owner,
+                repo: this.repo,
+                tree_sha: this.ref,
+                recursive: 'true'
+            });
+            const files = [];
+            if (response.data.tree) {
+                for (const item of response.data.tree) {
+                    if (item.type === 'blob' && item.path) {
+                        files.push(item.path);
+                    }
+                }
+            }
+            return files;
+        }
+        catch (error) {
+            coreExports.error(`Failed to get repository files: ${error}`);
+            return [];
+        }
+    }
+    getEventInfo() {
+        return {
+            eventType: 'workflow_dispatch',
+            description: 'All files in repository (manual trigger)',
+            filesCount: 0, // Will be updated after file discovery
+            additionalInfo: {
+                ref: this.ref
+            }
+        };
+    }
+}
+/**
+ * Factory function to create appropriate strategy based on event type
+ */
+function createFileDiscoveryStrategy(octokit, context) {
+    const { eventName } = context;
+    switch (eventName) {
+        case 'push':
+            return new PushEventStrategy(octokit, context.repo.owner, context.repo.repo, context.sha);
+        case 'pull_request':
+            return new PullRequestEventStrategy(octokit, context.repo.owner, context.repo.repo, context.issue.number);
+        case 'workflow_dispatch':
+            return new ManualWorkflowStrategy(octokit, context.repo.owner, context.repo.repo);
+        default:
+            // For other events, default to push strategy
+            coreExports.warning(`Unsupported event type: ${eventName}. Using push strategy.`);
+            return new PushEventStrategy(octokit, context.repo.owner, context.repo.repo, context.sha);
+    }
+}
+/**
+ * Display event information
+ */
+function displayEventInfo(eventInfo) {
+    coreExports.info(`📋 Event Type: ${eventInfo.eventType}`);
+    coreExports.info(`📄 Description: ${eventInfo.description}`);
+    coreExports.info(`📊 Files to analyze: ${eventInfo.filesCount}`);
+    if (eventInfo.additionalInfo) {
+        coreExports.info(`📌 Additional Info:`);
+        Object.entries(eventInfo.additionalInfo).forEach(([key, value]) => {
+            coreExports.info(`   ${key}: ${value}`);
+        });
+    }
 }
 /**
  * The main function for the action.
@@ -33012,21 +33117,36 @@ async function run() {
         }
         const octokit = githubExports.getOctokit(githubToken);
         const context = githubExports.context;
-        coreExports.info('🔍 Fetching current commit changes...');
-        // Get current commit
-        const commit = await getCurrentCommit(octokit, context.repo.owner, context.repo.repo, context.sha);
-        if (commit) {
-            coreExports.info(`📋 Current commit:`);
-            coreExports.info('='.repeat(50));
-            coreExports.info(`\n📌 Commit:`);
-            displayCommitChanges(commit);
-            // Run Acrolinx analysis on modified files
-            coreExports.info('\n🔍 Running Acrolinx analysis on modified files...');
-            const acrolinxResults = await runAcrolinxAnalysis(commit, acrolinxConfig, dialect, tone, styleGuide);
+        coreExports.info('🔍 Initializing file discovery strategy...');
+        // Create appropriate strategy based on event type
+        const strategy = createFileDiscoveryStrategy(octokit, context);
+        const eventInfo = strategy.getEventInfo();
+        coreExports.info(`📋 Event Analysis:`);
+        coreExports.info('='.repeat(50));
+        displayEventInfo(eventInfo);
+        // Get files to analyze
+        coreExports.info('\n🔍 Discovering files to analyze...');
+        const filesToAnalyze = await strategy.getFilesToAnalyze();
+        // Update event info with actual file count
+        eventInfo.filesCount = filesToAnalyze.length;
+        coreExports.info(`📊 Found ${filesToAnalyze.length} files to analyze`);
+        if (filesToAnalyze.length > 0) {
+            // Display files being analyzed
+            coreExports.info('\n📄 Files to analyze:');
+            filesToAnalyze.slice(0, 10).forEach((file, index) => {
+                coreExports.info(`  ${index + 1}. ${file}`);
+            });
+            if (filesToAnalyze.length > 10) {
+                coreExports.info(`  ... and ${filesToAnalyze.length - 10} more files`);
+            }
+            // Run Acrolinx analysis on discovered files
+            coreExports.info('\n🔍 Running Acrolinx analysis...');
+            const acrolinxResults = await runAcrolinxAnalysis(filesToAnalyze, acrolinxConfig, dialect, tone, styleGuide);
             // Display Acrolinx results
             displayAcrolinxResults(acrolinxResults);
             // Set outputs
-            coreExports.setOutput('commit-sha', commit.sha);
+            coreExports.setOutput('event-type', eventInfo.eventType);
+            coreExports.setOutput('files-analyzed', filesToAnalyze.length.toString());
             coreExports.setOutput('acrolinx-results', JSON.stringify(acrolinxResults));
             // Print JSON results to console as requested
             coreExports.info('\n📊 Acrolinx Analysis Results (JSON):');
@@ -33034,7 +33154,10 @@ async function run() {
             coreExports.info(JSON.stringify(acrolinxResults, null, 2));
         }
         else {
-            coreExports.info('No commit found or failed to fetch commit information.');
+            coreExports.info('No files found to analyze.');
+            coreExports.setOutput('event-type', eventInfo.eventType);
+            coreExports.setOutput('files-analyzed', '0');
+            coreExports.setOutput('acrolinx-results', JSON.stringify([]));
         }
     }
     catch (error) {

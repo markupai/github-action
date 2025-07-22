@@ -42,6 +42,24 @@ interface AcrolinxAnalysisResult {
 }
 
 /**
+ * Interface for event information
+ */
+interface EventInfo {
+  eventType: string
+  description: string
+  filesCount: number
+  additionalInfo?: Record<string, unknown>
+}
+
+/**
+ * Interface for file discovery strategy
+ */
+interface FileDiscoveryStrategy {
+  getFilesToAnalyze(): Promise<string[]>
+  getEventInfo(): EventInfo
+}
+
+/**
  * Supported file extensions for Acrolinx analysis
  */
 const SUPPORTED_EXTENSIONS = ['.md', '.txt', '.markdown', '.rst', '.adoc']
@@ -152,42 +170,6 @@ async function getCommitChanges(
 }
 
 /**
- * Display commit changes in a formatted way
- */
-function displayCommitChanges(commitInfo: CommitInfo): void {
-  core.info(`📝 Commit: ${commitInfo.sha.substring(0, 8)}`)
-  core.info(`📄 Message: ${commitInfo.message}`)
-  core.info(`👤 Author: ${commitInfo.author}`)
-  core.info(`📅 Date: ${commitInfo.date}`)
-  core.info(`📊 Changes:`)
-
-  commitInfo.changes.forEach((change, index) => {
-    core.info(`  ${index + 1}. ${change.filename} (${change.status})`)
-    core.info(
-      `     +${change.additions} -${change.deletions} (${change.changes} total changes)`
-    )
-
-    if (change.patch) {
-      core.info(`     Patch preview:`)
-      const patchLines = change.patch.split('\n').slice(0, 10) // Show first 10 lines
-      patchLines.forEach((line) => {
-        if (line.startsWith('+')) {
-          core.info(`     + ${line.substring(1)}`)
-        } else if (line.startsWith('-')) {
-          core.info(`     - ${line.substring(1)}`)
-        } else {
-          core.info(`       ${line}`)
-        }
-      })
-      if (change.patch.split('\n').length > 10) {
-        core.info(`     ... (truncated)`)
-      }
-    }
-    core.info('')
-  })
-}
-
-/**
  * Display Acrolinx analysis results
  */
 function displayAcrolinxResults(results: AcrolinxAnalysisResult[]): void {
@@ -231,28 +213,10 @@ function displayAcrolinxResults(results: AcrolinxAnalysisResult[]): void {
 }
 
 /**
- * Get current commit from the repository
- */
-async function getCurrentCommit(
-  octokit: ReturnType<typeof github.getOctokit>,
-  owner: string,
-  repo: string,
-  sha: string
-): Promise<CommitInfo | null> {
-  try {
-    const commitInfo = await getCommitChanges(octokit, owner, repo, sha)
-    return commitInfo
-  } catch (error) {
-    core.error(`Failed to get current commit: ${error}`)
-    return null
-  }
-}
-
-/**
- * Run Acrolinx analysis on modified files from a commit
+ * Run Acrolinx analysis on a list of files
  */
 async function runAcrolinxAnalysis(
-  commit: CommitInfo,
+  files: string[],
   acrolinxConfig: Config,
   dialect: string,
   tone: string,
@@ -260,14 +224,14 @@ async function runAcrolinxAnalysis(
 ): Promise<AcrolinxAnalysisResult[]> {
   const results: AcrolinxAnalysisResult[] = []
 
-  for (const change of commit.changes) {
+  for (const filePath of files) {
     // Only process supported files
-    if (isSupportedFile(change.filename)) {
+    if (isSupportedFile(filePath)) {
       // Try to read the file content
-      const content = await readFileContent(change.filename)
+      const content = await readFileContent(filePath)
       if (content) {
         const result = await runAcrolinxCheck(
-          change.filename,
+          filePath,
           content,
           acrolinxConfig,
           dialect,
@@ -282,6 +246,189 @@ async function runAcrolinxAnalysis(
   }
 
   return results
+}
+
+/**
+ * Push Event Strategy - Analyze files modified in the push
+ */
+class PushEventStrategy implements FileDiscoveryStrategy {
+  constructor(
+    private octokit: ReturnType<typeof github.getOctokit>,
+    private owner: string,
+    private repo: string,
+    private sha: string
+  ) {}
+
+  async getFilesToAnalyze(): Promise<string[]> {
+    const commit = await getCommitChanges(
+      this.octokit,
+      this.owner,
+      this.repo,
+      this.sha
+    )
+    if (!commit) {
+      return []
+    }
+    return commit.changes.map((change) => change.filename)
+  }
+
+  getEventInfo(): EventInfo {
+    return {
+      eventType: 'push',
+      description: 'Files modified in push event',
+      filesCount: 0, // Will be updated after file discovery
+      additionalInfo: {
+        commitSha: this.sha
+      }
+    }
+  }
+}
+
+/**
+ * Pull Request Event Strategy - Analyze files changed in the PR
+ */
+class PullRequestEventStrategy implements FileDiscoveryStrategy {
+  constructor(
+    private octokit: ReturnType<typeof github.getOctokit>,
+    private owner: string,
+    private repo: string,
+    private prNumber: number
+  ) {}
+
+  async getFilesToAnalyze(): Promise<string[]> {
+    try {
+      const response = await this.octokit.rest.pulls.listFiles({
+        owner: this.owner,
+        repo: this.repo,
+        pull_number: this.prNumber
+      })
+
+      return response.data.map((file) => file.filename)
+    } catch (error) {
+      core.error(`Failed to get PR files: ${error}`)
+      return []
+    }
+  }
+
+  getEventInfo(): EventInfo {
+    return {
+      eventType: 'pull_request',
+      description: 'Files changed in pull request',
+      filesCount: 0, // Will be updated after file discovery
+      additionalInfo: {
+        prNumber: this.prNumber
+      }
+    }
+  }
+}
+
+/**
+ * Manual Workflow Strategy - Analyze all files in repository
+ */
+class ManualWorkflowStrategy implements FileDiscoveryStrategy {
+  constructor(
+    private octokit: ReturnType<typeof github.getOctokit>,
+    private owner: string,
+    private repo: string,
+    private ref: string = 'main'
+  ) {}
+
+  async getFilesToAnalyze(): Promise<string[]> {
+    try {
+      const response = await this.octokit.rest.git.getTree({
+        owner: this.owner,
+        repo: this.repo,
+        tree_sha: this.ref,
+        recursive: 'true'
+      })
+
+      const files: string[] = []
+      if (response.data.tree) {
+        for (const item of response.data.tree) {
+          if (item.type === 'blob' && item.path) {
+            files.push(item.path)
+          }
+        }
+      }
+
+      return files
+    } catch (error) {
+      core.error(`Failed to get repository files: ${error}`)
+      return []
+    }
+  }
+
+  getEventInfo(): EventInfo {
+    return {
+      eventType: 'workflow_dispatch',
+      description: 'All files in repository (manual trigger)',
+      filesCount: 0, // Will be updated after file discovery
+      additionalInfo: {
+        ref: this.ref
+      }
+    }
+  }
+}
+
+/**
+ * Factory function to create appropriate strategy based on event type
+ */
+export function createFileDiscoveryStrategy(
+  octokit: ReturnType<typeof github.getOctokit>,
+  context: typeof github.context
+): FileDiscoveryStrategy {
+  const { eventName } = context
+
+  switch (eventName) {
+    case 'push':
+      return new PushEventStrategy(
+        octokit,
+        context.repo.owner,
+        context.repo.repo,
+        context.sha
+      )
+
+    case 'pull_request':
+      return new PullRequestEventStrategy(
+        octokit,
+        context.repo.owner,
+        context.repo.repo,
+        context.issue.number
+      )
+
+    case 'workflow_dispatch':
+      return new ManualWorkflowStrategy(
+        octokit,
+        context.repo.owner,
+        context.repo.repo
+      )
+
+    default:
+      // For other events, default to push strategy
+      core.warning(`Unsupported event type: ${eventName}. Using push strategy.`)
+      return new PushEventStrategy(
+        octokit,
+        context.repo.owner,
+        context.repo.repo,
+        context.sha
+      )
+  }
+}
+
+/**
+ * Display event information
+ */
+function displayEventInfo(eventInfo: EventInfo): void {
+  core.info(`📋 Event Type: ${eventInfo.eventType}`)
+  core.info(`📄 Description: ${eventInfo.description}`)
+  core.info(`📊 Files to analyze: ${eventInfo.filesCount}`)
+
+  if (eventInfo.additionalInfo) {
+    core.info(`📌 Additional Info:`)
+    Object.entries(eventInfo.additionalInfo).forEach(([key, value]) => {
+      core.info(`   ${key}: ${value}`)
+    })
+  }
 }
 
 /**
@@ -322,27 +469,38 @@ export async function run(): Promise<void> {
     const octokit = github.getOctokit(githubToken)
     const context = github.context
 
-    core.info('🔍 Fetching current commit changes...')
+    core.info('🔍 Initializing file discovery strategy...')
 
-    // Get current commit
-    const commit = await getCurrentCommit(
-      octokit,
-      context.repo.owner,
-      context.repo.repo,
-      context.sha
-    )
+    // Create appropriate strategy based on event type
+    const strategy = createFileDiscoveryStrategy(octokit, context)
+    const eventInfo = strategy.getEventInfo()
 
-    if (commit) {
-      core.info(`📋 Current commit:`)
-      core.info('='.repeat(50))
+    core.info(`📋 Event Analysis:`)
+    core.info('='.repeat(50))
+    displayEventInfo(eventInfo)
 
-      core.info(`\n📌 Commit:`)
-      displayCommitChanges(commit)
+    // Get files to analyze
+    core.info('\n🔍 Discovering files to analyze...')
+    const filesToAnalyze = await strategy.getFilesToAnalyze()
 
-      // Run Acrolinx analysis on modified files
-      core.info('\n🔍 Running Acrolinx analysis on modified files...')
+    // Update event info with actual file count
+    eventInfo.filesCount = filesToAnalyze.length
+    core.info(`📊 Found ${filesToAnalyze.length} files to analyze`)
+
+    if (filesToAnalyze.length > 0) {
+      // Display files being analyzed
+      core.info('\n📄 Files to analyze:')
+      filesToAnalyze.slice(0, 10).forEach((file, index) => {
+        core.info(`  ${index + 1}. ${file}`)
+      })
+      if (filesToAnalyze.length > 10) {
+        core.info(`  ... and ${filesToAnalyze.length - 10} more files`)
+      }
+
+      // Run Acrolinx analysis on discovered files
+      core.info('\n🔍 Running Acrolinx analysis...')
       const acrolinxResults = await runAcrolinxAnalysis(
-        commit,
+        filesToAnalyze,
         acrolinxConfig,
         dialect,
         tone,
@@ -353,7 +511,8 @@ export async function run(): Promise<void> {
       displayAcrolinxResults(acrolinxResults)
 
       // Set outputs
-      core.setOutput('commit-sha', commit.sha)
+      core.setOutput('event-type', eventInfo.eventType)
+      core.setOutput('files-analyzed', filesToAnalyze.length.toString())
       core.setOutput('acrolinx-results', JSON.stringify(acrolinxResults))
 
       // Print JSON results to console as requested
@@ -361,7 +520,10 @@ export async function run(): Promise<void> {
       core.info('='.repeat(50))
       core.info(JSON.stringify(acrolinxResults, null, 2))
     } else {
-      core.info('No commit found or failed to fetch commit information.')
+      core.info('No files found to analyze.')
+      core.setOutput('event-type', eventInfo.eventType)
+      core.setOutput('files-analyzed', '0')
+      core.setOutput('acrolinx-results', JSON.stringify([]))
     }
   } catch (error) {
     // Fail the workflow run if an error occurs

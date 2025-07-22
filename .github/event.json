@@ -1,0 +1,22 @@
+{
+  "action": "opened",
+  "number": 1,
+  "pull_request": {
+    "number": 1,
+    "title": "Test PR",
+    "head": {
+      "ref": "test-pr1",
+      "sha": "49807ca55340a2da527dbe002fcabd2ba9b69845"
+    },
+    "base": {
+      "ref": "main",
+      "sha": "d9981691bcc9394a2d9fef4c1ec6fb084e934279"
+    }
+  },
+  "repository": {
+    "owner": {
+      "login": "acrolinx"
+    },
+    "name": "github-action-testdata"
+  }
+}
