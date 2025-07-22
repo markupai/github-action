@@ -6,7 +6,11 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { AcrolinxAnalysisResult, EventInfo } from './types/index.js'
 import { OUTPUT_NAMES } from './constants/index.js'
-import { AcrolinxService } from './services/index.js'
+import {
+  createAcrolinxConfig,
+  analyzeFiles,
+  getAnalysisSummary
+} from './services/acrolinx-service.js'
 import { createFileDiscoveryStrategy } from './strategies/index.js'
 import {
   getActionConfig,
@@ -24,119 +28,106 @@ import {
 } from './utils/index.js'
 
 /**
- * Main action runner class
+ * Set GitHub Action outputs
  */
-export class ActionRunner {
-  private acrolinxService: AcrolinxService | null = null
-  private config: ReturnType<typeof getActionConfig> | null = null
+function setOutputs(
+  eventInfo: EventInfo,
+  results: AcrolinxAnalysisResult[]
+): void {
+  core.setOutput(OUTPUT_NAMES.EVENT_TYPE, eventInfo.eventType)
+  core.setOutput(OUTPUT_NAMES.FILES_ANALYZED, results.length.toString())
+  core.setOutput(OUTPUT_NAMES.ACROLINX_RESULTS, JSON.stringify(results))
+}
 
-  constructor() {
-    // Configuration will be loaded in the run method to handle errors properly
+/**
+ * Display analysis summary
+ */
+function displaySummary(results: AcrolinxAnalysisResult[]): void {
+  const summary = getAnalysisSummary(results)
+
+  displaySectionHeader('📊 Analysis Summary')
+  core.info(`📄 Total Files Analyzed: ${summary.totalFiles}`)
+  core.info(`⚠️  Total Issues Found: ${summary.totalIssues}`)
+  core.info(`📈 Average Quality Score: ${summary.averageQualityScore}`)
+  core.info(`📝 Average Clarity Score: ${summary.averageClarityScore}`)
+  core.info(`🎭 Average Tone Score: ${summary.averageToneScore}`)
+}
+
+/**
+ * Handle errors gracefully
+ */
+function handleError(error: unknown): void {
+  if (error instanceof Error) {
+    core.setFailed(error.message)
+  } else {
+    core.setFailed(`An unexpected error occurred: ${String(error)}`)
   }
+}
 
-  /**
-   * Run the complete action workflow
-   */
-  async run(): Promise<void> {
-    try {
-      // Load and validate configuration
-      this.config = getActionConfig()
-      this.acrolinxService = new AcrolinxService(this.config.acrolinxApiToken)
+/**
+ * Run the complete action workflow
+ */
+export async function runAction(): Promise<void> {
+  try {
+    // Load and validate configuration
+    const config = getActionConfig()
+    const acrolinxConfig = createAcrolinxConfig(config.acrolinxApiToken)
 
-      validateConfig(this.config)
-      logConfiguration(this.config)
+    validateConfig(config)
+    logConfiguration(config)
 
-      // Initialize file discovery strategy
-      displaySectionHeader('🔍 Initializing File Discovery')
-      const strategy = createFileDiscoveryStrategy(
-        github.context,
-        this.config.githubToken
-      )
-      const eventInfo = strategy.getEventInfo()
+    // Initialize file discovery strategy
+    displaySectionHeader('🔍 Initializing File Discovery')
+    const strategy = createFileDiscoveryStrategy(
+      github.context,
+      config.githubToken
+    )
+    const eventInfo = strategy.getEventInfo()
 
-      // Display event information
-      displaySectionHeader('📋 Event Analysis')
-      displayEventInfo(eventInfo)
+    // Display event information
+    displaySectionHeader('📋 Event Analysis')
+    displayEventInfo(eventInfo)
 
-      // Discover files to analyze
-      displaySectionHeader('🔍 Discovering Files')
-      const allFiles = await strategy.getFilesToAnalyze()
-      const supportedFiles = filterSupportedFiles(allFiles)
+    // Discover files to analyze
+    displaySectionHeader('🔍 Discovering Files')
+    const allFiles = await strategy.getFilesToAnalyze()
+    const supportedFiles = filterSupportedFiles(allFiles)
 
-      // Update event info with actual file count
-      eventInfo.filesCount = supportedFiles.length
-      core.info(
-        `📊 Found ${supportedFiles.length} supported files out of ${allFiles.length} total files`
-      )
+    // Update event info with actual file count
+    eventInfo.filesCount = supportedFiles.length
+    core.info(
+      `📊 Found ${supportedFiles.length} supported files out of ${allFiles.length} total files`
+    )
 
-      if (supportedFiles.length === 0) {
-        core.info('No supported files found to analyze.')
-        this.setOutputs(eventInfo, [])
-        return
-      }
-
-      // Display files being analyzed
-      displayFilesToAnalyze(supportedFiles)
-
-      // Run Acrolinx analysis
-      displaySectionHeader('🔍 Running Acrolinx Analysis')
-      const analysisOptions = getAnalysisOptions(this.config)
-      const results = await this.acrolinxService.analyzeFiles(
-        supportedFiles,
-        analysisOptions,
-        readFileContent
-      )
-
-      // Display results
-      displayAcrolinxResults(results)
-      displayJsonResults(results)
-
-      // Set outputs
-      this.setOutputs(eventInfo, results)
-
-      // Display summary
-      this.displaySummary(results)
-    } catch (error) {
-      this.handleError(error)
+    if (supportedFiles.length === 0) {
+      core.info('No supported files found to analyze.')
+      setOutputs(eventInfo, [])
+      return
     }
-  }
 
-  /**
-   * Set GitHub Action outputs
-   */
-  private setOutputs(
-    eventInfo: EventInfo,
-    results: AcrolinxAnalysisResult[]
-  ): void {
-    core.setOutput(OUTPUT_NAMES.EVENT_TYPE, eventInfo.eventType)
-    core.setOutput(OUTPUT_NAMES.FILES_ANALYZED, results.length.toString())
-    core.setOutput(OUTPUT_NAMES.ACROLINX_RESULTS, JSON.stringify(results))
-  }
+    // Display files being analyzed
+    displayFilesToAnalyze(supportedFiles)
 
-  /**
-   * Display analysis summary
-   */
-  private displaySummary(results: AcrolinxAnalysisResult[]): void {
-    if (!this.acrolinxService) return
+    // Run Acrolinx analysis
+    displaySectionHeader('🔍 Running Acrolinx Analysis')
+    const analysisOptions = getAnalysisOptions(config)
+    const results = await analyzeFiles(
+      supportedFiles,
+      analysisOptions,
+      acrolinxConfig,
+      readFileContent
+    )
 
-    const summary = this.acrolinxService.getAnalysisSummary(results)
+    // Display results
+    displayAcrolinxResults(results)
+    displayJsonResults(results)
 
-    displaySectionHeader('📊 Analysis Summary')
-    core.info(`📄 Total Files Analyzed: ${summary.totalFiles}`)
-    core.info(`⚠️  Total Issues Found: ${summary.totalIssues}`)
-    core.info(`📈 Average Quality Score: ${summary.averageQualityScore}`)
-    core.info(`📝 Average Clarity Score: ${summary.averageClarityScore}`)
-    core.info(`🎭 Average Tone Score: ${summary.averageToneScore}`)
-  }
+    // Set outputs
+    setOutputs(eventInfo, results)
 
-  /**
-   * Handle errors gracefully
-   */
-  private handleError(error: unknown): void {
-    if (error instanceof Error) {
-      core.setFailed(error.message)
-    } else {
-      core.setFailed(`An unexpected error occurred: ${String(error)}`)
-    }
+    // Display summary
+    displaySummary(results)
+  } catch (error) {
+    handleError(error)
   }
 }

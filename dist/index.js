@@ -32906,220 +32906,193 @@ function getFileBasename(filePath) {
  * Acrolinx service for handling style analysis
  */
 /**
- * Service class for Acrolinx operations
+ * Create Acrolinx configuration
  */
-class AcrolinxService {
-    config;
-    constructor(apiToken) {
-        this.config = { apiKey: apiToken };
-    }
-    /**
-     * Run Acrolinx style check on a single file
-     */
-    async analyzeFile(filePath, content, options) {
-        try {
-            coreExports.info(`🔍 Running Acrolinx check on: ${filePath}`);
-            const request = {
-                content,
-                dialect: options.dialect,
-                tone: options.tone,
-                style_guide: options.styleGuide,
-                documentName: getFileBasename(filePath)
-            };
-            const result = await Fn(request, this.config);
-            return {
-                filePath,
-                result,
-                timestamp: new Date().toISOString()
-            };
-        }
-        catch (error) {
-            coreExports.error(`Failed to run Acrolinx check on ${filePath}: ${error}`);
-            return null;
-        }
-    }
-    /**
-     * Run Acrolinx analysis on multiple files
-     */
-    async analyzeFiles(files, options, readFileContent) {
-        const results = [];
-        // Process files sequentially to avoid overwhelming the API
-        for (const filePath of files) {
-            const content = await readFileContent(filePath);
-            if (content) {
-                const result = await this.analyzeFile(filePath, content, options);
-                if (result) {
-                    results.push(result);
-                }
-            }
-        }
-        return results;
-    }
-    /**
-     * Get analysis summary statistics
-     */
-    getAnalysisSummary(results) {
-        if (results.length === 0) {
-            return {
-                totalFiles: 0,
-                totalIssues: 0,
-                averageQualityScore: 0,
-                averageClarityScore: 0,
-                averageToneScore: 0
-            };
-        }
-        const totalIssues = results.reduce((sum, result) => sum + result.result.issues.length, 0);
-        const totalQualityScore = results.reduce((sum, result) => sum + result.result.scores.quality.score, 0);
-        const totalClarityScore = results.reduce((sum, result) => sum + result.result.scores.clarity.score, 0);
-        const totalToneScore = results.reduce((sum, result) => sum + result.result.scores.tone.score, 0);
+function createAcrolinxConfig(apiToken) {
+    return { apiKey: apiToken };
+}
+/**
+ * Run Acrolinx style check on a single file
+ */
+async function analyzeFile(filePath, content, options, config) {
+    try {
+        coreExports.info(`🔍 Running Acrolinx check on: ${filePath}`);
+        const request = {
+            content,
+            dialect: options.dialect,
+            tone: options.tone,
+            style_guide: options.styleGuide,
+            documentName: getFileBasename(filePath)
+        };
+        const result = await Fn(request, config);
         return {
-            totalFiles: results.length,
-            totalIssues,
-            averageQualityScore: Math.round((totalQualityScore / results.length) * 100) / 100,
-            averageClarityScore: Math.round((totalClarityScore / results.length) * 100) / 100,
-            averageToneScore: Math.round((totalToneScore / results.length) * 100) / 100
+            filePath,
+            result,
+            timestamp: new Date().toISOString()
         };
     }
+    catch (error) {
+        coreExports.error(`Failed to run Acrolinx check on ${filePath}: ${error}`);
+        return null;
+    }
+}
+/**
+ * Run Acrolinx analysis on multiple files
+ */
+async function analyzeFiles(files, options, config, readFileContent) {
+    const results = [];
+    // Process files sequentially to avoid overwhelming the API
+    for (const filePath of files) {
+        const content = await readFileContent(filePath);
+        if (content) {
+            const result = await analyzeFile(filePath, content, options, config);
+            if (result) {
+                results.push(result);
+            }
+        }
+    }
+    return results;
+}
+/**
+ * Get analysis summary statistics
+ */
+function getAnalysisSummary(results) {
+    if (results.length === 0) {
+        return {
+            totalFiles: 0,
+            totalIssues: 0,
+            averageQualityScore: 0,
+            averageClarityScore: 0,
+            averageToneScore: 0
+        };
+    }
+    const totalIssues = results.reduce((sum, result) => sum + result.result.issues.length, 0);
+    const totalQualityScore = results.reduce((sum, result) => sum + result.result.scores.quality.score, 0);
+    const totalClarityScore = results.reduce((sum, result) => sum + result.result.scores.clarity.score, 0);
+    const totalToneScore = results.reduce((sum, result) => sum + result.result.scores.tone.score, 0);
+    return {
+        totalFiles: results.length,
+        totalIssues,
+        averageQualityScore: Math.round((totalQualityScore / results.length) * 100) / 100,
+        averageClarityScore: Math.round((totalClarityScore / results.length) * 100) / 100,
+        averageToneScore: Math.round((totalToneScore / results.length) * 100) / 100
+    };
 }
 
 /**
  * GitHub service for handling API operations
  */
 /**
- * Service class for GitHub operations
+ * Create GitHub Octokit instance
  */
-class GitHubService {
-    octokit;
-    constructor(token) {
-        this.octokit = githubExports.getOctokit(token);
-    }
-    /**
-     * Get commit changes from GitHub API with retry logic
-     */
-    async getCommitChanges(owner, repo, sha, maxRetries = 3) {
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            try {
-                const response = await this.octokit.rest.repos.getCommit({
-                    owner,
-                    repo,
-                    ref: sha
-                });
-                const commit = response.data;
-                const changes = commit.files?.map((file) => ({
-                    filename: file.filename,
-                    status: file.status,
-                    additions: file.additions || 0,
-                    deletions: file.deletions || 0,
-                    changes: file.changes || 0,
-                    patch: file.patch
-                })) || [];
-                return {
-                    sha: commit.sha,
-                    message: commit.commit.message,
-                    author: commit.commit.author?.name || 'Unknown',
-                    date: commit.commit.author?.date || new Date().toISOString(),
-                    changes
-                };
-            }
-            catch (error) {
-                if (attempt === maxRetries) {
-                    coreExports.error(`Failed to get commit changes after ${maxRetries} attempts: ${error}`);
-                    return null;
-                }
-                coreExports.warning(`Attempt ${attempt} failed, retrying... Error: ${error}`);
-                await this.delay(1000 * attempt); // Exponential backoff
-            }
-        }
-        return null;
-    }
-    /**
-     * Get files changed in a pull request
-     */
-    async getPullRequestFiles(owner, repo, prNumber, maxRetries = 3) {
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            try {
-                coreExports.info(`🔍 Fetching files for PR #${prNumber} in ${owner}/${repo}`);
-                const response = await this.octokit.rest.pulls.listFiles({
-                    owner,
-                    repo,
-                    pull_number: prNumber
-                });
-                coreExports.info(`✅ Found ${response.data.length} files in PR`);
-                return response.data.map((file) => file.filename);
-            }
-            catch (error) {
-                if (attempt === maxRetries) {
-                    coreExports.error(`Failed to get PR files after ${maxRetries} attempts: ${error}`);
-                    coreExports.error(`PR Details: #${prNumber} in ${owner}/${repo}`);
-                    coreExports.error(`Error details: ${JSON.stringify(error, null, 2)}`);
-                    return [];
-                }
-                coreExports.warning(`Attempt ${attempt} failed, retrying... Error: ${error}`);
-                await this.delay(1000 * attempt); // Exponential backoff
-            }
-        }
-        return [];
-    }
-    /**
-     * Get all files in repository tree
-     */
-    async getRepositoryFiles(owner, repo, ref = 'main', maxRetries = 3) {
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            try {
-                const response = await this.octokit.rest.git.getTree({
-                    owner,
-                    repo,
-                    tree_sha: ref,
-                    recursive: 'true'
-                });
-                const files = [];
-                if (response.data.tree) {
-                    for (const item of response.data.tree) {
-                        if (item.type === 'blob' && item.path) {
-                            files.push(item.path);
-                        }
-                    }
-                }
-                return files;
-            }
-            catch (error) {
-                if (attempt === maxRetries) {
-                    coreExports.error(`Failed to get repository files after ${maxRetries} attempts: ${error}`);
-                    return [];
-                }
-                coreExports.warning(`Attempt ${attempt} failed, retrying... Error: ${error}`);
-                await this.delay(1000 * attempt); // Exponential backoff
-            }
-        }
-        return [];
-    }
-    /**
-     * Get repository information
-     */
-    async getRepositoryInfo(owner, repo) {
+function createGitHubClient(token) {
+    return githubExports.getOctokit(token);
+}
+/**
+ * Utility function for delay
+ */
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+/**
+ * Get commit changes from GitHub API with retry logic
+ */
+async function getCommitChanges(octokit, owner, repo, sha, maxRetries = 3) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
-            const response = await this.octokit.rest.repos.get({
+            const response = await octokit.rest.repos.getCommit({
                 owner,
-                repo
+                repo,
+                ref: sha
             });
+            const commit = response.data;
+            const changes = commit.files?.map((file) => ({
+                filename: file.filename,
+                status: file.status,
+                additions: file.additions || 0,
+                deletions: file.deletions || 0,
+                changes: file.changes || 0,
+                patch: file.patch
+            })) || [];
             return {
-                name: response.data.name,
-                fullName: response.data.full_name,
-                description: response.data.description,
-                language: response.data.language
+                sha: commit.sha,
+                message: commit.commit.message,
+                author: commit.commit.author?.name || 'Unknown',
+                date: commit.commit.author?.date || new Date().toISOString(),
+                changes
             };
         }
         catch (error) {
-            coreExports.error(`Failed to get repository info: ${error}`);
-            return null;
+            if (attempt === maxRetries) {
+                coreExports.error(`Failed to get commit changes after ${maxRetries} attempts: ${error}`);
+                return null;
+            }
+            coreExports.warning(`Attempt ${attempt} failed, retrying... Error: ${error}`);
+            await delay(1000 * attempt); // Exponential backoff
         }
     }
-    /**
-     * Utility function for delay
-     */
-    delay(ms) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
+    return null;
+}
+/**
+ * Get files changed in a pull request
+ */
+async function getPullRequestFiles(octokit, owner, repo, prNumber, maxRetries = 3) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            coreExports.info(`🔍 Fetching files for PR #${prNumber} in ${owner}/${repo}`);
+            const response = await octokit.rest.pulls.listFiles({
+                owner,
+                repo,
+                pull_number: prNumber
+            });
+            coreExports.info(`✅ Found ${response.data.length} files in PR`);
+            return response.data.map((file) => file.filename);
+        }
+        catch (error) {
+            if (attempt === maxRetries) {
+                coreExports.error(`Failed to get PR files after ${maxRetries} attempts: ${error}`);
+                coreExports.error(`PR Details: #${prNumber} in ${owner}/${repo}`);
+                coreExports.error(`Error details: ${JSON.stringify(error, null, 2)}`);
+                return [];
+            }
+            coreExports.warning(`Attempt ${attempt} failed, retrying... Error: ${error}`);
+            await delay(1000 * attempt); // Exponential backoff
+        }
     }
+    return [];
+}
+/**
+ * Get all files in repository tree
+ */
+async function getRepositoryFiles(octokit, owner, repo, ref = 'main', maxRetries = 3) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const response = await octokit.rest.git.getTree({
+                owner,
+                repo,
+                tree_sha: ref,
+                recursive: 'true'
+            });
+            const files = [];
+            if (response.data.tree) {
+                for (const item of response.data.tree) {
+                    if (item.type === 'blob' && item.path) {
+                        files.push(item.path);
+                    }
+                }
+            }
+            return files;
+        }
+        catch (error) {
+            if (attempt === maxRetries) {
+                coreExports.error(`Failed to get repository files after ${maxRetries} attempts: ${error}`);
+                return [];
+            }
+            coreExports.warning(`Attempt ${attempt} failed, retrying... Error: ${error}`);
+            await delay(1000 * attempt); // Exponential backoff
+        }
+    }
+    return [];
 }
 
 /**
@@ -33128,90 +33101,69 @@ class GitHubService {
 /**
  * Push Event Strategy - Analyze files modified in the push
  */
-class PushEventStrategy {
-    owner;
-    repo;
-    sha;
-    githubService;
-    constructor(owner, repo, sha, githubToken) {
-        this.owner = owner;
-        this.repo = repo;
-        this.sha = sha;
-        this.githubService = new GitHubService(githubToken);
-    }
-    async getFilesToAnalyze() {
-        const commit = await this.githubService.getCommitChanges(this.owner, this.repo, this.sha);
-        if (!commit) {
-            return [];
-        }
-        return commit.changes.map((change) => change.filename);
-    }
-    getEventInfo() {
-        return {
-            eventType: EVENT_TYPES.PUSH,
-            description: 'Files modified in push event',
-            filesCount: 0, // Will be updated after file discovery
-            additionalInfo: {
-                commitSha: this.sha
+function createPushEventStrategy(owner, repo, sha, githubToken) {
+    const octokit = createGitHubClient(githubToken);
+    return {
+        async getFilesToAnalyze() {
+            const commit = await getCommitChanges(octokit, owner, repo, sha);
+            if (!commit) {
+                return [];
             }
-        };
-    }
+            return commit.changes.map((change) => change.filename);
+        },
+        getEventInfo() {
+            return {
+                eventType: EVENT_TYPES.PUSH,
+                description: 'Files modified in push event',
+                filesCount: 0, // Will be updated after file discovery
+                additionalInfo: {
+                    commitSha: sha
+                }
+            };
+        }
+    };
 }
 /**
  * Pull Request Event Strategy - Analyze files changed in the PR
  */
-class PullRequestEventStrategy {
-    owner;
-    repo;
-    prNumber;
-    githubService;
-    constructor(owner, repo, prNumber, githubToken) {
-        this.owner = owner;
-        this.repo = repo;
-        this.prNumber = prNumber;
-        this.githubService = new GitHubService(githubToken);
-    }
-    async getFilesToAnalyze() {
-        return await this.githubService.getPullRequestFiles(this.owner, this.repo, this.prNumber);
-    }
-    getEventInfo() {
-        return {
-            eventType: EVENT_TYPES.PULL_REQUEST,
-            description: 'Files changed in pull request',
-            filesCount: 0, // Will be updated after file discovery
-            additionalInfo: {
-                prNumber: this.prNumber
-            }
-        };
-    }
+function createPullRequestEventStrategy(owner, repo, prNumber, githubToken) {
+    const octokit = createGitHubClient(githubToken);
+    return {
+        async getFilesToAnalyze() {
+            return await getPullRequestFiles(octokit, owner, repo, prNumber);
+        },
+        getEventInfo() {
+            return {
+                eventType: EVENT_TYPES.PULL_REQUEST,
+                description: 'Files changed in pull request',
+                filesCount: 0, // Will be updated after file discovery
+                additionalInfo: {
+                    prNumber: prNumber
+                }
+            };
+        }
+    };
 }
 /**
  * Manual Workflow Strategy - Analyze all files in repository
  */
-class ManualWorkflowStrategy {
-    owner;
-    repo;
-    ref;
-    githubService;
-    constructor(owner, repo, githubToken, ref = 'main') {
-        this.owner = owner;
-        this.repo = repo;
-        this.ref = ref;
-        this.githubService = new GitHubService(githubToken);
-    }
-    async getFilesToAnalyze() {
-        return await this.githubService.getRepositoryFiles(this.owner, this.repo, this.ref);
-    }
-    getEventInfo() {
-        return {
-            eventType: EVENT_TYPES.WORKFLOW_DISPATCH,
-            description: 'All files in repository (manual trigger)',
-            filesCount: 0, // Will be updated after file discovery
-            additionalInfo: {
-                ref: this.ref
-            }
-        };
-    }
+function createManualWorkflowStrategy(owner, repo, githubToken, ref = 'main') {
+    const octokit = createGitHubClient(githubToken);
+    return {
+        async getFilesToAnalyze() {
+            return await getRepositoryFiles(octokit, owner, repo, ref);
+        },
+        getEventInfo() {
+            return {
+                eventType: EVENT_TYPES.WORKFLOW_DISPATCH,
+                description: 'All files in repository (manual trigger)',
+                filesCount: 0, // Will be updated after file discovery
+                additionalInfo: {
+                    ref: ref
+                }
+            };
+        }
+    };
 }
 /**
  * Factory function to create appropriate strategy based on event type
@@ -33220,15 +33172,15 @@ function createFileDiscoveryStrategy(context, githubToken) {
     const { eventName } = context;
     switch (eventName) {
         case EVENT_TYPES.PUSH:
-            return new PushEventStrategy(context.repo.owner, context.repo.repo, context.sha, githubToken);
+            return createPushEventStrategy(context.repo.owner, context.repo.repo, context.sha, githubToken);
         case EVENT_TYPES.PULL_REQUEST:
-            return new PullRequestEventStrategy(context.repo.owner, context.repo.repo, context.issue.number, githubToken);
+            return createPullRequestEventStrategy(context.repo.owner, context.repo.repo, context.issue.number, githubToken);
         case EVENT_TYPES.WORKFLOW_DISPATCH:
-            return new ManualWorkflowStrategy(context.repo.owner, context.repo.repo, githubToken);
+            return createManualWorkflowStrategy(context.repo.owner, context.repo.repo, githubToken);
         default:
             // For other events, default to push strategy
             coreExports.warning(`Unsupported event type: ${eventName}. Using push strategy.`);
-            return new PushEventStrategy(context.repo.owner, context.repo.repo, context.sha, githubToken);
+            return createPushEventStrategy(context.repo.owner, context.repo.repo, context.sha, githubToken);
     }
 }
 
@@ -33407,93 +33359,81 @@ function displaySectionHeader(title) {
  * Main action runner that orchestrates the workflow
  */
 /**
- * Main action runner class
+ * Set GitHub Action outputs
  */
-class ActionRunner {
-    acrolinxService = null;
-    config = null;
-    constructor() {
-        // Configuration will be loaded in the run method to handle errors properly
+function setOutputs(eventInfo, results) {
+    coreExports.setOutput(OUTPUT_NAMES.EVENT_TYPE, eventInfo.eventType);
+    coreExports.setOutput(OUTPUT_NAMES.FILES_ANALYZED, results.length.toString());
+    coreExports.setOutput(OUTPUT_NAMES.ACROLINX_RESULTS, JSON.stringify(results));
+}
+/**
+ * Display analysis summary
+ */
+function displaySummary(results) {
+    const summary = getAnalysisSummary(results);
+    displaySectionHeader('📊 Analysis Summary');
+    coreExports.info(`📄 Total Files Analyzed: ${summary.totalFiles}`);
+    coreExports.info(`⚠️  Total Issues Found: ${summary.totalIssues}`);
+    coreExports.info(`📈 Average Quality Score: ${summary.averageQualityScore}`);
+    coreExports.info(`📝 Average Clarity Score: ${summary.averageClarityScore}`);
+    coreExports.info(`🎭 Average Tone Score: ${summary.averageToneScore}`);
+}
+/**
+ * Handle errors gracefully
+ */
+function handleError(error) {
+    if (error instanceof Error) {
+        coreExports.setFailed(error.message);
     }
-    /**
-     * Run the complete action workflow
-     */
-    async run() {
-        try {
-            // Load and validate configuration
-            this.config = getActionConfig();
-            this.acrolinxService = new AcrolinxService(this.config.acrolinxApiToken);
-            validateConfig(this.config);
-            logConfiguration(this.config);
-            // Initialize file discovery strategy
-            displaySectionHeader('🔍 Initializing File Discovery');
-            const strategy = createFileDiscoveryStrategy(githubExports.context, this.config.githubToken);
-            const eventInfo = strategy.getEventInfo();
-            // Display event information
-            displaySectionHeader('📋 Event Analysis');
-            displayEventInfo(eventInfo);
-            // Discover files to analyze
-            displaySectionHeader('🔍 Discovering Files');
-            const allFiles = await strategy.getFilesToAnalyze();
-            const supportedFiles = filterSupportedFiles(allFiles);
-            // Update event info with actual file count
-            eventInfo.filesCount = supportedFiles.length;
-            coreExports.info(`📊 Found ${supportedFiles.length} supported files out of ${allFiles.length} total files`);
-            if (supportedFiles.length === 0) {
-                coreExports.info('No supported files found to analyze.');
-                this.setOutputs(eventInfo, []);
-                return;
-            }
-            // Display files being analyzed
-            displayFilesToAnalyze(supportedFiles);
-            // Run Acrolinx analysis
-            displaySectionHeader('🔍 Running Acrolinx Analysis');
-            const analysisOptions = getAnalysisOptions(this.config);
-            const results = await this.acrolinxService.analyzeFiles(supportedFiles, analysisOptions, readFileContent);
-            // Display results
-            displayAcrolinxResults(results);
-            displayJsonResults(results);
-            // Set outputs
-            this.setOutputs(eventInfo, results);
-            // Display summary
-            this.displaySummary(results);
-        }
-        catch (error) {
-            this.handleError(error);
-        }
+    else {
+        coreExports.setFailed(`An unexpected error occurred: ${String(error)}`);
     }
-    /**
-     * Set GitHub Action outputs
-     */
-    setOutputs(eventInfo, results) {
-        coreExports.setOutput(OUTPUT_NAMES.EVENT_TYPE, eventInfo.eventType);
-        coreExports.setOutput(OUTPUT_NAMES.FILES_ANALYZED, results.length.toString());
-        coreExports.setOutput(OUTPUT_NAMES.ACROLINX_RESULTS, JSON.stringify(results));
-    }
-    /**
-     * Display analysis summary
-     */
-    displaySummary(results) {
-        if (!this.acrolinxService)
+}
+/**
+ * Run the complete action workflow
+ */
+async function runAction() {
+    try {
+        // Load and validate configuration
+        const config = getActionConfig();
+        const acrolinxConfig = createAcrolinxConfig(config.acrolinxApiToken);
+        validateConfig(config);
+        logConfiguration(config);
+        // Initialize file discovery strategy
+        displaySectionHeader('🔍 Initializing File Discovery');
+        const strategy = createFileDiscoveryStrategy(githubExports.context, config.githubToken);
+        const eventInfo = strategy.getEventInfo();
+        // Display event information
+        displaySectionHeader('📋 Event Analysis');
+        displayEventInfo(eventInfo);
+        // Discover files to analyze
+        displaySectionHeader('🔍 Discovering Files');
+        const allFiles = await strategy.getFilesToAnalyze();
+        const supportedFiles = filterSupportedFiles(allFiles);
+        // Update event info with actual file count
+        eventInfo.filesCount = supportedFiles.length;
+        coreExports.info(`📊 Found ${supportedFiles.length} supported files out of ${allFiles.length} total files`);
+        if (supportedFiles.length === 0) {
+            coreExports.info('No supported files found to analyze.');
+            setOutputs(eventInfo, []);
             return;
-        const summary = this.acrolinxService.getAnalysisSummary(results);
-        displaySectionHeader('📊 Analysis Summary');
-        coreExports.info(`📄 Total Files Analyzed: ${summary.totalFiles}`);
-        coreExports.info(`⚠️  Total Issues Found: ${summary.totalIssues}`);
-        coreExports.info(`📈 Average Quality Score: ${summary.averageQualityScore}`);
-        coreExports.info(`📝 Average Clarity Score: ${summary.averageClarityScore}`);
-        coreExports.info(`🎭 Average Tone Score: ${summary.averageToneScore}`);
+        }
+        // Display files being analyzed
+        displayFilesToAnalyze(supportedFiles);
+        // Run Acrolinx analysis
+        displaySectionHeader('🔍 Running Acrolinx Analysis');
+        const analysisOptions = getAnalysisOptions(config);
+        const results = await analyzeFiles(supportedFiles, analysisOptions, acrolinxConfig, readFileContent);
+        // Display results
+        displayAcrolinxResults(results);
+        displayJsonResults(results);
+        // Set outputs
+        setOutputs(eventInfo, results);
+        // Display summary
+        displaySummary(results);
     }
-    /**
-     * Handle errors gracefully
-     */
-    handleError(error) {
-        if (error instanceof Error) {
-            coreExports.setFailed(error.message);
-        }
-        else {
-            coreExports.setFailed(`An unexpected error occurred: ${String(error)}`);
-        }
+    catch (error) {
+        handleError(error);
     }
 }
 
@@ -33507,8 +33447,7 @@ class ActionRunner {
  * @returns Resolves when the action is complete.
  */
 async function run() {
-    const runner = new ActionRunner();
-    await runner.run();
+    await runAction();
 }
 
 /**

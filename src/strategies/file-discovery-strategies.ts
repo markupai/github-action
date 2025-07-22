@@ -5,43 +5,42 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { FileDiscoveryStrategy, EventInfo } from '../types/index.js'
-import { GitHubService } from '../services/github-service.js'
+import {
+  createGitHubClient,
+  getCommitChanges,
+  getPullRequestFiles,
+  getRepositoryFiles
+} from '../services/github-service.js'
 import { EVENT_TYPES } from '../constants/index.js'
 
 /**
  * Push Event Strategy - Analyze files modified in the push
  */
-export class PushEventStrategy implements FileDiscoveryStrategy {
-  private githubService: GitHubService
+export function createPushEventStrategy(
+  owner: string,
+  repo: string,
+  sha: string,
+  githubToken: string
+): FileDiscoveryStrategy {
+  const octokit = createGitHubClient(githubToken)
 
-  constructor(
-    private owner: string,
-    private repo: string,
-    private sha: string,
-    githubToken: string
-  ) {
-    this.githubService = new GitHubService(githubToken)
-  }
+  return {
+    async getFilesToAnalyze(): Promise<string[]> {
+      const commit = await getCommitChanges(octokit, owner, repo, sha)
+      if (!commit) {
+        return []
+      }
+      return commit.changes.map((change) => change.filename)
+    },
 
-  async getFilesToAnalyze(): Promise<string[]> {
-    const commit = await this.githubService.getCommitChanges(
-      this.owner,
-      this.repo,
-      this.sha
-    )
-    if (!commit) {
-      return []
-    }
-    return commit.changes.map((change) => change.filename)
-  }
-
-  getEventInfo(): EventInfo {
-    return {
-      eventType: EVENT_TYPES.PUSH,
-      description: 'Files modified in push event',
-      filesCount: 0, // Will be updated after file discovery
-      additionalInfo: {
-        commitSha: this.sha
+    getEventInfo(): EventInfo {
+      return {
+        eventType: EVENT_TYPES.PUSH,
+        description: 'Files modified in push event',
+        filesCount: 0, // Will be updated after file discovery
+        additionalInfo: {
+          commitSha: sha
+        }
       }
     }
   }
@@ -50,33 +49,27 @@ export class PushEventStrategy implements FileDiscoveryStrategy {
 /**
  * Pull Request Event Strategy - Analyze files changed in the PR
  */
-export class PullRequestEventStrategy implements FileDiscoveryStrategy {
-  private githubService: GitHubService
+export function createPullRequestEventStrategy(
+  owner: string,
+  repo: string,
+  prNumber: number,
+  githubToken: string
+): FileDiscoveryStrategy {
+  const octokit = createGitHubClient(githubToken)
 
-  constructor(
-    private owner: string,
-    private repo: string,
-    private prNumber: number,
-    githubToken: string
-  ) {
-    this.githubService = new GitHubService(githubToken)
-  }
+  return {
+    async getFilesToAnalyze(): Promise<string[]> {
+      return await getPullRequestFiles(octokit, owner, repo, prNumber)
+    },
 
-  async getFilesToAnalyze(): Promise<string[]> {
-    return await this.githubService.getPullRequestFiles(
-      this.owner,
-      this.repo,
-      this.prNumber
-    )
-  }
-
-  getEventInfo(): EventInfo {
-    return {
-      eventType: EVENT_TYPES.PULL_REQUEST,
-      description: 'Files changed in pull request',
-      filesCount: 0, // Will be updated after file discovery
-      additionalInfo: {
-        prNumber: this.prNumber
+    getEventInfo(): EventInfo {
+      return {
+        eventType: EVENT_TYPES.PULL_REQUEST,
+        description: 'Files changed in pull request',
+        filesCount: 0, // Will be updated after file discovery
+        additionalInfo: {
+          prNumber: prNumber
+        }
       }
     }
   }
@@ -85,33 +78,27 @@ export class PullRequestEventStrategy implements FileDiscoveryStrategy {
 /**
  * Manual Workflow Strategy - Analyze all files in repository
  */
-export class ManualWorkflowStrategy implements FileDiscoveryStrategy {
-  private githubService: GitHubService
+export function createManualWorkflowStrategy(
+  owner: string,
+  repo: string,
+  githubToken: string,
+  ref: string = 'main'
+): FileDiscoveryStrategy {
+  const octokit = createGitHubClient(githubToken)
 
-  constructor(
-    private owner: string,
-    private repo: string,
-    githubToken: string,
-    private ref: string = 'main'
-  ) {
-    this.githubService = new GitHubService(githubToken)
-  }
+  return {
+    async getFilesToAnalyze(): Promise<string[]> {
+      return await getRepositoryFiles(octokit, owner, repo, ref)
+    },
 
-  async getFilesToAnalyze(): Promise<string[]> {
-    return await this.githubService.getRepositoryFiles(
-      this.owner,
-      this.repo,
-      this.ref
-    )
-  }
-
-  getEventInfo(): EventInfo {
-    return {
-      eventType: EVENT_TYPES.WORKFLOW_DISPATCH,
-      description: 'All files in repository (manual trigger)',
-      filesCount: 0, // Will be updated after file discovery
-      additionalInfo: {
-        ref: this.ref
+    getEventInfo(): EventInfo {
+      return {
+        eventType: EVENT_TYPES.WORKFLOW_DISPATCH,
+        description: 'All files in repository (manual trigger)',
+        filesCount: 0, // Will be updated after file discovery
+        additionalInfo: {
+          ref: ref
+        }
       }
     }
   }
@@ -128,7 +115,7 @@ export function createFileDiscoveryStrategy(
 
   switch (eventName) {
     case EVENT_TYPES.PUSH:
-      return new PushEventStrategy(
+      return createPushEventStrategy(
         context.repo.owner,
         context.repo.repo,
         context.sha,
@@ -136,7 +123,7 @@ export function createFileDiscoveryStrategy(
       )
 
     case EVENT_TYPES.PULL_REQUEST:
-      return new PullRequestEventStrategy(
+      return createPullRequestEventStrategy(
         context.repo.owner,
         context.repo.repo,
         context.issue.number,
@@ -144,7 +131,7 @@ export function createFileDiscoveryStrategy(
       )
 
     case EVENT_TYPES.WORKFLOW_DISPATCH:
-      return new ManualWorkflowStrategy(
+      return createManualWorkflowStrategy(
         context.repo.owner,
         context.repo.repo,
         githubToken
@@ -153,7 +140,7 @@ export function createFileDiscoveryStrategy(
     default:
       // For other events, default to push strategy
       core.warning(`Unsupported event type: ${eventName}. Using push strategy.`)
-      return new PushEventStrategy(
+      return createPushEventStrategy(
         context.repo.owner,
         context.repo.repo,
         context.sha,
