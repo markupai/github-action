@@ -289,6 +289,13 @@ describe('PR Comment Service', () => {
       expect(createCall.body).toContain(
         'Quality Score Legend: 🟢 80+ | 🟡 60-79 | 🔴 0-59'
       )
+      // Check that average scores are rounded to integers
+      expect(createCall.body).toContain('| Quality | 85 |')
+      expect(createCall.body).toContain('| Clarity | 78 |')
+      expect(createCall.body).toContain('| Grammar | 90 |')
+      expect(createCall.body).toContain('| Style Guide | 88 |')
+      expect(createCall.body).toContain('| Tone | 82 |')
+      expect(createCall.body).toContain('| Terminology | 95 |')
     })
 
     it('should handle empty results', async () => {

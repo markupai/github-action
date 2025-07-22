@@ -33380,12 +33380,12 @@ function generateSummary(results) {
     const totalGrammarScore = results.reduce((sum, result) => sum + result.result.grammar.score, 0);
     const totalStyleGuideScore = results.reduce((sum, result) => sum + result.result.style_guide.score, 0);
     const totalTerminologyScore = results.reduce((sum, result) => sum + result.result.terminology.score, 0);
-    const averageQualityScore = Math.round((totalQualityScore / results.length) * 100) / 100;
-    const averageClarityScore = Math.round((totalClarityScore / results.length) * 100) / 100;
-    const averageToneScore = Math.round((totalToneScore / results.length) * 100) / 100;
-    const averageGrammarScore = Math.round((totalGrammarScore / results.length) * 100) / 100;
-    const averageStyleGuideScore = Math.round((totalStyleGuideScore / results.length) * 100) / 100;
-    const averageTerminologyScore = Math.round((totalTerminologyScore / results.length) * 100) / 100;
+    const averageQualityScore = Math.round(totalQualityScore / results.length);
+    const averageClarityScore = Math.round(totalClarityScore / results.length);
+    const averageToneScore = Math.round(totalToneScore / results.length);
+    const averageGrammarScore = Math.round(totalGrammarScore / results.length);
+    const averageStyleGuideScore = Math.round(totalStyleGuideScore / results.length);
+    const averageTerminologyScore = Math.round(totalTerminologyScore / results.length);
     const overallQualityEmoji = getQualityEmoji(averageQualityScore);
     return `
 ## 📊 Summary
