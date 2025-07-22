@@ -1,12 +1,12 @@
 import require$$0 from 'os';
 import require$$0$1 from 'crypto';
-import require$$1$1 from 'fs';
-import * as require$$1 from 'path';
-import require$$1__default from 'path';
+import require$$1 from 'fs';
+import * as path from 'path';
+import path__default from 'path';
 import require$$2$1 from 'http';
 import require$$3$1 from 'https';
 import require$$0$4 from 'net';
-import require$$1$2 from 'tls';
+import require$$1$1 from 'tls';
 import require$$4$1 from 'events';
 import require$$0$3 from 'assert';
 import require$$0$2 from 'util';
@@ -15,14 +15,14 @@ import require$$7 from 'buffer';
 import require$$8 from 'querystring';
 import require$$14 from 'stream/web';
 import require$$0$7 from 'node:stream';
-import require$$1$3 from 'node:util';
+import require$$1$2 from 'node:util';
 import require$$0$6 from 'node:events';
 import require$$0$8 from 'worker_threads';
 import require$$2$2 from 'perf_hooks';
 import require$$5 from 'util/types';
 import require$$4$2 from 'async_hooks';
-import require$$1$4 from 'console';
-import require$$1$5 from 'url';
+import require$$1$3 from 'console';
+import require$$1$4 from 'url';
 import require$$3$2 from 'zlib';
 import require$$6 from 'string_decoder';
 import require$$0$9 from 'diagnostics_channel';
@@ -257,7 +257,7 @@ function requireFileCommand () {
 	// We use any as a valid input type
 	/* eslint-disable @typescript-eslint/no-explicit-any */
 	const crypto = __importStar(require$$0$1);
-	const fs = __importStar(require$$1$1);
+	const fs = __importStar(require$$1);
 	const os = __importStar(require$$0);
 	const utils_1 = requireUtils$3();
 	function issueFileCommand(command, message) {
@@ -407,7 +407,7 @@ var hasRequiredTunnel$1;
 function requireTunnel$1 () {
 	if (hasRequiredTunnel$1) return tunnel$1;
 	hasRequiredTunnel$1 = 1;
-	var tls = require$$1$2;
+	var tls = require$$1$1;
 	var http = require$$2$1;
 	var https = require$$3$1;
 	var events = require$$4$1;
@@ -1789,7 +1789,7 @@ function requireSbmh () {
 	 * by Hongli Lai at: https://github.com/FooBarWidget/boyer-moore-horspool
 	 */
 	const EventEmitter = require$$0$6.EventEmitter;
-	const inherits = require$$1$3.inherits;
+	const inherits = require$$1$2.inherits;
 
 	function SBMH (needle) {
 	  if (typeof needle === 'string') {
@@ -1998,7 +1998,7 @@ function requirePartStream () {
 	if (hasRequiredPartStream) return PartStream_1;
 	hasRequiredPartStream = 1;
 
-	const inherits = require$$1$3.inherits;
+	const inherits = require$$1$2.inherits;
 	const ReadableStream = require$$0$7.Readable;
 
 	function PartStream (opts) {
@@ -2044,7 +2044,7 @@ function requireHeaderParser () {
 	hasRequiredHeaderParser = 1;
 
 	const EventEmitter = require$$0$6.EventEmitter;
-	const inherits = require$$1$3.inherits;
+	const inherits = require$$1$2.inherits;
 	const getLimit = requireGetLimit();
 
 	const StreamSearch = requireSbmh();
@@ -2152,7 +2152,7 @@ function requireDicer () {
 	hasRequiredDicer = 1;
 
 	const WritableStream = require$$0$7.Writable;
-	const inherits = require$$1$3.inherits;
+	const inherits = require$$1$2.inherits;
 
 	const StreamSearch = requireSbmh();
 
@@ -2729,7 +2729,7 @@ function requireMultipart () {
 	//     -- this will require modifications to utils.parseParams
 
 	const { Readable } = require$$0$7;
-	const { inherits } = require$$1$3;
+	const { inherits } = require$$1$2;
 
 	const Dicer = requireDicer();
 
@@ -3295,7 +3295,7 @@ function requireMain () {
 	hasRequiredMain = 1;
 
 	const WritableStream = require$$0$7.Writable;
-	const { inherits } = require$$1$3;
+	const { inherits } = require$$1$2;
 	const Dicer = requireDicer();
 
 	const MultipartParser = requireMultipart();
@@ -8119,7 +8119,7 @@ function requireConnect () {
 	    let socket;
 	    if (protocol === 'https:') {
 	      if (!tls) {
-	        tls = require$$1$2;
+	        tls = require$$1$1;
 	      }
 	      servername = servername || options.servername || util.getServerName(host) || null;
 
@@ -14143,7 +14143,7 @@ function requirePendingInterceptorsFormatter () {
 	hasRequiredPendingInterceptorsFormatter = 1;
 
 	const { Transform } = require$$0$5;
-	const { Console } = require$$1$4;
+	const { Console } = require$$1$3;
 
 	/**
 	 * Gets the output of `console.table(…)` as a string.
@@ -14370,7 +14370,7 @@ function requireProxyAgent () {
 	hasRequiredProxyAgent = 1;
 
 	const { kProxy, kClose, kDestroy, kInterceptors } = requireSymbols$4();
-	const { URL } = require$$1$5;
+	const { URL } = require$$1$4;
 	const Agent = requireAgent();
 	const Pool = requirePool();
 	const DispatcherBase = requireDispatcherBase();
@@ -25235,7 +25235,7 @@ function requireSummary () {
 		Object.defineProperty(exports, "__esModule", { value: true });
 		exports.summary = exports.markdownSummary = exports.SUMMARY_DOCS_URL = exports.SUMMARY_ENV_VAR = void 0;
 		const os_1 = require$$0;
-		const fs_1 = require$$1$1;
+		const fs_1 = require$$1;
 		const { access, appendFile, writeFile } = fs_1.promises;
 		exports.SUMMARY_ENV_VAR = 'GITHUB_STEP_SUMMARY';
 		exports.SUMMARY_DOCS_URL = 'https://docs.github.com/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary';
@@ -25541,7 +25541,7 @@ function requirePathUtils () {
 	};
 	Object.defineProperty(pathUtils, "__esModule", { value: true });
 	pathUtils.toPlatformPath = pathUtils.toWin32Path = pathUtils.toPosixPath = void 0;
-	const path = __importStar(require$$1__default);
+	const path = __importStar(path__default);
 	/**
 	 * toPosixPath converts the given path to the posix form. On Windows, \\ will be
 	 * replaced with /.
@@ -25627,8 +25627,8 @@ function requireIoUtil () {
 		var _a;
 		Object.defineProperty(exports, "__esModule", { value: true });
 		exports.getCmdPath = exports.tryGetExecutablePath = exports.isRooted = exports.isDirectory = exports.exists = exports.READONLY = exports.UV_FS_O_EXLOCK = exports.IS_WINDOWS = exports.unlink = exports.symlink = exports.stat = exports.rmdir = exports.rm = exports.rename = exports.readlink = exports.readdir = exports.open = exports.mkdir = exports.lstat = exports.copyFile = exports.chmod = void 0;
-		const fs = __importStar(require$$1$1);
-		const path = __importStar(require$$1__default);
+		const fs = __importStar(require$$1);
+		const path = __importStar(path__default);
 		_a = fs.promises
 		// export const {open} = 'fs'
 		, exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.open = _a.open, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rm = _a.rm, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
@@ -25818,7 +25818,7 @@ function requireIo () {
 	Object.defineProperty(io, "__esModule", { value: true });
 	io.findInPath = io.which = io.mkdirP = io.rmRF = io.mv = io.cp = void 0;
 	const assert_1 = require$$0$3;
-	const path = __importStar(require$$1__default);
+	const path = __importStar(path__default);
 	const ioUtil = __importStar(requireIoUtil());
 	/**
 	 * Copies a file or folder.
@@ -26126,7 +26126,7 @@ function requireToolrunner () {
 	const os = __importStar(require$$0);
 	const events = __importStar(require$$4$1);
 	const child = __importStar(require$$2$3);
-	const path = __importStar(require$$1__default);
+	const path = __importStar(path__default);
 	const io = __importStar(requireIo());
 	const ioUtil = __importStar(requireIoUtil());
 	const timers_1 = require$$6$1;
@@ -26970,7 +26970,7 @@ function requireCore () {
 		const file_command_1 = requireFileCommand();
 		const utils_1 = requireUtils$3();
 		const os = __importStar(require$$0);
-		const path = __importStar(require$$1__default);
+		const path = __importStar(path__default);
 		const oidc_utils_1 = requireOidcUtils();
 		/**
 		 * The code to exit an action
@@ -27292,7 +27292,7 @@ function requireContext () {
 	hasRequiredContext = 1;
 	Object.defineProperty(context, "__esModule", { value: true });
 	context.Context = void 0;
-	const fs_1 = require$$1$1;
+	const fs_1 = require$$1;
 	const os_1 = require$$0;
 	class Context {
 	    /**
@@ -31236,6 +31236,74 @@ function requireGithub () {
 
 var githubExports = requireGithub();
 
+/**
+ * Application constants and configuration
+ */
+/**
+ * Supported file extensions for Acrolinx analysis
+ */
+const SUPPORTED_EXTENSIONS = [
+    '.md',
+    '.txt',
+    '.markdown',
+    '.rst',
+    '.adoc'
+];
+/**
+ * Default analysis options
+ */
+const DEFAULT_ANALYSIS_OPTIONS = {
+    dialect: 'american_english',
+    tone: 'formal',
+    styleGuide: 'ap'
+};
+/**
+ * Input names for GitHub Actions
+ */
+const INPUT_NAMES = {
+    ACROLINX_TOKEN: 'acrolinx_token',
+    DIALECT: 'dialect',
+    TONE: 'tone',
+    STYLE_GUIDE: 'style-guide',
+    GITHUB_TOKEN: 'github_token'
+};
+/**
+ * Environment variable names
+ */
+const ENV_VARS = {
+    ACROLINX_TOKEN: 'ACROLNX_TOKEN',
+    GITHUB_TOKEN: 'GITHUB_TOKEN'
+};
+/**
+ * Output names for GitHub Actions
+ */
+const OUTPUT_NAMES = {
+    EVENT_TYPE: 'event-type',
+    FILES_ANALYZED: 'files-analyzed',
+    ACROLINX_RESULTS: 'acrolinx-results'
+};
+/**
+ * Event types supported by the action
+ */
+const EVENT_TYPES = {
+    PUSH: 'push',
+    PULL_REQUEST: 'pull_request',
+    WORKFLOW_DISPATCH: 'workflow_dispatch'
+};
+/**
+ * Display constants
+ */
+const DISPLAY = {
+    MAX_FILES_TO_SHOW: 10,
+    SEPARATOR_LENGTH: 50
+};
+/**
+ * Error messages
+ */
+const ERROR_MESSAGES = {
+    ACROLINX_TOKEN_REQUIRED: 'Acrolinx API token is required',
+    GITHUB_TOKEN_WARNING: 'GitHub token not provided. Cannot fetch commit information.'};
+
 var T = /* @__PURE__ */ ((i) => (i.Queued = "queued", i.Running = "running", i.Completed = "completed", i.Failed = "failed", i))(T || {}), ee = /* @__PURE__ */ ((i) => (i.Stage = "stage", i.Dev = "dev", i.Prod = "prod", i))(ee || {}), Te = /* @__PURE__ */ ((i) => (i.Environment = "environment", i.Url = "url", i))(Te || {}), M = /* @__PURE__ */ ((i) => (i.VALIDATION_ERROR = "VALIDATION_ERROR", i.UNKNOWN_ERROR = "UNKNOWN_ERROR", i.WORKFLOW_NOT_FOUND = "workflowNotFound", i.NETWORK_ERROR = "NETWORK_ERROR", i.TIMEOUT_ERROR = "TIMEOUT_ERROR", i.WORKFLOW_FAILED = "WORKFLOW_FAILED", i.UNEXPECTED_STATUS = "UNEXPECTED_STATUS", i.POLLING_ERROR = "POLLING_ERROR", i))(M || {});
 class S extends Error {
   statusCode;
@@ -32798,18 +32866,17 @@ w.loadNamespaces;
 w.loadLanguages;
 
 /**
- * Supported file extensions for Acrolinx analysis
+ * File utility functions
  */
-const SUPPORTED_EXTENSIONS = ['.md', '.txt', '.markdown', '.rst', '.adoc'];
 /**
  * Check if a file is supported for Acrolinx analysis
  */
 function isSupportedFile(filename) {
-    const ext = require$$1.extname(filename).toLowerCase();
+    const ext = path.extname(filename).toLowerCase();
     return SUPPORTED_EXTENSIONS.includes(ext);
 }
 /**
- * Read file content safely
+ * Read file content safely with error handling
  */
 async function readFileContent(filePath) {
     try {
@@ -32822,22 +32889,44 @@ async function readFileContent(filePath) {
     }
 }
 /**
- * Run Acrolinx style check on a file
+ * Filter files to only include supported ones
  */
-async function runAcrolinxCheck(filePath, content, config, dialect, tone, styleGuide) {
+function filterSupportedFiles(files) {
+    return files.filter(isSupportedFile);
+}
+/**
+ * Get file basename
+ */
+function getFileBasename(filePath) {
+    return path.basename(filePath);
+}
+
+/**
+ * Acrolinx service for handling style analysis
+ */
+/**
+ * Create Acrolinx configuration
+ */
+function createAcrolinxConfig(apiToken) {
+    return { apiKey: apiToken };
+}
+/**
+ * Run Acrolinx style check on a single file
+ */
+async function analyzeFile(filePath, content, options, config) {
     try {
         coreExports.info(`🔍 Running Acrolinx check on: ${filePath}`);
         const request = {
             content,
-            dialect,
-            tone,
-            style_guide: styleGuide,
-            documentName: require$$1.basename(filePath)
+            dialect: options.dialect,
+            tone: options.tone,
+            style_guide: options.styleGuide,
+            documentName: getFileBasename(filePath)
         };
         const result = await Fn(request, config);
         return {
             filePath,
-            result,
+            result: result.scores,
             timestamp: new Date().toISOString()
         };
     }
@@ -32847,72 +32936,352 @@ async function runAcrolinxCheck(filePath, content, config, dialect, tone, styleG
     }
 }
 /**
- * Get commit changes from GitHub API
+ * Run Acrolinx analysis on multiple files
  */
-async function getCommitChanges(octokit, owner, repo, sha) {
-    try {
-        const response = await octokit.rest.repos.getCommit({
-            owner,
-            repo,
-            ref: sha
-        });
-        const commit = response.data;
-        const changes = commit.files?.map((file) => ({
-            filename: file.filename,
-            status: file.status,
-            additions: file.additions || 0,
-            deletions: file.deletions || 0,
-            changes: file.changes || 0,
-            patch: file.patch
-        })) || [];
-        return {
-            sha: commit.sha,
-            message: commit.commit.message,
-            author: commit.commit.author?.name || 'Unknown',
-            date: commit.commit.author?.date || new Date().toISOString(),
-            changes
-        };
-    }
-    catch (error) {
-        coreExports.error(`Failed to get commit changes: ${error}`);
-        return null;
-    }
-}
-/**
- * Display commit changes in a formatted way
- */
-function displayCommitChanges(commitInfo) {
-    coreExports.info(`📝 Commit: ${commitInfo.sha.substring(0, 8)}`);
-    coreExports.info(`📄 Message: ${commitInfo.message}`);
-    coreExports.info(`👤 Author: ${commitInfo.author}`);
-    coreExports.info(`📅 Date: ${commitInfo.date}`);
-    coreExports.info(`📊 Changes:`);
-    commitInfo.changes.forEach((change, index) => {
-        coreExports.info(`  ${index + 1}. ${change.filename} (${change.status})`);
-        coreExports.info(`     +${change.additions} -${change.deletions} (${change.changes} total changes)`);
-        if (change.patch) {
-            coreExports.info(`     Patch preview:`);
-            const patchLines = change.patch.split('\n').slice(0, 10); // Show first 10 lines
-            patchLines.forEach((line) => {
-                if (line.startsWith('+')) {
-                    coreExports.info(`     + ${line.substring(1)}`);
-                }
-                else if (line.startsWith('-')) {
-                    coreExports.info(`     - ${line.substring(1)}`);
-                }
-                else {
-                    coreExports.info(`       ${line}`);
-                }
-            });
-            if (change.patch.split('\n').length > 10) {
-                coreExports.info(`     ... (truncated)`);
+async function analyzeFiles(files, options, config, readFileContent) {
+    const results = [];
+    // Process files sequentially to avoid overwhelming the API
+    for (const filePath of files) {
+        const content = await readFileContent(filePath);
+        if (content) {
+            const result = await analyzeFile(filePath, content, options, config);
+            if (result) {
+                results.push(result);
             }
         }
-        coreExports.info('');
-    });
+    }
+    return results;
 }
 /**
- * Display Acrolinx analysis results
+ * Get analysis summary statistics
+ */
+function getAnalysisSummary(results) {
+    if (results.length === 0) {
+        return {
+            totalFiles: 0,
+            averageQualityScore: 0,
+            averageClarityScore: 0,
+            averageToneScore: 0
+        };
+    }
+    const totalQualityScore = results.reduce((sum, result) => sum + result.result.quality.score, 0);
+    const totalClarityScore = results.reduce((sum, result) => sum + result.result.clarity.score, 0);
+    const totalToneScore = results.reduce((sum, result) => sum + result.result.tone.score, 0);
+    return {
+        totalFiles: results.length,
+        averageQualityScore: Math.round((totalQualityScore / results.length) * 100) / 100,
+        averageClarityScore: Math.round((totalClarityScore / results.length) * 100) / 100,
+        averageToneScore: Math.round((totalToneScore / results.length) * 100) / 100
+    };
+}
+
+/**
+ * GitHub service for handling API operations
+ */
+/**
+ * Create GitHub Octokit instance
+ */
+function createGitHubClient(token) {
+    return githubExports.getOctokit(token);
+}
+/**
+ * Utility function for delay
+ */
+function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+/**
+ * Get commit changes from GitHub API with retry logic
+ */
+async function getCommitChanges(octokit, owner, repo, sha, maxRetries = 3) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const response = await octokit.rest.repos.getCommit({
+                owner,
+                repo,
+                ref: sha
+            });
+            const commit = response.data;
+            const changes = commit.files?.map((file) => ({
+                filename: file.filename,
+                status: file.status,
+                additions: file.additions || 0,
+                deletions: file.deletions || 0,
+                changes: file.changes || 0,
+                patch: file.patch
+            })) || [];
+            return {
+                sha: commit.sha,
+                message: commit.commit.message,
+                author: commit.commit.author?.name || 'Unknown',
+                date: commit.commit.author?.date || new Date().toISOString(),
+                changes
+            };
+        }
+        catch (error) {
+            if (attempt === maxRetries) {
+                coreExports.error(`Failed to get commit changes after ${maxRetries} attempts: ${error}`);
+                return null;
+            }
+            coreExports.warning(`Attempt ${attempt} failed, retrying... Error: ${error}`);
+            await delay(1000 * attempt); // Exponential backoff
+        }
+    }
+    return null;
+}
+/**
+ * Get files changed in a pull request
+ */
+async function getPullRequestFiles(octokit, owner, repo, prNumber, maxRetries = 3) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            coreExports.info(`🔍 Fetching files for PR #${prNumber} in ${owner}/${repo}`);
+            const response = await octokit.rest.pulls.listFiles({
+                owner,
+                repo,
+                pull_number: prNumber
+            });
+            coreExports.info(`✅ Found ${response.data.length} files in PR`);
+            return response.data.map((file) => file.filename);
+        }
+        catch (error) {
+            if (attempt === maxRetries) {
+                coreExports.error(`Failed to get PR files after ${maxRetries} attempts: ${error}`);
+                coreExports.error(`PR Details: #${prNumber} in ${owner}/${repo}`);
+                coreExports.error(`Error details: ${JSON.stringify(error, null, 2)}`);
+                return [];
+            }
+            coreExports.warning(`Attempt ${attempt} failed, retrying... Error: ${error}`);
+            await delay(1000 * attempt); // Exponential backoff
+        }
+    }
+    return [];
+}
+/**
+ * Get all files in repository tree
+ */
+async function getRepositoryFiles(octokit, owner, repo, ref = 'main', maxRetries = 3) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const response = await octokit.rest.git.getTree({
+                owner,
+                repo,
+                tree_sha: ref,
+                recursive: 'true'
+            });
+            const files = [];
+            if (response.data.tree) {
+                for (const item of response.data.tree) {
+                    if (item.type === 'blob' && item.path) {
+                        files.push(item.path);
+                    }
+                }
+            }
+            return files;
+        }
+        catch (error) {
+            if (attempt === maxRetries) {
+                coreExports.error(`Failed to get repository files after ${maxRetries} attempts: ${error}`);
+                return [];
+            }
+            coreExports.warning(`Attempt ${attempt} failed, retrying... Error: ${error}`);
+            await delay(1000 * attempt); // Exponential backoff
+        }
+    }
+    return [];
+}
+
+/**
+ * File discovery strategies for different GitHub event types
+ */
+/**
+ * Push Event Strategy - Analyze files modified in the push
+ */
+function createPushEventStrategy(owner, repo, sha, githubToken) {
+    const octokit = createGitHubClient(githubToken);
+    return {
+        async getFilesToAnalyze() {
+            const commit = await getCommitChanges(octokit, owner, repo, sha);
+            if (!commit) {
+                return [];
+            }
+            return commit.changes.map((change) => change.filename);
+        },
+        getEventInfo() {
+            return {
+                eventType: EVENT_TYPES.PUSH,
+                description: 'Files modified in push event',
+                filesCount: 0, // Will be updated after file discovery
+                additionalInfo: {
+                    commitSha: sha
+                }
+            };
+        }
+    };
+}
+/**
+ * Pull Request Event Strategy - Analyze files changed in the PR
+ */
+function createPullRequestEventStrategy(owner, repo, prNumber, githubToken) {
+    const octokit = createGitHubClient(githubToken);
+    return {
+        async getFilesToAnalyze() {
+            return await getPullRequestFiles(octokit, owner, repo, prNumber);
+        },
+        getEventInfo() {
+            return {
+                eventType: EVENT_TYPES.PULL_REQUEST,
+                description: 'Files changed in pull request',
+                filesCount: 0, // Will be updated after file discovery
+                additionalInfo: {
+                    prNumber: prNumber
+                }
+            };
+        }
+    };
+}
+/**
+ * Manual Workflow Strategy - Analyze all files in repository
+ */
+function createManualWorkflowStrategy(owner, repo, githubToken, ref = 'main') {
+    const octokit = createGitHubClient(githubToken);
+    return {
+        async getFilesToAnalyze() {
+            return await getRepositoryFiles(octokit, owner, repo, ref);
+        },
+        getEventInfo() {
+            return {
+                eventType: EVENT_TYPES.WORKFLOW_DISPATCH,
+                description: 'All files in repository (manual trigger)',
+                filesCount: 0, // Will be updated after file discovery
+                additionalInfo: {
+                    ref: ref
+                }
+            };
+        }
+    };
+}
+/**
+ * Factory function to create appropriate strategy based on event type
+ */
+function createFileDiscoveryStrategy(context, githubToken) {
+    const { eventName } = context;
+    switch (eventName) {
+        case EVENT_TYPES.PUSH:
+            return createPushEventStrategy(context.repo.owner, context.repo.repo, context.sha, githubToken);
+        case EVENT_TYPES.PULL_REQUEST:
+            return createPullRequestEventStrategy(context.repo.owner, context.repo.repo, context.issue.number, githubToken);
+        case EVENT_TYPES.WORKFLOW_DISPATCH:
+            return createManualWorkflowStrategy(context.repo.owner, context.repo.repo, githubToken);
+        default:
+            // For other events, default to push strategy
+            coreExports.warning(`Unsupported event type: ${eventName}. Using push strategy.`);
+            return createPushEventStrategy(context.repo.owner, context.repo.repo, context.sha, githubToken);
+    }
+}
+
+/**
+ * Action configuration and input validation
+ */
+/**
+ * Get and validate action configuration from inputs
+ */
+function getActionConfig() {
+    const acrolinxApiToken = getRequiredInput(INPUT_NAMES.ACROLINX_TOKEN, ENV_VARS.ACROLINX_TOKEN);
+    const githubToken = getRequiredInput(INPUT_NAMES.GITHUB_TOKEN, ENV_VARS.GITHUB_TOKEN);
+    const dialect = getOptionalInput(INPUT_NAMES.DIALECT, DEFAULT_ANALYSIS_OPTIONS.dialect);
+    const tone = getOptionalInput(INPUT_NAMES.TONE, DEFAULT_ANALYSIS_OPTIONS.tone);
+    const styleGuide = getOptionalInput(INPUT_NAMES.STYLE_GUIDE, DEFAULT_ANALYSIS_OPTIONS.styleGuide);
+    return {
+        acrolinxApiToken,
+        githubToken,
+        dialect,
+        tone,
+        styleGuide
+    };
+}
+/**
+ * Get analysis options from configuration
+ */
+function getAnalysisOptions(config) {
+    return {
+        dialect: config.dialect,
+        tone: config.tone,
+        styleGuide: config.styleGuide
+    };
+}
+/**
+ * Get a required input value with fallback to environment variable
+ */
+function getRequiredInput(inputName, envVarName) {
+    const value = coreExports.getInput(inputName) || process.env[envVarName];
+    if (!value) {
+        throw new Error(`Required input '${inputName}' or environment variable '${envVarName}' is not provided`);
+    }
+    return value;
+}
+/**
+ * Get an optional input value with fallback to environment variable and default
+ */
+function getOptionalInput(inputName, defaultValue) {
+    return (coreExports.getInput(inputName) ||
+        process.env[inputName.toUpperCase()] ||
+        defaultValue);
+}
+/**
+ * Validate configuration
+ */
+function validateConfig(config) {
+    if (!config.acrolinxApiToken) {
+        throw new Error(ERROR_MESSAGES.ACROLINX_TOKEN_REQUIRED);
+    }
+    if (!config.githubToken) {
+        coreExports.warning(ERROR_MESSAGES.GITHUB_TOKEN_WARNING);
+    }
+    // Validate analysis options
+    validateAnalysisOption('dialect', config.dialect);
+    validateAnalysisOption('tone', config.tone);
+    validateAnalysisOption('style_guide', config.styleGuide);
+}
+/**
+ * Validate individual analysis option
+ */
+function validateAnalysisOption(name, value) {
+    if (!value || value.trim().length === 0) {
+        throw new Error(`Analysis option '${name}' cannot be empty`);
+    }
+}
+/**
+ * Log configuration (without sensitive data)
+ */
+function logConfiguration(config) {
+    coreExports.info('🔧 Action Configuration:');
+    coreExports.info(`  Dialect: ${config.dialect}`);
+    coreExports.info(`  Tone: ${config.tone}`);
+    coreExports.info(`  Style Guide: ${config.styleGuide}`);
+    coreExports.info(`  Acrolinx Token: ${config.acrolinxApiToken ? '[PROVIDED]' : '[MISSING]'}`);
+    coreExports.info(`  GitHub Token: ${config.githubToken ? '[PROVIDED]' : '[MISSING]'}`);
+}
+
+/**
+ * Display and logging utility functions
+ */
+/**
+ * Display event information in a formatted way
+ */
+function displayEventInfo(eventInfo) {
+    coreExports.info(`📋 Event Type: ${eventInfo.eventType}`);
+    coreExports.info(`📄 Description: ${eventInfo.description}`);
+    coreExports.info(`📊 Files to analyze: ${eventInfo.filesCount}`);
+    if (eventInfo.additionalInfo) {
+        coreExports.info(`📌 Additional Info:`);
+        Object.entries(eventInfo.additionalInfo).forEach(([key, value]) => {
+            coreExports.info(`   ${key}: ${value}`);
+        });
+    }
+}
+/**
+ * Display Acrolinx analysis results in a formatted way
  */
 function displayAcrolinxResults(results) {
     if (results.length === 0) {
@@ -32920,128 +33289,338 @@ function displayAcrolinxResults(results) {
         return;
     }
     coreExports.info('📊 Acrolinx Analysis Results:');
-    coreExports.info('='.repeat(50));
+    coreExports.info('='.repeat(DISPLAY.SEPARATOR_LENGTH));
     results.forEach((analysis, index) => {
         const { filePath, result } = analysis;
         coreExports.info(`\n📄 File: ${filePath}`);
-        coreExports.info(`📈 Quality Score: ${result.scores.quality.score}`);
-        coreExports.info(`📝 Clarity Score: ${result.scores.clarity.score}`);
-        coreExports.info(`🔤 Grammar Issues: ${result.scores.grammar.issues}`);
-        coreExports.info(`📋 Style Guide Issues: ${result.scores.style_guide.issues}`);
-        coreExports.info(`🎭 Tone Score: ${result.scores.tone.score}`);
-        coreExports.info(`📚 Terminology Issues: ${result.scores.terminology.issues}`);
-        if (result.issues.length > 0) {
-            coreExports.info(`\n⚠️  Issues Found:`);
-            result.issues.slice(0, 5).forEach((issue, issueIndex) => {
-                coreExports.info(`  ${issueIndex + 1}. ${issue.subcategory}`);
-                coreExports.info(`     Original: "${issue.original}"`);
-                coreExports.info(`     Category: ${issue.category}`);
-                coreExports.info(`     Position: ${issue.char_index}`);
-            });
-            if (result.issues.length > 5) {
-                coreExports.info(`     ... and ${result.issues.length - 5} more issues`);
-            }
-        }
-        else {
-            coreExports.info('✅ No issues found!');
-        }
+        coreExports.info(`📈 Quality Score: ${result.quality.score}`);
+        coreExports.info(`📝 Clarity Score: ${result.clarity.score}`);
+        coreExports.info(`🔤 Grammar Issues: ${result.grammar.issues}`);
+        coreExports.info(`📋 Style Guide Issues: ${result.style_guide.issues}`);
+        coreExports.info(`🎭 Tone Score: ${result.tone.score}`);
+        coreExports.info(`📚 Terminology Issues: ${result.terminology.issues}`);
         if (index < results.length - 1) {
-            coreExports.info('─'.repeat(50));
+            coreExports.info('─'.repeat(DISPLAY.SEPARATOR_LENGTH));
         }
     });
 }
 /**
- * Get current commit from the repository
+ * Display files being analyzed
  */
-async function getCurrentCommit(octokit, owner, repo, sha) {
+function displayFilesToAnalyze(files) {
+    if (files.length === 0) {
+        coreExports.info('No files found to analyze.');
+        return;
+    }
+    coreExports.info('\n📄 Files to analyze:');
+    files.slice(0, DISPLAY.MAX_FILES_TO_SHOW).forEach((file, index) => {
+        coreExports.info(`  ${index + 1}. ${file}`);
+    });
+    if (files.length > DISPLAY.MAX_FILES_TO_SHOW) {
+        coreExports.info(`  ... and ${files.length - DISPLAY.MAX_FILES_TO_SHOW} more files`);
+    }
+}
+/**
+ * Display JSON results for debugging
+ */
+function displayJsonResults(results) {
+    coreExports.info('\n📊 Acrolinx Analysis Results (JSON):');
+    coreExports.info('='.repeat(DISPLAY.SEPARATOR_LENGTH));
+    coreExports.info(JSON.stringify(results, null, 2));
+}
+/**
+ * Display section header
+ */
+function displaySectionHeader(title) {
+    coreExports.info(`\n${title}`);
+    coreExports.info('='.repeat(DISPLAY.SEPARATOR_LENGTH));
+}
+
+/**
+ * PR Comment service for managing comments on pull requests
+ */
+/**
+ * Get emoji based on quality score
+ */
+function getQualityEmoji(score) {
+    if (score >= 80)
+        return '🟢';
+    if (score >= 60)
+        return '🟡';
+    return '🔴';
+}
+/**
+ * Generate markdown table for analysis results
+ */
+function generateResultsTable(results) {
+    if (results.length === 0) {
+        return 'No files were analyzed.';
+    }
+    const tableHeader = `| File | Quality | Clarity | Grammar | Style Guide | Tone | Terminology |
+|------|---------|---------|---------|-------------|------|-------------|`;
+    const tableRows = results
+        .map((result) => {
+        const { filePath, result: scores } = result;
+        const qualityEmoji = getQualityEmoji(scores.quality.score);
+        return `| ${filePath} | ${qualityEmoji} ${scores.quality.score} | ${scores.clarity.score} | ${scores.grammar.score} | ${scores.style_guide.score} | ${scores.tone.score} | ${scores.terminology.score} |`;
+    })
+        .join('\n');
+    return `${tableHeader}\n${tableRows}`;
+}
+/**
+ * Generate summary section
+ */
+function generateSummary(results) {
+    if (results.length === 0) {
+        return '';
+    }
+    const totalQualityScore = results.reduce((sum, result) => sum + result.result.quality.score, 0);
+    const totalClarityScore = results.reduce((sum, result) => sum + result.result.clarity.score, 0);
+    const totalToneScore = results.reduce((sum, result) => sum + result.result.tone.score, 0);
+    const totalGrammarScore = results.reduce((sum, result) => sum + result.result.grammar.score, 0);
+    const totalStyleGuideScore = results.reduce((sum, result) => sum + result.result.style_guide.score, 0);
+    const totalTerminologyScore = results.reduce((sum, result) => sum + result.result.terminology.score, 0);
+    const averageQualityScore = Math.round(totalQualityScore / results.length);
+    const averageClarityScore = Math.round(totalClarityScore / results.length);
+    const averageToneScore = Math.round(totalToneScore / results.length);
+    const averageGrammarScore = Math.round(totalGrammarScore / results.length);
+    const averageStyleGuideScore = Math.round(totalStyleGuideScore / results.length);
+    const averageTerminologyScore = Math.round(totalTerminologyScore / results.length);
+    const overallQualityEmoji = getQualityEmoji(averageQualityScore);
+    return `
+## 📊 Summary
+
+**Overall Quality Score:** ${overallQualityEmoji} ${averageQualityScore}
+
+| Metric | Average Score |
+|--------|---------------|
+| Quality | ${averageQualityScore} |
+| Clarity | ${averageClarityScore} |
+| Grammar | ${averageGrammarScore} |
+| Style Guide | ${averageStyleGuideScore} |
+| Tone | ${averageToneScore} |
+| Terminology | ${averageTerminologyScore} |
+
+**Files Analyzed:** ${results.length}
+`;
+}
+/**
+ * Generate complete comment body
+ */
+function generateCommentBody(results) {
+    const header = `## 🔍 Acrolinx Analysis Results
+
+This comment was automatically generated by the Acrolinx Analyzer GitHub Action.`;
+    const table = generateResultsTable(results);
+    const summary = generateSummary(results);
+    return `${header}
+
+${table}
+
+${summary}
+
+---
+*Analysis performed on ${new Date().toLocaleString()}*
+*Quality Score Legend: 🟢 80+ | 🟡 60-79 | 🔴 0-59*`;
+}
+/**
+ * Find existing Acrolinx comment on PR
+ */
+async function findExistingAcrolinxComment(octokit, owner, repo, prNumber) {
     try {
-        const commitInfo = await getCommitChanges(octokit, owner, repo, sha);
-        return commitInfo;
+        const response = await octokit.rest.issues.listComments({
+            owner,
+            repo,
+            issue_number: prNumber
+        });
+        const acrolinxComment = response.data.find((comment) => comment.body?.includes('## 🔍 Acrolinx Analysis Results'));
+        return acrolinxComment?.id || null;
     }
     catch (error) {
-        coreExports.error(`Failed to get current commit: ${error}`);
+        coreExports.warning(`Failed to find existing Acrolinx comment: ${error}`);
         return null;
     }
 }
 /**
- * Run Acrolinx analysis on modified files from a commit
+ * Create or update PR comment with analysis results
  */
-async function runAcrolinxAnalysis(commit, acrolinxConfig, dialect, tone, styleGuide) {
-    const results = [];
-    for (const change of commit.changes) {
-        // Only process supported files
-        if (isSupportedFile(change.filename)) {
-            // Try to read the file content
-            const content = await readFileContent(change.filename);
-            if (content) {
-                const result = await runAcrolinxCheck(change.filename, content, acrolinxConfig, dialect, tone, styleGuide);
-                if (result) {
-                    results.push(result);
-                }
+async function createOrUpdatePRComment(octokit, commentData) {
+    const { owner, repo, prNumber, results } = commentData;
+    try {
+        // Check if we have permission to comment on PRs
+        try {
+            await octokit.rest.repos.get({
+                owner,
+                repo
+            });
+        }
+        catch (error) {
+            const githubError = error;
+            if (githubError.status === 403) {
+                coreExports.error('❌ Permission denied: Cannot access repository. Make sure the GitHub token has "pull-requests: write" permission.');
+                return;
+            }
+            throw error;
+        }
+        const commentBody = generateCommentBody(results);
+        const existingCommentId = await findExistingAcrolinxComment(octokit, owner, repo, prNumber);
+        if (existingCommentId) {
+            // Update existing comment
+            await octokit.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existingCommentId,
+                body: commentBody
+            });
+            coreExports.info(`✅ Updated existing Acrolinx comment on PR #${prNumber}`);
+        }
+        else {
+            // Create new comment
+            await octokit.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prNumber,
+                body: commentBody
+            });
+            coreExports.info(`✅ Created new Acrolinx comment on PR #${prNumber}`);
+        }
+    }
+    catch (error) {
+        const githubError = error;
+        if (githubError.status === 403) {
+            coreExports.error('❌ Permission denied: Cannot create or update comments on pull requests.');
+            coreExports.error('Please ensure the GitHub token has "pull-requests: write" permission.');
+        }
+        else if (githubError.status === 404) {
+            coreExports.error('❌ Pull request not found. Make sure the PR exists and is accessible.');
+        }
+        else {
+            coreExports.error(`❌ Failed to create/update PR comment: ${githubError.message}`);
+        }
+    }
+}
+/**
+ * Check if current event is a pull request
+ */
+function isPullRequestEvent() {
+    return githubExports.context.eventName === 'pull_request';
+}
+/**
+ * Get PR number from context
+ */
+function getPRNumber() {
+    if (githubExports.context.eventName === 'pull_request') {
+        return githubExports.context.issue.number;
+    }
+    return null;
+}
+
+/**
+ * Main action runner that orchestrates the workflow
+ */
+/**
+ * Set GitHub Action outputs
+ */
+function setOutputs(eventInfo, results) {
+    coreExports.setOutput(OUTPUT_NAMES.EVENT_TYPE, eventInfo.eventType);
+    coreExports.setOutput(OUTPUT_NAMES.FILES_ANALYZED, results.length.toString());
+    coreExports.setOutput(OUTPUT_NAMES.ACROLINX_RESULTS, JSON.stringify(results));
+}
+/**
+ * Display analysis summary
+ */
+function displaySummary(results) {
+    const summary = getAnalysisSummary(results);
+    displaySectionHeader('📊 Analysis Summary');
+    coreExports.info(`📄 Total Files Analyzed: ${summary.totalFiles}`);
+    coreExports.info(`📈 Average Quality Score: ${summary.averageQualityScore}`);
+    coreExports.info(`📝 Average Clarity Score: ${summary.averageClarityScore}`);
+    coreExports.info(`🎭 Average Tone Score: ${summary.averageToneScore}`);
+}
+/**
+ * Handle errors gracefully
+ */
+function handleError(error) {
+    if (error instanceof Error) {
+        coreExports.setFailed(error.message);
+    }
+    else {
+        coreExports.setFailed(`An unexpected error occurred: ${String(error)}`);
+    }
+}
+/**
+ * Run the complete action workflow
+ */
+async function runAction() {
+    try {
+        // Load and validate configuration
+        const config = getActionConfig();
+        const acrolinxConfig = createAcrolinxConfig(config.acrolinxApiToken);
+        validateConfig(config);
+        logConfiguration(config);
+        // Initialize file discovery strategy
+        displaySectionHeader('🔍 Initializing File Discovery');
+        const strategy = createFileDiscoveryStrategy(githubExports.context, config.githubToken);
+        const eventInfo = strategy.getEventInfo();
+        // Display event information
+        displaySectionHeader('📋 Event Analysis');
+        displayEventInfo(eventInfo);
+        // Discover files to analyze
+        displaySectionHeader('🔍 Discovering Files');
+        const allFiles = await strategy.getFilesToAnalyze();
+        const supportedFiles = filterSupportedFiles(allFiles);
+        // Update event info with actual file count
+        eventInfo.filesCount = supportedFiles.length;
+        coreExports.info(`📊 Found ${supportedFiles.length} supported files out of ${allFiles.length} total files`);
+        if (supportedFiles.length === 0) {
+            coreExports.info('No supported files found to analyze.');
+            setOutputs(eventInfo, []);
+            return;
+        }
+        // Display files being analyzed
+        displayFilesToAnalyze(supportedFiles);
+        // Run Acrolinx analysis
+        displaySectionHeader('🔍 Running Acrolinx Analysis');
+        const analysisOptions = getAnalysisOptions(config);
+        const results = await analyzeFiles(supportedFiles, analysisOptions, acrolinxConfig, readFileContent);
+        // Display results
+        displayAcrolinxResults(results);
+        displayJsonResults(results);
+        // Set outputs
+        setOutputs(eventInfo, results);
+        // Display summary
+        displaySummary(results);
+        // Handle PR comments for pull request events
+        if (isPullRequestEvent() && results.length > 0) {
+            const prNumber = getPRNumber();
+            if (prNumber) {
+                displaySectionHeader('💬 Creating PR Comment');
+                const octokit = createGitHubClient(config.githubToken);
+                await createOrUpdatePRComment(octokit, {
+                    owner: githubExports.context.repo.owner,
+                    repo: githubExports.context.repo.repo,
+                    prNumber,
+                    results
+                });
             }
         }
     }
-    return results;
+    catch (error) {
+        handleError(error);
+    }
 }
+
+/**
+ * The main function for the action.
+ * This file serves as the entry point and orchestrates the workflow.
+ */
 /**
  * The main function for the action.
  *
  * @returns Resolves when the action is complete.
  */
 async function run() {
-    try {
-        // Get inputs
-        const acrolinxApiToken = coreExports.getInput('acrolinx_token') || process.env.ACROLNX_TOKEN;
-        const dialect = coreExports.getInput('dialect') || 'american_english';
-        const tone = coreExports.getInput('tone') || 'formal';
-        const styleGuide = coreExports.getInput('style-guide') || 'ap';
-        // Validate Acrolinx API token
-        if (!acrolinxApiToken) {
-            coreExports.setFailed('Acrolinx API token is required');
-            return;
-        }
-        // Configure Acrolinx
-        const acrolinxConfig = {
-            apiKey: acrolinxApiToken
-        };
-        // Get GitHub token and context
-        const githubToken = coreExports.getInput('github_token') || process.env.GITHUB_TOKEN;
-        if (!githubToken) {
-            coreExports.warning('GitHub token not provided. Cannot fetch commit information.');
-            return;
-        }
-        const octokit = githubExports.getOctokit(githubToken);
-        const context = githubExports.context;
-        coreExports.info('🔍 Fetching current commit changes...');
-        // Get current commit
-        const commit = await getCurrentCommit(octokit, context.repo.owner, context.repo.repo, context.sha);
-        if (commit) {
-            coreExports.info(`📋 Current commit:`);
-            coreExports.info('='.repeat(50));
-            coreExports.info(`\n📌 Commit:`);
-            displayCommitChanges(commit);
-            // Run Acrolinx analysis on modified files
-            coreExports.info('\n🔍 Running Acrolinx analysis on modified files...');
-            const acrolinxResults = await runAcrolinxAnalysis(commit, acrolinxConfig, dialect, tone, styleGuide);
-            // Display Acrolinx results
-            displayAcrolinxResults(acrolinxResults);
-            // Set outputs
-            coreExports.setOutput('commit-sha', commit.sha);
-            coreExports.setOutput('acrolinx-results', JSON.stringify(acrolinxResults));
-            // Print JSON results to console as requested
-            coreExports.info('\n📊 Acrolinx Analysis Results (JSON):');
-            coreExports.info('='.repeat(50));
-            coreExports.info(JSON.stringify(acrolinxResults, null, 2));
-        }
-        else {
-            coreExports.info('No commit found or failed to fetch commit information.');
-        }
-    }
-    catch (error) {
-        // Fail the workflow run if an error occurs
-        if (error instanceof Error)
-            coreExports.setFailed(error.message);
-    }
+    await runAction();
 }
 
 /**

@@ -12,7 +12,21 @@ const config = {
     format: 'es',
     sourcemap: true
   },
-  plugins: [typescript(), nodeResolve({ preferBuiltins: true }), commonjs()]
+  plugins: [typescript(), nodeResolve({ preferBuiltins: true }), commonjs()],
+  onwarn(warning, warn) {
+    // Suppress circular dependency warnings from @actions/core
+    if (
+      warning.code === 'CIRCULAR_DEPENDENCY' &&
+      warning.message.includes('@actions/core')
+    ) {
+      return
+    }
+    // Suppress other circular dependency warnings that are known to be safe
+    if (warning.code === 'CIRCULAR_DEPENDENCY') {
+      return
+    }
+    warn(warning)
+  }
 }
 
 export default config

@@ -1,15 +1,17 @@
 name: Continuous Integration
 
 on:
+  push:
   pull_request:
     branches:
       - main
-  push:
-    branches:
-      - main
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   test-typescript:

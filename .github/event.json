@@ -1,0 +1,22 @@
+{
+  "action": "opened",
+  "number": 1,
+  "pull_request": {
+    "number": 1,
+    "title": "Test PR",
+    "head": {
+      "ref": "add-pr-check",
+      "sha": "67cfa1e2b6a51158c9245ada0abcad3d28e944c3"
+    },
+    "base": {
+      "ref": "main",
+      "sha": "49abf8f62ec40ddb4810523c45b51b26d381a321"
+    }
+  },
+  "repository": {
+    "owner": {
+      "login": "acrolinx"
+    },
+    "name": "github-action"
+  }
+}

@@ -37,10 +37,17 @@ inputs:
 
 # Define your outputs here.
 outputs:
-  commit-sha:
-    description: SHA of the commit that was analyzed
+  event-type:
+    description: Type of GitHub event that triggered the action
+  files-analyzed:
+    description: Number of files analyzed
   acrolinx-results:
     description: JSON string containing Acrolinx analysis results
+
+# Define permissions required by the action
+permissions:
+  contents: read
+  pull-requests: write
 
 runs:
   using: node20
