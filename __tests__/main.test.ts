@@ -168,7 +168,7 @@ describe('main.ts', () => {
 
     // Verify that the action was marked as failed.
     expect(core.setFailed).toHaveBeenCalledWith(
-      'Acrolinx API token is required'
+      "Required input 'acrolinx_token' or environment variable 'ACROLNX_TOKEN' is not provided"
     )
   })
 })
