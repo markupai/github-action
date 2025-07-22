@@ -16,7 +16,7 @@
 - **Seamless Workflow Integration**: Works with popular content creation tools
 - **API Access**: Comprehensive APIs for custom integrations
 - **Multi-language Support**: Handles content in multiple languages
-  simultaneously
+  simultaneously.
 
 ## Key Features
 
@@ -24,7 +24,7 @@
 
 - Customizable style guides and terminology databases
 - Industry-specific compliance frameworks
-- Automated rule enforcement and suggestions
+- Automated rule enforcement and suggestions.
 
 ### Quality Metrics
 
