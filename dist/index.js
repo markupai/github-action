@@ -32992,7 +32992,7 @@ function createGitHubClient(token) {
  * Utility function for delay
  */
 function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 /**
  * Get commit changes from GitHub API with retry logic
