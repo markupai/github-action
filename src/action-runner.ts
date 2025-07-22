@@ -26,6 +26,12 @@ import {
   displayJsonResults,
   displaySectionHeader
 } from './utils/index.js'
+import {
+  createOrUpdatePRComment,
+  isPullRequestEvent,
+  getPRNumber
+} from './services/pr-comment-service.js'
+import { createGitHubClient } from './services/github-service.js'
 
 /**
  * Set GitHub Action outputs
@@ -126,6 +132,22 @@ export async function runAction(): Promise<void> {
 
     // Display summary
     displaySummary(results)
+
+    // Handle PR comments for pull request events
+    if (isPullRequestEvent() && results.length > 0) {
+      const prNumber = getPRNumber()
+      if (prNumber) {
+        displaySectionHeader('💬 Creating PR Comment')
+        const octokit = createGitHubClient(config.githubToken)
+
+        await createOrUpdatePRComment(octokit, {
+          owner: github.context.repo.owner,
+          repo: github.context.repo.repo,
+          prNumber,
+          results
+        })
+      }
+    }
   } catch (error) {
     handleError(error)
   }

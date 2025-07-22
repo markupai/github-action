@@ -44,6 +44,11 @@ outputs:
   acrolinx-results:
     description: JSON string containing Acrolinx analysis results
 
+# Define permissions required by the action
+permissions:
+  contents: read
+  pull-requests: write
+
 runs:
   using: node20
   main: dist/index.js
