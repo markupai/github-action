@@ -32985,15 +32985,19 @@ class PullRequestEventStrategy {
     }
     async getFilesToAnalyze() {
         try {
+            coreExports.info(`🔍 Fetching files for PR #${this.prNumber} in ${this.owner}/${this.repo}`);
             const response = await this.octokit.rest.pulls.listFiles({
                 owner: this.owner,
                 repo: this.repo,
                 pull_number: this.prNumber
             });
+            coreExports.info(`✅ Found ${response.data.length} files in PR`);
             return response.data.map((file) => file.filename);
         }
         catch (error) {
             coreExports.error(`Failed to get PR files: ${error}`);
+            coreExports.error(`PR Details: #${this.prNumber} in ${this.owner}/${this.repo}`);
+            coreExports.error(`Error details: ${JSON.stringify(error, null, 2)}`);
             return [];
         }
     }

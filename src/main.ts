@@ -297,15 +297,22 @@ class PullRequestEventStrategy implements FileDiscoveryStrategy {
 
   async getFilesToAnalyze(): Promise<string[]> {
     try {
+      core.info(
+        `🔍 Fetching files for PR #${this.prNumber} in ${this.owner}/${this.repo}`
+      )
+
       const response = await this.octokit.rest.pulls.listFiles({
         owner: this.owner,
         repo: this.repo,
         pull_number: this.prNumber
       })
 
+      core.info(`✅ Found ${response.data.length} files in PR`)
       return response.data.map((file) => file.filename)
     } catch (error) {
       core.error(`Failed to get PR files: ${error}`)
+      core.error(`PR Details: #${this.prNumber} in ${this.owner}/${this.repo}`)
+      core.error(`Error details: ${JSON.stringify(error, null, 2)}`)
       return []
     }
   }
