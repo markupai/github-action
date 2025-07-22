@@ -17,9 +17,10 @@ export class PushEventStrategy implements FileDiscoveryStrategy {
   constructor(
     private owner: string,
     private repo: string,
-    private sha: string
+    private sha: string,
+    githubToken: string
   ) {
-    this.githubService = new GitHubService(process.env.GITHUB_TOKEN || '')
+    this.githubService = new GitHubService(githubToken)
   }
 
   async getFilesToAnalyze(): Promise<string[]> {
@@ -55,9 +56,10 @@ export class PullRequestEventStrategy implements FileDiscoveryStrategy {
   constructor(
     private owner: string,
     private repo: string,
-    private prNumber: number
+    private prNumber: number,
+    githubToken: string
   ) {
-    this.githubService = new GitHubService(process.env.GITHUB_TOKEN || '')
+    this.githubService = new GitHubService(githubToken)
   }
 
   async getFilesToAnalyze(): Promise<string[]> {
@@ -89,9 +91,10 @@ export class ManualWorkflowStrategy implements FileDiscoveryStrategy {
   constructor(
     private owner: string,
     private repo: string,
+    githubToken: string,
     private ref: string = 'main'
   ) {
-    this.githubService = new GitHubService(process.env.GITHUB_TOKEN || '')
+    this.githubService = new GitHubService(githubToken)
   }
 
   async getFilesToAnalyze(): Promise<string[]> {
@@ -118,7 +121,8 @@ export class ManualWorkflowStrategy implements FileDiscoveryStrategy {
  * Factory function to create appropriate strategy based on event type
  */
 export function createFileDiscoveryStrategy(
-  context: typeof github.context
+  context: typeof github.context,
+  githubToken: string
 ): FileDiscoveryStrategy {
   const { eventName } = context
 
@@ -127,18 +131,24 @@ export function createFileDiscoveryStrategy(
       return new PushEventStrategy(
         context.repo.owner,
         context.repo.repo,
-        context.sha
+        context.sha,
+        githubToken
       )
 
     case EVENT_TYPES.PULL_REQUEST:
       return new PullRequestEventStrategy(
         context.repo.owner,
         context.repo.repo,
-        context.issue.number
+        context.issue.number,
+        githubToken
       )
 
     case EVENT_TYPES.WORKFLOW_DISPATCH:
-      return new ManualWorkflowStrategy(context.repo.owner, context.repo.repo)
+      return new ManualWorkflowStrategy(
+        context.repo.owner,
+        context.repo.repo,
+        githubToken
+      )
 
     default:
       // For other events, default to push strategy
@@ -146,7 +156,8 @@ export function createFileDiscoveryStrategy(
       return new PushEventStrategy(
         context.repo.owner,
         context.repo.repo,
-        context.sha
+        context.sha,
+        githubToken
       )
   }
 }

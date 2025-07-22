@@ -33133,11 +33133,11 @@ class PushEventStrategy {
     repo;
     sha;
     githubService;
-    constructor(owner, repo, sha) {
+    constructor(owner, repo, sha, githubToken) {
         this.owner = owner;
         this.repo = repo;
         this.sha = sha;
-        this.githubService = new GitHubService(process.env.GITHUB_TOKEN || '');
+        this.githubService = new GitHubService(githubToken);
     }
     async getFilesToAnalyze() {
         const commit = await this.githubService.getCommitChanges(this.owner, this.repo, this.sha);
@@ -33165,11 +33165,11 @@ class PullRequestEventStrategy {
     repo;
     prNumber;
     githubService;
-    constructor(owner, repo, prNumber) {
+    constructor(owner, repo, prNumber, githubToken) {
         this.owner = owner;
         this.repo = repo;
         this.prNumber = prNumber;
-        this.githubService = new GitHubService(process.env.GITHUB_TOKEN || '');
+        this.githubService = new GitHubService(githubToken);
     }
     async getFilesToAnalyze() {
         return await this.githubService.getPullRequestFiles(this.owner, this.repo, this.prNumber);
@@ -33193,11 +33193,11 @@ class ManualWorkflowStrategy {
     repo;
     ref;
     githubService;
-    constructor(owner, repo, ref = 'main') {
+    constructor(owner, repo, githubToken, ref = 'main') {
         this.owner = owner;
         this.repo = repo;
         this.ref = ref;
-        this.githubService = new GitHubService(process.env.GITHUB_TOKEN || '');
+        this.githubService = new GitHubService(githubToken);
     }
     async getFilesToAnalyze() {
         return await this.githubService.getRepositoryFiles(this.owner, this.repo, this.ref);
@@ -33216,19 +33216,19 @@ class ManualWorkflowStrategy {
 /**
  * Factory function to create appropriate strategy based on event type
  */
-function createFileDiscoveryStrategy(context) {
+function createFileDiscoveryStrategy(context, githubToken) {
     const { eventName } = context;
     switch (eventName) {
         case EVENT_TYPES.PUSH:
-            return new PushEventStrategy(context.repo.owner, context.repo.repo, context.sha);
+            return new PushEventStrategy(context.repo.owner, context.repo.repo, context.sha, githubToken);
         case EVENT_TYPES.PULL_REQUEST:
-            return new PullRequestEventStrategy(context.repo.owner, context.repo.repo, context.issue.number);
+            return new PullRequestEventStrategy(context.repo.owner, context.repo.repo, context.issue.number, githubToken);
         case EVENT_TYPES.WORKFLOW_DISPATCH:
-            return new ManualWorkflowStrategy(context.repo.owner, context.repo.repo);
+            return new ManualWorkflowStrategy(context.repo.owner, context.repo.repo, githubToken);
         default:
             // For other events, default to push strategy
             coreExports.warning(`Unsupported event type: ${eventName}. Using push strategy.`);
-            return new PushEventStrategy(context.repo.owner, context.repo.repo, context.sha);
+            return new PushEventStrategy(context.repo.owner, context.repo.repo, context.sha, githubToken);
     }
 }
 
@@ -33427,7 +33427,7 @@ class ActionRunner {
             logConfiguration(this.config);
             // Initialize file discovery strategy
             displaySectionHeader('🔍 Initializing File Discovery');
-            const strategy = createFileDiscoveryStrategy(githubExports.context);
+            const strategy = createFileDiscoveryStrategy(githubExports.context, this.config.githubToken);
             const eventInfo = strategy.getEventInfo();
             // Display event information
             displaySectionHeader('📋 Event Analysis');

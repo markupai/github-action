@@ -48,7 +48,10 @@ export class ActionRunner {
 
       // Initialize file discovery strategy
       displaySectionHeader('🔍 Initializing File Discovery')
-      const strategy = createFileDiscoveryStrategy(github.context)
+      const strategy = createFileDiscoveryStrategy(
+        github.context,
+        this.config.githubToken
+      )
       const eventInfo = strategy.getEventInfo()
 
       // Display event information
