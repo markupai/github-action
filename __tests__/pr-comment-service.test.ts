@@ -28,7 +28,6 @@ jest.unstable_mockModule('@actions/github', () => ({
 }))
 
 // Import the mocked modules
-import * as core from '@actions/core'
 import * as github from '@actions/github'
 import {
   createOrUpdatePRComment,
@@ -59,19 +58,19 @@ describe('PR Comment Service', () => {
 
   describe('isPullRequestEvent', () => {
     it('should return true for pull_request event', () => {
-      ;(github.context as any).eventName = 'pull_request'
+      ;(github.context as { eventName: string }).eventName = 'pull_request'
       expect(isPullRequestEvent()).toBe(true)
     })
 
     it('should return false for push event', () => {
-      ;(github.context as any).eventName = 'push'
+      ;(github.context as { eventName: string }).eventName = 'push'
       expect(isPullRequestEvent()).toBe(false)
     })
   })
 
   describe('getPRNumber', () => {
     it('should return null for non-pull_request event', () => {
-      ;(github.context as any).eventName = 'push'
+      ;(github.context as { eventName: string }).eventName = 'push'
       expect(getPRNumber()).toBe(null)
     })
   })
@@ -113,7 +112,10 @@ describe('PR Comment Service', () => {
         data: { id: 456 }
       })
 
-      await createOrUpdatePRComment(mockOctokit as any, commentData)
+      await createOrUpdatePRComment(
+        mockOctokit as ReturnType<typeof github.getOctokit>,
+        commentData
+      )
 
       expect(mockOctokit.rest.issues.createComment).toHaveBeenCalledWith({
         owner: 'test-owner',
@@ -142,7 +144,10 @@ describe('PR Comment Service', () => {
         data: { id: 789 }
       })
 
-      await createOrUpdatePRComment(mockOctokit as any, commentData)
+      await createOrUpdatePRComment(
+        mockOctokit as ReturnType<typeof github.getOctokit>,
+        commentData
+      )
 
       expect(mockOctokit.rest.issues.updateComment).toHaveBeenCalledWith({
         owner: 'test-owner',
@@ -154,10 +159,13 @@ describe('PR Comment Service', () => {
 
     it('should handle permission denied error for repository access', async () => {
       const permissionError = new Error('Permission denied')
-      ;(permissionError as any).status = 403
+      ;(permissionError as { status?: number }).status = 403
       mockOctokit.rest.repos.get.mockRejectedValue(permissionError)
 
-      await createOrUpdatePRComment(mockOctokit as any, commentData)
+      await createOrUpdatePRComment(
+        mockOctokit as ReturnType<typeof github.getOctokit>,
+        commentData
+      )
 
       expect(mockOctokit.rest.issues.createComment).not.toHaveBeenCalled()
       expect(mockOctokit.rest.issues.updateComment).not.toHaveBeenCalled()
@@ -174,10 +182,13 @@ describe('PR Comment Service', () => {
 
       // Mock permission denied for comment creation
       const permissionError = new Error('Permission denied')
-      ;(permissionError as any).status = 403
+      ;(permissionError as { status?: number }).status = 403
       mockOctokit.rest.issues.createComment.mockRejectedValue(permissionError)
 
-      await createOrUpdatePRComment(mockOctokit as any, commentData)
+      await createOrUpdatePRComment(
+        mockOctokit as ReturnType<typeof github.getOctokit>,
+        commentData
+      )
 
       expect(mockOctokit.rest.issues.createComment).toHaveBeenCalled()
     })
@@ -193,10 +204,13 @@ describe('PR Comment Service', () => {
 
       // Mock PR not found error
       const notFoundError = new Error('Not found')
-      ;(notFoundError as any).status = 404
+      ;(notFoundError as { status?: number }).status = 404
       mockOctokit.rest.issues.createComment.mockRejectedValue(notFoundError)
 
-      await createOrUpdatePRComment(mockOctokit as any, commentData)
+      await createOrUpdatePRComment(
+        mockOctokit as ReturnType<typeof github.getOctokit>,
+        commentData
+      )
 
       expect(mockOctokit.rest.issues.createComment).toHaveBeenCalled()
     })
@@ -212,10 +226,13 @@ describe('PR Comment Service', () => {
 
       // Mock generic error
       const genericError = new Error('Something went wrong')
-      ;(genericError as any).status = 500
+      ;(genericError as { status?: number }).status = 500
       mockOctokit.rest.issues.createComment.mockRejectedValue(genericError)
 
-      await createOrUpdatePRComment(mockOctokit as any, commentData)
+      await createOrUpdatePRComment(
+        mockOctokit as ReturnType<typeof github.getOctokit>,
+        commentData
+      )
 
       expect(mockOctokit.rest.issues.createComment).toHaveBeenCalled()
     })
@@ -234,7 +251,10 @@ describe('PR Comment Service', () => {
         data: { id: 456 }
       })
 
-      await createOrUpdatePRComment(mockOctokit as any, commentData)
+      await createOrUpdatePRComment(
+        mockOctokit as ReturnType<typeof github.getOctokit>,
+        commentData
+      )
 
       expect(mockOctokit.rest.issues.createComment).toHaveBeenCalled()
     })
@@ -277,7 +297,10 @@ describe('PR Comment Service', () => {
         data: { id: 456 }
       })
 
-      await createOrUpdatePRComment(mockOctokit as any, commentData)
+      await createOrUpdatePRComment(
+        mockOctokit as ReturnType<typeof github.getOctokit>,
+        commentData
+      )
 
       const createCall = mockOctokit.rest.issues.createComment.mock.calls[0][0]
       expect(createCall.body).toContain('## 🔍 Acrolinx Analysis Results')
@@ -319,7 +342,10 @@ describe('PR Comment Service', () => {
         data: { id: 456 }
       })
 
-      await createOrUpdatePRComment(mockOctokit as any, commentData)
+      await createOrUpdatePRComment(
+        mockOctokit as ReturnType<typeof github.getOctokit>,
+        commentData
+      )
 
       const createCall = mockOctokit.rest.issues.createComment.mock.calls[0][0]
       expect(createCall.body).toContain('No files were analyzed.')
