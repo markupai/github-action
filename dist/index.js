@@ -33321,14 +33321,6 @@ function displayFilesToAnalyze(files) {
     }
 }
 /**
- * Display JSON results for debugging
- */
-function displayJsonResults(results) {
-    coreExports.info('\n📊 Acrolinx Analysis Results (JSON):');
-    coreExports.info('='.repeat(DISPLAY.SEPARATOR_LENGTH));
-    coreExports.info(JSON.stringify(results, null, 2));
-}
-/**
  * Display section header
  */
 function displaySectionHeader(title) {
@@ -33585,7 +33577,6 @@ async function runAction() {
         const results = await analyzeFiles(supportedFiles, analysisOptions, acrolinxConfig, readFileContent);
         // Display results
         displayAcrolinxResults(results);
-        displayJsonResults(results);
         // Set outputs
         setOutputs(eventInfo, results);
         // Display summary

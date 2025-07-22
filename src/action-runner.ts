@@ -23,7 +23,6 @@ import {
   displayEventInfo,
   displayFilesToAnalyze,
   displayAcrolinxResults,
-  displayJsonResults,
   displaySectionHeader
 } from './utils/index.js'
 import {
@@ -125,7 +124,6 @@ export async function runAction(): Promise<void> {
 
     // Display results
     displayAcrolinxResults(results)
-    displayJsonResults(results)
 
     // Set outputs
     setOutputs(eventInfo, results)

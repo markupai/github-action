@@ -74,15 +74,6 @@ export function displayFilesToAnalyze(files: string[]): void {
 }
 
 /**
- * Display JSON results for debugging
- */
-export function displayJsonResults(results: AcrolinxAnalysisResult[]): void {
-  core.info('\n📊 Acrolinx Analysis Results (JSON):')
-  core.info('='.repeat(DISPLAY.SEPARATOR_LENGTH))
-  core.info(JSON.stringify(results, null, 2))
-}
-
-/**
  * Display section header
  */
 export function displaySectionHeader(title: string): void {
