@@ -47,7 +47,6 @@ function displaySummary(results: AcrolinxAnalysisResult[]): void {
 
   displaySectionHeader('📊 Analysis Summary')
   core.info(`📄 Total Files Analyzed: ${summary.totalFiles}`)
-  core.info(`⚠️  Total Issues Found: ${summary.totalIssues}`)
   core.info(`📈 Average Quality Score: ${summary.averageQualityScore}`)
   core.info(`📝 Average Clarity Score: ${summary.averageClarityScore}`)
   core.info(`🎭 Average Tone Score: ${summary.averageToneScore}`)

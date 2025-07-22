@@ -141,7 +141,7 @@ describe('Integration Tests', () => {
 
       expect(results).toHaveLength(1)
       expect(results[0].filePath).toBe('README.md')
-      expect(results[0].result.status).toBe('completed')
+      expect(results[0].result.quality.score).toBe(85.2)
     })
 
     it('should handle missing Acrolinx token', async () => {

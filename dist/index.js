@@ -31295,7 +31295,6 @@ const EVENT_TYPES = {
  */
 const DISPLAY = {
     MAX_FILES_TO_SHOW: 10,
-    MAX_ISSUES_TO_SHOW: 5,
     SEPARATOR_LENGTH: 50
 };
 /**
@@ -32927,7 +32926,7 @@ async function analyzeFile(filePath, content, options, config) {
         const result = await Fn(request, config);
         return {
             filePath,
-            result,
+            result: result.scores,
             timestamp: new Date().toISOString()
         };
     }
@@ -32960,19 +32959,16 @@ function getAnalysisSummary(results) {
     if (results.length === 0) {
         return {
             totalFiles: 0,
-            totalIssues: 0,
             averageQualityScore: 0,
             averageClarityScore: 0,
             averageToneScore: 0
         };
     }
-    const totalIssues = results.reduce((sum, result) => sum + result.result.issues.length, 0);
-    const totalQualityScore = results.reduce((sum, result) => sum + result.result.scores.quality.score, 0);
-    const totalClarityScore = results.reduce((sum, result) => sum + result.result.scores.clarity.score, 0);
-    const totalToneScore = results.reduce((sum, result) => sum + result.result.scores.tone.score, 0);
+    const totalQualityScore = results.reduce((sum, result) => sum + result.result.quality.score, 0);
+    const totalClarityScore = results.reduce((sum, result) => sum + result.result.clarity.score, 0);
+    const totalToneScore = results.reduce((sum, result) => sum + result.result.tone.score, 0);
     return {
         totalFiles: results.length,
-        totalIssues,
         averageQualityScore: Math.round((totalQualityScore / results.length) * 100) / 100,
         averageClarityScore: Math.round((totalClarityScore / results.length) * 100) / 100,
         averageToneScore: Math.round((totalToneScore / results.length) * 100) / 100
@@ -33297,27 +33293,12 @@ function displayAcrolinxResults(results) {
     results.forEach((analysis, index) => {
         const { filePath, result } = analysis;
         coreExports.info(`\n📄 File: ${filePath}`);
-        coreExports.info(`📈 Quality Score: ${result.scores.quality.score}`);
-        coreExports.info(`📝 Clarity Score: ${result.scores.clarity.score}`);
-        coreExports.info(`🔤 Grammar Issues: ${result.scores.grammar.issues}`);
-        coreExports.info(`📋 Style Guide Issues: ${result.scores.style_guide.issues}`);
-        coreExports.info(`🎭 Tone Score: ${result.scores.tone.score}`);
-        coreExports.info(`📚 Terminology Issues: ${result.scores.terminology.issues}`);
-        if (result.issues.length > 0) {
-            coreExports.info(`\n⚠️  Issues Found:`);
-            result.issues.slice(0, DISPLAY.MAX_ISSUES_TO_SHOW).forEach((issue, issueIndex) => {
-                coreExports.info(`  ${issueIndex + 1}. ${issue.subcategory}`);
-                coreExports.info(`     Original: "${issue.original}"`);
-                coreExports.info(`     Category: ${issue.category}`);
-                coreExports.info(`     Position: ${issue.char_index}`);
-            });
-            if (result.issues.length > DISPLAY.MAX_ISSUES_TO_SHOW) {
-                coreExports.info(`     ... and ${result.issues.length - DISPLAY.MAX_ISSUES_TO_SHOW} more issues`);
-            }
-        }
-        else {
-            coreExports.info('✅ No issues found!');
-        }
+        coreExports.info(`📈 Quality Score: ${result.quality.score}`);
+        coreExports.info(`📝 Clarity Score: ${result.clarity.score}`);
+        coreExports.info(`🔤 Grammar Issues: ${result.grammar.issues}`);
+        coreExports.info(`📋 Style Guide Issues: ${result.style_guide.issues}`);
+        coreExports.info(`🎭 Tone Score: ${result.tone.score}`);
+        coreExports.info(`📚 Terminology Issues: ${result.terminology.issues}`);
         if (index < results.length - 1) {
             coreExports.info('─'.repeat(DISPLAY.SEPARATOR_LENGTH));
         }
@@ -33373,7 +33354,6 @@ function displaySummary(results) {
     const summary = getAnalysisSummary(results);
     displaySectionHeader('📊 Analysis Summary');
     coreExports.info(`📄 Total Files Analyzed: ${summary.totalFiles}`);
-    coreExports.info(`⚠️  Total Issues Found: ${summary.totalIssues}`);
     coreExports.info(`📈 Average Quality Score: ${summary.averageQualityScore}`);
     coreExports.info(`📝 Average Clarity Score: ${summary.averageClarityScore}`);
     coreExports.info(`🎭 Average Tone Score: ${summary.averageToneScore}`);

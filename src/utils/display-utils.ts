@@ -39,39 +39,12 @@ export function displayAcrolinxResults(
   results.forEach((analysis, index) => {
     const { filePath, result } = analysis
     core.info(`\n📄 File: ${filePath}`)
-    core.info(`📈 Quality Score: ${result.scores.quality.score}`)
-    core.info(`📝 Clarity Score: ${result.scores.clarity.score}`)
-    core.info(`🔤 Grammar Issues: ${result.scores.grammar.issues}`)
-    core.info(`📋 Style Guide Issues: ${result.scores.style_guide.issues}`)
-    core.info(`🎭 Tone Score: ${result.scores.tone.score}`)
-    core.info(`📚 Terminology Issues: ${result.scores.terminology.issues}`)
-
-    if (result.issues.length > 0) {
-      core.info(`\n⚠️  Issues Found:`)
-      result.issues.slice(0, DISPLAY.MAX_ISSUES_TO_SHOW).forEach(
-        (
-          issue: {
-            subcategory: string
-            original: string
-            category: string
-            char_index: number
-          },
-          issueIndex: number
-        ) => {
-          core.info(`  ${issueIndex + 1}. ${issue.subcategory}`)
-          core.info(`     Original: "${issue.original}"`)
-          core.info(`     Category: ${issue.category}`)
-          core.info(`     Position: ${issue.char_index}`)
-        }
-      )
-      if (result.issues.length > DISPLAY.MAX_ISSUES_TO_SHOW) {
-        core.info(
-          `     ... and ${result.issues.length - DISPLAY.MAX_ISSUES_TO_SHOW} more issues`
-        )
-      }
-    } else {
-      core.info('✅ No issues found!')
-    }
+    core.info(`📈 Quality Score: ${result.quality.score}`)
+    core.info(`📝 Clarity Score: ${result.clarity.score}`)
+    core.info(`🔤 Grammar Issues: ${result.grammar.issues}`)
+    core.info(`📋 Style Guide Issues: ${result.style_guide.issues}`)
+    core.info(`🎭 Tone Score: ${result.tone.score}`)
+    core.info(`📚 Terminology Issues: ${result.terminology.issues}`)
 
     if (index < results.length - 1) {
       core.info('─'.repeat(DISPLAY.SEPARATOR_LENGTH))

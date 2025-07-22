@@ -38,7 +38,7 @@ export async function analyzeFile(
 
     return {
       filePath,
-      result,
+      result: result.scores,
       timestamp: new Date().toISOString()
     }
   } catch (error) {
@@ -77,7 +77,6 @@ export async function analyzeFiles(
  */
 export function getAnalysisSummary(results: AcrolinxAnalysisResult[]): {
   totalFiles: number
-  totalIssues: number
   averageQualityScore: number
   averageClarityScore: number
   averageToneScore: number
@@ -85,33 +84,27 @@ export function getAnalysisSummary(results: AcrolinxAnalysisResult[]): {
   if (results.length === 0) {
     return {
       totalFiles: 0,
-      totalIssues: 0,
       averageQualityScore: 0,
       averageClarityScore: 0,
       averageToneScore: 0
     }
   }
 
-  const totalIssues = results.reduce(
-    (sum, result) => sum + result.result.issues.length,
-    0
-  )
   const totalQualityScore = results.reduce(
-    (sum, result) => sum + result.result.scores.quality.score,
+    (sum, result) => sum + result.result.quality.score,
     0
   )
   const totalClarityScore = results.reduce(
-    (sum, result) => sum + result.result.scores.clarity.score,
+    (sum, result) => sum + result.result.clarity.score,
     0
   )
   const totalToneScore = results.reduce(
-    (sum, result) => sum + result.result.scores.tone.score,
+    (sum, result) => sum + result.result.tone.score,
     0
   )
 
   return {
     totalFiles: results.length,
-    totalIssues,
     averageQualityScore:
       Math.round((totalQualityScore / results.length) * 100) / 100,
     averageClarityScore:

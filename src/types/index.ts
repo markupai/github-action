@@ -26,14 +26,14 @@ export interface FileChange {
 }
 
 // Import types from Acrolinx SDK first
-import type { StyleAnalysisSuccessResp } from '@acrolinx/typescript-sdk'
+import type { StyleScores } from '@acrolinx/typescript-sdk'
 
 /**
  * Interface for Acrolinx analysis result
  */
 export interface AcrolinxAnalysisResult {
   filePath: string
-  result: StyleAnalysisSuccessResp
+  result: StyleScores
   timestamp: string
 }
 
