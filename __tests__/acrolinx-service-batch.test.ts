@@ -170,7 +170,7 @@ describe('Acrolinx Service Batch Functionality', () => {
         ]),
         mockConfig,
         expect.objectContaining({
-          maxConcurrent: 10,
+          maxConcurrent: 100,
           retryAttempts: 2,
           retryDelay: 1000,
           timeout: 300000

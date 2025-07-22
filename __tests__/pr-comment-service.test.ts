@@ -101,7 +101,12 @@ const createCommentData = (results: unknown[]): PRCommentData => ({
   owner: 'test-owner',
   repo: 'test-repo',
   prNumber: 123,
-  results: results as unknown as PRCommentData['results']
+  results: results as unknown as PRCommentData['results'],
+  config: {
+    dialect: 'american_english',
+    tone: 'formal',
+    styleGuide: 'ap'
+  }
 })
 
 const createGitHubError = (message: string, status?: number): GitHubError => {
@@ -351,6 +356,11 @@ describe('PR Comment Service', () => {
       expect(commentBody).toContain('| Style Guide | 88 |')
       expect(commentBody).toContain('| Tone | 82 |')
       expect(commentBody).toContain('| Terminology | 95 |')
+
+      // Test configuration display
+      expect(commentBody).toContain(
+        'Configuration: Dialect: american_english | Tone: formal | Style Guide: ap'
+      )
     })
 
     it('should handle empty results', async () => {
