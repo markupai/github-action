@@ -4,6 +4,38 @@
 
 import { jest } from '@jest/globals'
 
+// Type definitions for better type safety
+interface MockGitHubContext {
+  eventName: string
+  issue: {
+    number: number
+  }
+  repo: {
+    owner: string
+    repo: string
+  }
+}
+
+// Proper Jest mock types to avoid "never" type issues
+type MockFunction = jest.Mock
+
+interface MockOctokitInstance {
+  rest: {
+    repos: {
+      get: MockFunction
+    }
+    issues: {
+      listComments: MockFunction
+      createComment: MockFunction
+      updateComment: MockFunction
+    }
+  }
+}
+
+interface GitHubError extends Error {
+  status?: number
+}
+
 // Mock @actions/core
 jest.unstable_mockModule('@actions/core', () => ({
   info: jest.fn(),
@@ -36,8 +68,8 @@ import {
   PRCommentData
 } from '../src/services/pr-comment-service.js'
 
-// Mock Octokit
-const mockOctokit = {
+// Mock Octokit with proper typing
+const mockOctokit: MockOctokitInstance = {
   rest: {
     repos: {
       get: jest.fn()
@@ -50,6 +82,83 @@ const mockOctokit = {
   }
 }
 
+// Test data factory functions
+const createMockAnalysisResult = (overrides: Record<string, unknown> = {}) => ({
+  filePath: 'test.md',
+  result: {
+    quality: { score: 85 },
+    clarity: { score: 78 },
+    grammar: { score: 90, issues: 2 },
+    style_guide: { score: 88, issues: 1 },
+    tone: { score: 82 },
+    terminology: { score: 95, issues: 0 }
+  },
+  timestamp: '2024-01-15T10:30:00Z',
+  ...overrides
+})
+
+const createCommentData = (results: unknown[]): PRCommentData => ({
+  owner: 'test-owner',
+  repo: 'test-repo',
+  prNumber: 123,
+  results: results as unknown as PRCommentData['results']
+})
+
+const createGitHubError = (message: string, status?: number): GitHubError => {
+  const error = new Error(message) as GitHubError
+  if (status !== undefined) {
+    error.status = status
+  }
+  return error
+}
+
+// Helper functions for common test setup - using explicit typing to avoid "never" issues
+const setupSuccessfulRepositoryAccess = (): void => {
+  const mockFn = mockOctokit.rest.repos.get as jest.MockedFunction<
+    () => Promise<unknown>
+  >
+  mockFn.mockResolvedValue({ data: {} })
+}
+
+const setupNoExistingComments = (): void => {
+  const mockFn = mockOctokit.rest.issues.listComments as jest.MockedFunction<
+    () => Promise<unknown>
+  >
+  mockFn.mockResolvedValue({ data: [] })
+}
+
+const setupExistingComment = (commentId: number): void => {
+  const mockFn = mockOctokit.rest.issues.listComments as jest.MockedFunction<
+    () => Promise<unknown>
+  >
+  mockFn.mockResolvedValue({
+    data: [
+      {
+        id: commentId,
+        body: '## 🔍 Acrolinx Analysis Results\nSome old content'
+      }
+    ]
+  })
+}
+
+const setupSuccessfulCommentCreation = (commentId: number): void => {
+  const mockFn = mockOctokit.rest.issues.createComment as jest.MockedFunction<
+    () => Promise<unknown>
+  >
+  mockFn.mockResolvedValue({
+    data: { id: commentId }
+  })
+}
+
+const setupSuccessfulCommentUpdate = (commentId: number): void => {
+  const mockFn = mockOctokit.rest.issues.updateComment as jest.MockedFunction<
+    () => Promise<unknown>
+  >
+  mockFn.mockResolvedValue({
+    data: { id: commentId }
+  })
+}
+
 describe('PR Comment Service', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -58,297 +167,267 @@ describe('PR Comment Service', () => {
 
   describe('isPullRequestEvent', () => {
     it('should return true for pull_request event', () => {
-      ;(github.context as { eventName: string }).eventName = 'pull_request'
+      ;(github.context as MockGitHubContext).eventName = 'pull_request'
       expect(isPullRequestEvent()).toBe(true)
     })
 
     it('should return false for push event', () => {
-      ;(github.context as { eventName: string }).eventName = 'push'
+      ;(github.context as MockGitHubContext).eventName = 'push'
       expect(isPullRequestEvent()).toBe(false)
     })
   })
 
   describe('getPRNumber', () => {
     it('should return null for non-pull_request event', () => {
-      ;(github.context as { eventName: string }).eventName = 'push'
+      ;(github.context as MockGitHubContext).eventName = 'push'
       expect(getPRNumber()).toBe(null)
     })
   })
 
   describe('createOrUpdatePRComment', () => {
-    const mockResults = [
-      {
-        filePath: 'test.md',
-        result: {
-          quality: { score: 85 },
-          clarity: { score: 78 },
-          grammar: { score: 90, issues: 2 },
-          style_guide: { score: 88, issues: 1 },
-          tone: { score: 82 },
-          terminology: { score: 95, issues: 0 }
-        },
-        timestamp: '2024-01-15T10:30:00Z'
-      }
-    ]
+    const mockResults = [createMockAnalysisResult()]
+    const commentData = createCommentData(mockResults)
 
-    const commentData: PRCommentData = {
-      owner: 'test-owner',
-      repo: 'test-repo',
-      prNumber: 123,
-      results: mockResults
-    }
+    describe('successful scenarios', () => {
+      it('should create new comment when no existing comment found', async () => {
+        setupSuccessfulRepositoryAccess()
+        setupNoExistingComments()
+        setupSuccessfulCommentCreation(456)
 
-    it('should create new comment when no existing comment found', async () => {
-      // Mock successful repository access
-      mockOctokit.rest.repos.get.mockResolvedValue({ data: {} })
+        await createOrUpdatePRComment(
+          mockOctokit as unknown as ReturnType<typeof github.getOctokit>,
+          commentData
+        )
 
-      // Mock no existing comments
-      mockOctokit.rest.issues.listComments.mockResolvedValue({
-        data: []
+        expect(mockOctokit.rest.issues.createComment).toHaveBeenCalledWith({
+          owner: 'test-owner',
+          repo: 'test-repo',
+          issue_number: 123,
+          body: expect.stringContaining('## 🔍 Acrolinx Analysis Results')
+        })
       })
 
-      // Mock successful comment creation
-      mockOctokit.rest.issues.createComment.mockResolvedValue({
-        data: { id: 456 }
-      })
+      it('should update existing comment when found', async () => {
+        setupSuccessfulRepositoryAccess()
+        setupExistingComment(789)
+        setupSuccessfulCommentUpdate(789)
 
-      await createOrUpdatePRComment(
-        mockOctokit as ReturnType<typeof github.getOctokit>,
-        commentData
-      )
+        await createOrUpdatePRComment(
+          mockOctokit as unknown as ReturnType<typeof github.getOctokit>,
+          commentData
+        )
 
-      expect(mockOctokit.rest.issues.createComment).toHaveBeenCalledWith({
-        owner: 'test-owner',
-        repo: 'test-repo',
-        issue_number: 123,
-        body: expect.stringContaining('## 🔍 Acrolinx Analysis Results')
+        expect(mockOctokit.rest.issues.updateComment).toHaveBeenCalledWith({
+          owner: 'test-owner',
+          repo: 'test-repo',
+          comment_id: 789,
+          body: expect.stringContaining('## 🔍 Acrolinx Analysis Results')
+        })
       })
     })
 
-    it('should update existing comment when found', async () => {
-      // Mock successful repository access
-      mockOctokit.rest.repos.get.mockResolvedValue({ data: {} })
+    describe('error handling', () => {
+      it('should handle permission denied error for repository access', async () => {
+        const permissionError = createGitHubError('Permission denied', 403)
+        const mockFn = mockOctokit.rest.repos.get as jest.MockedFunction<
+          () => Promise<unknown>
+        >
+        mockFn.mockRejectedValue(permissionError)
 
-      // Mock existing Acrolinx comment
-      mockOctokit.rest.issues.listComments.mockResolvedValue({
-        data: [
-          {
-            id: 789,
-            body: '## 🔍 Acrolinx Analysis Results\nSome old content'
-          }
-        ]
+        await createOrUpdatePRComment(
+          mockOctokit as unknown as ReturnType<typeof github.getOctokit>,
+          commentData
+        )
+
+        expect(mockOctokit.rest.issues.createComment).not.toHaveBeenCalled()
+        expect(mockOctokit.rest.issues.updateComment).not.toHaveBeenCalled()
       })
 
-      // Mock successful comment update
-      mockOctokit.rest.issues.updateComment.mockResolvedValue({
-        data: { id: 789 }
+      it('should handle permission denied error for comment creation', async () => {
+        setupSuccessfulRepositoryAccess()
+        setupNoExistingComments()
+
+        const permissionError = createGitHubError('Permission denied', 403)
+        const mockFn = mockOctokit.rest.issues
+          .createComment as jest.MockedFunction<() => Promise<unknown>>
+        mockFn.mockRejectedValue(permissionError)
+
+        await createOrUpdatePRComment(
+          mockOctokit as unknown as ReturnType<typeof github.getOctokit>,
+          commentData
+        )
+
+        expect(mockOctokit.rest.issues.createComment).toHaveBeenCalled()
       })
 
-      await createOrUpdatePRComment(
-        mockOctokit as ReturnType<typeof github.getOctokit>,
-        commentData
-      )
+      it('should handle pull request not found error', async () => {
+        setupSuccessfulRepositoryAccess()
+        setupNoExistingComments()
 
-      expect(mockOctokit.rest.issues.updateComment).toHaveBeenCalledWith({
-        owner: 'test-owner',
-        repo: 'test-repo',
-        comment_id: 789,
-        body: expect.stringContaining('## 🔍 Acrolinx Analysis Results')
-      })
-    })
+        const notFoundError = createGitHubError('Not found', 404)
+        const mockFn = mockOctokit.rest.issues
+          .createComment as jest.MockedFunction<() => Promise<unknown>>
+        mockFn.mockRejectedValue(notFoundError)
 
-    it('should handle permission denied error for repository access', async () => {
-      const permissionError = new Error('Permission denied')
-      ;(permissionError as { status?: number }).status = 403
-      mockOctokit.rest.repos.get.mockRejectedValue(permissionError)
+        await createOrUpdatePRComment(
+          mockOctokit as unknown as ReturnType<typeof github.getOctokit>,
+          commentData
+        )
 
-      await createOrUpdatePRComment(
-        mockOctokit as ReturnType<typeof github.getOctokit>,
-        commentData
-      )
-
-      expect(mockOctokit.rest.issues.createComment).not.toHaveBeenCalled()
-      expect(mockOctokit.rest.issues.updateComment).not.toHaveBeenCalled()
-    })
-
-    it('should handle permission denied error for comment creation', async () => {
-      // Mock successful repository access
-      mockOctokit.rest.repos.get.mockResolvedValue({ data: {} })
-
-      // Mock no existing comments
-      mockOctokit.rest.issues.listComments.mockResolvedValue({
-        data: []
+        expect(mockOctokit.rest.issues.createComment).toHaveBeenCalled()
       })
 
-      // Mock permission denied for comment creation
-      const permissionError = new Error('Permission denied')
-      ;(permissionError as { status?: number }).status = 403
-      mockOctokit.rest.issues.createComment.mockRejectedValue(permissionError)
+      it('should handle generic error', async () => {
+        setupSuccessfulRepositoryAccess()
+        setupNoExistingComments()
 
-      await createOrUpdatePRComment(
-        mockOctokit as ReturnType<typeof github.getOctokit>,
-        commentData
-      )
+        const genericError = createGitHubError('Something went wrong', 500)
+        const mockFn = mockOctokit.rest.issues
+          .createComment as jest.MockedFunction<() => Promise<unknown>>
+        mockFn.mockRejectedValue(genericError)
 
-      expect(mockOctokit.rest.issues.createComment).toHaveBeenCalled()
-    })
+        await createOrUpdatePRComment(
+          mockOctokit as unknown as ReturnType<typeof github.getOctokit>,
+          commentData
+        )
 
-    it('should handle pull request not found error', async () => {
-      // Mock successful repository access
-      mockOctokit.rest.repos.get.mockResolvedValue({ data: {} })
-
-      // Mock no existing comments
-      mockOctokit.rest.issues.listComments.mockResolvedValue({
-        data: []
+        expect(mockOctokit.rest.issues.createComment).toHaveBeenCalled()
       })
 
-      // Mock PR not found error
-      const notFoundError = new Error('Not found')
-      ;(notFoundError as { status?: number }).status = 404
-      mockOctokit.rest.issues.createComment.mockRejectedValue(notFoundError)
+      it('should handle error when finding existing comments', async () => {
+        setupSuccessfulRepositoryAccess()
+        const mockFn = mockOctokit.rest.issues
+          .listComments as jest.MockedFunction<() => Promise<unknown>>
+        mockFn.mockRejectedValue(new Error('Failed to list comments'))
+        setupSuccessfulCommentCreation(456)
 
-      await createOrUpdatePRComment(
-        mockOctokit as ReturnType<typeof github.getOctokit>,
-        commentData
-      )
+        await createOrUpdatePRComment(
+          mockOctokit as unknown as ReturnType<typeof github.getOctokit>,
+          commentData
+        )
 
-      expect(mockOctokit.rest.issues.createComment).toHaveBeenCalled()
-    })
-
-    it('should handle generic error', async () => {
-      // Mock successful repository access
-      mockOctokit.rest.repos.get.mockResolvedValue({ data: {} })
-
-      // Mock no existing comments
-      mockOctokit.rest.issues.listComments.mockResolvedValue({
-        data: []
+        expect(mockOctokit.rest.issues.createComment).toHaveBeenCalled()
       })
-
-      // Mock generic error
-      const genericError = new Error('Something went wrong')
-      ;(genericError as { status?: number }).status = 500
-      mockOctokit.rest.issues.createComment.mockRejectedValue(genericError)
-
-      await createOrUpdatePRComment(
-        mockOctokit as ReturnType<typeof github.getOctokit>,
-        commentData
-      )
-
-      expect(mockOctokit.rest.issues.createComment).toHaveBeenCalled()
-    })
-
-    it('should handle error when finding existing comments', async () => {
-      // Mock successful repository access
-      mockOctokit.rest.repos.get.mockResolvedValue({ data: {} })
-
-      // Mock error when listing comments
-      mockOctokit.rest.issues.listComments.mockRejectedValue(
-        new Error('Failed to list comments')
-      )
-
-      // Mock successful comment creation
-      mockOctokit.rest.issues.createComment.mockResolvedValue({
-        data: { id: 456 }
-      })
-
-      await createOrUpdatePRComment(
-        mockOctokit as ReturnType<typeof github.getOctokit>,
-        commentData
-      )
-
-      expect(mockOctokit.rest.issues.createComment).toHaveBeenCalled()
     })
   })
 
   describe('Comment content generation', () => {
     it('should generate proper markdown table with emojis', async () => {
+      const mockResults = [createMockAnalysisResult()]
+      const commentData = createCommentData(mockResults)
+
+      setupSuccessfulRepositoryAccess()
+      setupNoExistingComments()
+      setupSuccessfulCommentCreation(456)
+
+      await createOrUpdatePRComment(
+        mockOctokit as unknown as ReturnType<typeof github.getOctokit>,
+        commentData
+      )
+
+      const createCall = mockOctokit.rest.issues.createComment.mock
+        .calls[0][0] as { body: string }
+      const commentBody = createCall.body
+
+      // Test header and structure
+      expect(commentBody).toContain('## 🔍 Acrolinx Analysis Results')
+      expect(commentBody).toContain('## 📊 Summary')
+      expect(commentBody).toContain(
+        'Quality Score Legend: 🟢 80+ | 🟡 60-79 | 🔴 0-59'
+      )
+
+      // Test table structure
+      expect(commentBody).toContain(
+        '| File | Quality | Clarity | Grammar | Style Guide | Tone | Terminology |'
+      )
+
+      // Test emoji display
+      expect(commentBody).toContain('🟢 85') // Green emoji for score 85
+
+      // Test integer rounding in summary
+      expect(commentBody).toContain('| Quality | 85 |')
+      expect(commentBody).toContain('| Clarity | 78 |')
+      expect(commentBody).toContain('| Grammar | 90 |')
+      expect(commentBody).toContain('| Style Guide | 88 |')
+      expect(commentBody).toContain('| Tone | 82 |')
+      expect(commentBody).toContain('| Terminology | 95 |')
+    })
+
+    it('should handle empty results', async () => {
+      const commentData = createCommentData([])
+
+      setupSuccessfulRepositoryAccess()
+      setupNoExistingComments()
+      setupSuccessfulCommentCreation(456)
+
+      await createOrUpdatePRComment(
+        mockOctokit as unknown as ReturnType<typeof github.getOctokit>,
+        commentData
+      )
+
+      const createCall = mockOctokit.rest.issues.createComment.mock
+        .calls[0][0] as { body: string }
+      expect(createCall.body).toContain('No files were analyzed.')
+    })
+
+    it('should handle multiple files with different scores', async () => {
       const mockResults = [
-        {
-          filePath: 'test.md',
+        createMockAnalysisResult({
+          filePath: 'file1.md',
           result: {
-            quality: { score: 85 },
+            quality: { score: 95 },
             clarity: { score: 78 },
             grammar: { score: 90, issues: 2 },
             style_guide: { score: 88, issues: 1 },
             tone: { score: 82 },
             terminology: { score: 95, issues: 0 }
-          },
-          timestamp: '2024-01-15T10:30:00Z'
-        }
+          }
+        }),
+        createMockAnalysisResult({
+          filePath: 'file2.md',
+          result: {
+            quality: { score: 65 },
+            clarity: { score: 78 },
+            grammar: { score: 90, issues: 2 },
+            style_guide: { score: 88, issues: 1 },
+            tone: { score: 82 },
+            terminology: { score: 95, issues: 0 }
+          }
+        }),
+        createMockAnalysisResult({
+          filePath: 'file3.md',
+          result: {
+            quality: { score: 45 },
+            clarity: { score: 78 },
+            grammar: { score: 90, issues: 2 },
+            style_guide: { score: 88, issues: 1 },
+            tone: { score: 82 },
+            terminology: { score: 95, issues: 0 }
+          }
+        })
       ]
+      const commentData = createCommentData(mockResults)
 
-      const commentData: PRCommentData = {
-        owner: 'test-owner',
-        repo: 'test-repo',
-        prNumber: 123,
-        results: mockResults
-      }
-
-      // Mock successful repository access
-      mockOctokit.rest.repos.get.mockResolvedValue({ data: {} })
-
-      // Mock no existing comments
-      mockOctokit.rest.issues.listComments.mockResolvedValue({
-        data: []
-      })
-
-      // Mock successful comment creation
-      mockOctokit.rest.issues.createComment.mockResolvedValue({
-        data: { id: 456 }
-      })
+      setupSuccessfulRepositoryAccess()
+      setupNoExistingComments()
+      setupSuccessfulCommentCreation(456)
 
       await createOrUpdatePRComment(
-        mockOctokit as ReturnType<typeof github.getOctokit>,
+        mockOctokit as unknown as ReturnType<typeof github.getOctokit>,
         commentData
       )
 
-      const createCall = mockOctokit.rest.issues.createComment.mock.calls[0][0]
-      expect(createCall.body).toContain('## 🔍 Acrolinx Analysis Results')
-      expect(createCall.body).toContain(
-        '| File | Quality | Clarity | Grammar | Style Guide | Tone | Terminology |'
-      )
-      expect(createCall.body).toContain('🟢 85') // Green emoji for score 85
-      expect(createCall.body).toContain('## 📊 Summary')
-      expect(createCall.body).toContain(
-        'Quality Score Legend: 🟢 80+ | 🟡 60-79 | 🔴 0-59'
-      )
-      // Check that average scores are rounded to integers
-      expect(createCall.body).toContain('| Quality | 85 |')
-      expect(createCall.body).toContain('| Clarity | 78 |')
-      expect(createCall.body).toContain('| Grammar | 90 |')
-      expect(createCall.body).toContain('| Style Guide | 88 |')
-      expect(createCall.body).toContain('| Tone | 82 |')
-      expect(createCall.body).toContain('| Terminology | 95 |')
-    })
+      const createCall = mockOctokit.rest.issues.createComment.mock
+        .calls[0][0] as { body: string }
+      const commentBody = createCall.body
 
-    it('should handle empty results', async () => {
-      const commentData: PRCommentData = {
-        owner: 'test-owner',
-        repo: 'test-repo',
-        prNumber: 123,
-        results: []
-      }
+      // Test different emoji colors for different scores
+      expect(commentBody).toContain('🟢 95') // Green for high score
+      expect(commentBody).toContain('🟡 65') // Yellow for medium score
+      expect(commentBody).toContain('🔴 45') // Red for low score
 
-      // Mock successful repository access
-      mockOctokit.rest.repos.get.mockResolvedValue({ data: {} })
-
-      // Mock no existing comments
-      mockOctokit.rest.issues.listComments.mockResolvedValue({
-        data: []
-      })
-
-      // Mock successful comment creation
-      mockOctokit.rest.issues.createComment.mockResolvedValue({
-        data: { id: 456 }
-      })
-
-      await createOrUpdatePRComment(
-        mockOctokit as ReturnType<typeof github.getOctokit>,
-        commentData
-      )
-
-      const createCall = mockOctokit.rest.issues.createComment.mock.calls[0][0]
-      expect(createCall.body).toContain('No files were analyzed.')
+      // Test average calculation (95 + 65 + 45) / 3 = 68.33... rounded to 68
+      expect(commentBody).toContain('🟡 68') // Yellow for average score
     })
   })
 })
