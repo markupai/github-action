@@ -41,10 +41,10 @@ export function displayAcrolinxResults(
     core.info(`\n📄 File: ${filePath}`)
     core.info(`📈 Quality Score: ${result.quality.score}`)
     core.info(`📝 Clarity Score: ${result.clarity.score}`)
-    core.info(`🔤 Grammar Issues: ${result.grammar.issues}`)
-    core.info(`📋 Style Guide Issues: ${result.style_guide.issues}`)
+    core.info(`🔤 Grammar Score: ${result.grammar.score}`)
+    core.info(`📋 Style Guide Score: ${result.style_guide.score}`)
     core.info(`🎭 Tone Score: ${result.tone.score}`)
-    core.info(`📚 Terminology Issues: ${result.terminology.issues}`)
+    core.info(`📚 Terminology Score: ${result.terminology.score}`)
 
     if (index < results.length - 1) {
       core.info('─'.repeat(DISPLAY.SEPARATOR_LENGTH))
