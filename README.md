@@ -43,6 +43,7 @@ jobs:
         uses: acrolinx/github-action@v1
         with:
           acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Advanced Configuration
@@ -59,22 +60,75 @@ jobs:
         uses: acrolinx/github-action@v1
         with:
           acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           dialect: 'british_english'
           tone: 'academic'
           style-guide: 'chicago'
           add_commit_status: 'true'
 ```
 
+## Required Tokens
+
+The action requires two tokens to function properly. You can provide them either
+as action inputs or environment variables:
+
+### Acrolinx Token
+
+- **Required**: Yes
+- **Input name**: `acrolinx_token`
+- **Environment variable**: `ACROLINX_TOKEN`
+- **Purpose**: Authenticates with Acrolinx API for style checking
+
+### GitHub Token
+
+- **Required**: Yes
+- **Input name**: `github_token`
+- **Environment variable**: `GITHUB_TOKEN`
+- **Purpose**: Authenticates with GitHub API for repository access
+
+### Providing Tokens
+
+**Option 1: As Action Inputs (Recommended)**
+
+```yaml
+- name: Run Acrolinx Analysis
+  uses: acrolinx/github-action@v1
+  with:
+    acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+    github_token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+**Option 2: As Environment Variables**
+
+```yaml
+- name: Run Acrolinx Analysis
+  uses: acrolinx/github-action@v1
+  env:
+    ACROLINX_TOKEN: ${{ secrets.ACROLINX_TOKEN }}
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+**Option 3: Mixed (Input takes precedence)**
+
+```yaml
+- name: Run Acrolinx Analysis
+  uses: acrolinx/github-action@v1
+  with:
+    acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
 ## Inputs
 
-| Input               | Description                                                                                           | Required | Default               |
-| ------------------- | ----------------------------------------------------------------------------------------------------- | -------- | --------------------- |
-| `acrolinx_token`    | Acrolinx API token for style checking. Can also be provided via `ACROLINX_TOKEN` environment variable | Yes      | -                     |
-| `dialect`           | Language dialect for analysis (e.g., `american_english`, `british_english`)                           | No       | `american_english`    |
-| `tone`              | Tone for analysis (e.g., `formal`, `informal`, `academic`)                                            | No       | `formal`              |
-| `style-guide`       | Style guide for analysis (e.g., `ap`, `chicago`, `apa`)                                               | No       | `ap`                  |
-| `github_token`      | GitHub token for API access (uses `GITHUB_TOKEN` by default)                                          | No       | `${{ github.token }}` |
-| `add_commit_status` | Whether to add commit status updates                                                                  | No       | `true`                |
+| Input               | Description                                                                                           | Required | Default            |
+| ------------------- | ----------------------------------------------------------------------------------------------------- | -------- | ------------------ |
+| `acrolinx_token`    | Acrolinx API token for style checking. Can also be provided via `ACROLINX_TOKEN` environment variable | Yes      | -                  |
+| `github_token`      | GitHub token for API access. Can also be provided via `GITHUB_TOKEN` environment variable             | Yes      | -                  |
+| `dialect`           | Language dialect for analysis (e.g., `american_english`, `british_english`)                           | No       | `american_english` |
+| `tone`              | Tone for analysis (e.g., `formal`, `informal`, `academic`)                                            | No       | `formal`           |
+| `style-guide`       | Style guide for analysis (e.g., `ap`, `chicago`, `apa`)                                               | No       | `ap`               |
+| `add_commit_status` | Whether to add commit status updates                                                                  | No       | `true`             |
 
 ## Outputs
 
@@ -128,6 +182,7 @@ jobs:
         uses: acrolinx/github-action@v1
         with:
           acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Pull Request Quality Gate
@@ -145,6 +200,7 @@ jobs:
         uses: acrolinx/github-action@v1
         with:
           acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           dialect: 'american_english'
           tone: 'formal'
           style-guide: 'ap'
@@ -173,6 +229,7 @@ jobs:
         uses: acrolinx/github-action@v1
         with:
           acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Using Outputs
@@ -190,12 +247,15 @@ jobs:
         uses: acrolinx/github-action@v1
         with:
           acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+```
 
       - name: Display Results
         run: |
           echo "Event: ${{ steps.acrolinx.outputs.event-type }}"
           echo "Files: ${{ steps.acrolinx.outputs.files-analyzed }}"
           echo "Results: ${{ steps.acrolinx.outputs.acrolinx-results }}"
+
 ```
 
 ## Analysis Configuration
@@ -267,25 +327,19 @@ For pull request events, the action creates detailed comments with:
 ## Example Output
 
 ```
-🔍 Running Acrolinx analysis on modified files...
-📄 File: README.md
-📈 Quality Score: 85.2
-📝 Clarity Score: 78.5
-🔤 Grammar Issues: 2
-📋 Style Guide Issues: 1
-🎭 Tone Score: 82.3
-📚 Terminology Issues: 0
+
+🔍 Running Acrolinx analysis on modified files... 📄 File: README.md 📈 Quality
+Score: 85.2 📝 Clarity Score: 78.5 🔤 Grammar Issues: 2 📋 Style Guide Issues: 1
+🎭 Tone Score: 82.3 📚 Terminology Issues: 0
 
 ⚠️ Issues Found:
-  1. passive_voice
-     Original: "This document describes"
-     Category: style_guide
-     Position: 45
-  2. complex_sentence
-     Original: "This document describes the new feature that was implemented"
-     Category: sentence_structure
-     Position: 67
-```
+
+1. passive_voice Original: "This document describes" Category: style_guide
+   Position: 45
+2. complex_sentence Original: "This document describes the new feature that was
+   implemented" Category: sentence_structure Position: 67
+
+````
 
 ## Error Handling
 
@@ -327,7 +381,7 @@ export GITHUB_TOKEN=your-github-token
 
 # Run locally
 npm run local-action
-```
+````
 
 ### Testing
 
