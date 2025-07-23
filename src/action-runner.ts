@@ -78,7 +78,7 @@ function handleError(error: unknown): void {
 async function handlePostAnalysisActions(
   eventInfo: EventInfo,
   results: AcrolinxAnalysisResult[],
-  config: { githubToken: string },
+  config: { githubToken: string; addCommitStatus: boolean },
   analysisOptions: ReturnType<typeof getAnalysisOptions>
 ): Promise<void> {
   if (results.length === 0) {
@@ -93,16 +93,20 @@ async function handlePostAnalysisActions(
   // Handle different event types
   switch (eventInfo.eventType) {
     case EVENT_TYPES.PUSH:
-      // Update commit status for push events
-      displaySectionHeader('📊 Updating Commit Status')
-      await updateCommitStatus(
-        octokit,
-        owner,
-        repo,
-        github.context.sha,
-        summary.averageQualityScore,
-        results.length
-      )
+      // Update commit status for push events (if enabled)
+      if (config.addCommitStatus) {
+        displaySectionHeader('📊 Updating Commit Status')
+        await updateCommitStatus(
+          octokit,
+          owner,
+          repo,
+          github.context.sha,
+          summary.averageQualityScore,
+          results.length
+        )
+      } else {
+        core.info('📊 Commit status update disabled by configuration')
+      }
       break
 
     case EVENT_TYPES.WORKFLOW_DISPATCH:

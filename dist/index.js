@@ -31265,7 +31265,8 @@ const INPUT_NAMES = {
     DIALECT: 'dialect',
     TONE: 'tone',
     STYLE_GUIDE: 'style-guide',
-    GITHUB_TOKEN: 'github_token'
+    GITHUB_TOKEN: 'github_token',
+    ADD_COMMIT_STATUS: 'add_commit_status'
 };
 /**
  * Environment variable names
@@ -33576,12 +33577,14 @@ function getActionConfig() {
     const dialect = getOptionalInput(INPUT_NAMES.DIALECT, DEFAULT_ANALYSIS_OPTIONS.dialect);
     const tone = getOptionalInput(INPUT_NAMES.TONE, DEFAULT_ANALYSIS_OPTIONS.tone);
     const styleGuide = getOptionalInput(INPUT_NAMES.STYLE_GUIDE, DEFAULT_ANALYSIS_OPTIONS.styleGuide);
+    const addCommitStatus = getBooleanInput(INPUT_NAMES.ADD_COMMIT_STATUS, true);
     return {
         acrolinxApiToken,
         githubToken,
         dialect,
         tone,
-        styleGuide
+        styleGuide,
+        addCommitStatus
     };
 }
 /**
@@ -33611,6 +33614,16 @@ function getOptionalInput(inputName, defaultValue) {
     return (coreExports.getInput(inputName) ||
         process.env[inputName.toUpperCase()] ||
         defaultValue);
+}
+/**
+ * Get a boolean input value with fallback to environment variable and default
+ */
+function getBooleanInput(inputName, defaultValue) {
+    const value = coreExports.getInput(inputName) || process.env[inputName.toUpperCase()];
+    if (value === undefined || value === '') {
+        return defaultValue;
+    }
+    return value.toLowerCase() === 'true';
 }
 /**
  * Validate configuration
@@ -33939,9 +33952,14 @@ async function handlePostAnalysisActions(eventInfo, results, config, analysisOpt
     // Handle different event types
     switch (eventInfo.eventType) {
         case EVENT_TYPES.PUSH:
-            // Update commit status for push events
-            displaySectionHeader('📊 Updating Commit Status');
-            await updateCommitStatus(octokit, owner, repo, githubExports.context.sha, summary.averageQualityScore, results.length);
+            // Update commit status for push events (if enabled)
+            if (config.addCommitStatus) {
+                displaySectionHeader('📊 Updating Commit Status');
+                await updateCommitStatus(octokit, owner, repo, githubExports.context.sha, summary.averageQualityScore, results.length);
+            }
+            else {
+                coreExports.info('📊 Commit status update disabled by configuration');
+            }
             break;
         case EVENT_TYPES.WORKFLOW_DISPATCH:
         case EVENT_TYPES.SCHEDULE:

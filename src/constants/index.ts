@@ -30,7 +30,8 @@ export const INPUT_NAMES = {
   DIALECT: 'dialect',
   TONE: 'tone',
   STYLE_GUIDE: 'style-guide',
-  GITHUB_TOKEN: 'github_token'
+  GITHUB_TOKEN: 'github_token',
+  ADD_COMMIT_STATUS: 'add_commit_status'
 } as const
 
 /**

@@ -38,7 +38,8 @@ describe('Action Config', () => {
         tone: 'informal',
         styleGuide: 'chicago',
         acrolinxApiToken: 'token',
-        githubToken: 'github-token'
+        githubToken: 'github-token',
+        addCommitStatus: true
       }
 
       const options = getAnalysisOptions(config)
@@ -56,7 +57,8 @@ describe('Action Config', () => {
         tone: '',
         styleGuide: '',
         acrolinxApiToken: 'token',
-        githubToken: 'github-token'
+        githubToken: 'github-token',
+        addCommitStatus: true
       }
 
       const options = getAnalysisOptions(config)
@@ -76,7 +78,8 @@ describe('Action Config', () => {
         tone: 'formal',
         styleGuide: 'ap',
         acrolinxApiToken: 'valid-token',
-        githubToken: 'valid-github-token'
+        githubToken: 'valid-github-token',
+        addCommitStatus: true
       }
 
       expect(() => validateConfig(config)).not.toThrow()
@@ -88,7 +91,8 @@ describe('Action Config', () => {
         tone: 'formal',
         styleGuide: 'ap',
         acrolinxApiToken: '',
-        githubToken: 'valid-github-token'
+        githubToken: 'valid-github-token',
+        addCommitStatus: true
       }
 
       expect(() => validateConfig(config)).toThrow(
@@ -205,7 +209,8 @@ describe('Action Config', () => {
         tone: 'informal',
         styleGuide: 'chicago',
         acrolinxApiToken: 'acrolinx-token',
-        githubToken: 'github-token'
+        githubToken: 'github-token',
+        addCommitStatus: true
       })
     })
 
@@ -221,7 +226,8 @@ describe('Action Config', () => {
         tone: 'formal',
         styleGuide: 'ap',
         acrolinxApiToken: 'env-acrolinx-token',
-        githubToken: 'env-github-token'
+        githubToken: 'env-github-token',
+        addCommitStatus: true
       })
     })
 
@@ -257,7 +263,8 @@ describe('Action Config', () => {
         tone: 'formal',
         styleGuide: 'ap',
         acrolinxApiToken: 'acrolinx-token',
-        githubToken: 'github-token'
+        githubToken: 'github-token',
+        addCommitStatus: true
       })
     })
 

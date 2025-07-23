@@ -64,6 +64,7 @@ export interface ActionConfig {
   tone: string
   styleGuide: string
   githubToken: string
+  addCommitStatus: boolean
 }
 
 /**
