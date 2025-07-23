@@ -216,7 +216,7 @@ describe('Action Config', () => {
 
     it('should return config with environment variables when inputs are empty', () => {
       core.getInput.mockReturnValue('')
-      process.env.ACROLNX_TOKEN = 'env-acrolinx-token'
+      process.env.ACROLINX_TOKEN = 'env-acrolinx-token'
       process.env.GITHUB_TOKEN = 'env-github-token'
 
       const config = getActionConfig()
@@ -239,7 +239,7 @@ describe('Action Config', () => {
         .mockReturnValueOnce('informal') // tone
         .mockReturnValueOnce('chicago') // style-guide
 
-      process.env.ACROLNX_TOKEN = 'env-acrolinx-token'
+      process.env.ACROLINX_TOKEN = 'env-acrolinx-token'
       process.env.GITHUB_TOKEN = 'env-github-token'
 
       const config = getActionConfig()

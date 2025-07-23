@@ -38,7 +38,7 @@ export const INPUT_NAMES = {
  * Environment variable names
  */
 export const ENV_VARS = {
-  ACROLINX_TOKEN: 'ACROLNX_TOKEN',
+  ACROLINX_TOKEN: 'ACROLINX_TOKEN',
   GITHUB_TOKEN: 'GITHUB_TOKEN'
 } as const
 

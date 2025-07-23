@@ -219,7 +219,7 @@ describe('main.ts', () => {
 
     // Verify that the action was marked as failed.
     expect(core.setFailed).toHaveBeenCalledWith(
-      "Required input 'acrolinx_token' or environment variable 'ACROLNX_TOKEN' is not provided"
+      "Required input 'acrolinx_token' or environment variable 'ACROLINX_TOKEN' is not provided"
     )
   })
 })

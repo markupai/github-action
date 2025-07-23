@@ -216,7 +216,7 @@ describe('Integration Tests', () => {
       await run()
 
       expect(core.setFailed).toHaveBeenCalledWith(
-        "Required input 'acrolinx_token' or environment variable 'ACROLNX_TOKEN' is not provided"
+        "Required input 'acrolinx_token' or environment variable 'ACROLINX_TOKEN' is not provided"
       )
     })
 
@@ -288,7 +288,7 @@ describe('Integration Tests', () => {
 
     it('should use environment variables as fallback', async () => {
       core.getInput.mockReturnValue('')
-      process.env.ACROLNX_TOKEN = 'env-acrolinx-token'
+      process.env.ACROLINX_TOKEN = 'env-acrolinx-token'
       process.env.GITHUB_TOKEN = 'env-github-token'
 
       await run()
