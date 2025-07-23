@@ -33356,9 +33356,9 @@ async function updateCommitStatus(octokit, owner, repo, sha, qualityScore, files
             return;
         }
         const status = getQualityStatus(qualityScore);
-        const emoji = getQualityEmoji$1(qualityScore);
+        // const emoji = getQualityEmoji(qualityScore)
         // Create a shorter description that fits within GitHub's 140 character limit
-        const description = `${emoji} Quality: ${qualityScore} | Files: ${filesAnalyzed}`;
+        const description = `Quality: ${qualityScore} | Files: ${filesAnalyzed}`;
         // Build target URL safely
         const serverUrl = githubExports.context.serverUrl || 'https://github.com';
         const targetUrl = `${serverUrl}/${owner}/${repo}/actions/runs/${githubExports.context.runId}`;
@@ -33433,16 +33433,6 @@ function getQualityStatus(score) {
     if (score >= 60)
         return 'failure';
     return 'error';
-}
-/**
- * Get quality emoji based on score
- */
-function getQualityEmoji$1(score) {
-    if (score >= 80)
-        return '🟢';
-    if (score >= 60)
-        return '🟡';
-    return '🔴';
 }
 /**
  * Update README content with Acrolinx badge

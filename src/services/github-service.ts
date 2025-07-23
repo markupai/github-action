@@ -223,10 +223,10 @@ export async function updateCommitStatus(
     }
 
     const status = getQualityStatus(qualityScore)
-    const emoji = getQualityEmoji(qualityScore)
+    // const emoji = getQualityEmoji(qualityScore)
 
     // Create a shorter description that fits within GitHub's 140 character limit
-    const description = `${emoji} Quality: ${qualityScore} | Files: ${filesAnalyzed}`
+    const description = `Quality: ${qualityScore} | Files: ${filesAnalyzed}`
 
     // Build target URL safely
     const serverUrl = github.context.serverUrl || 'https://github.com'
@@ -320,15 +320,6 @@ function getQualityStatus(score: number): 'success' | 'failure' | 'error' {
   if (score >= 80) return 'success'
   if (score >= 60) return 'failure'
   return 'error'
-}
-
-/**
- * Get quality emoji based on score
- */
-function getQualityEmoji(score: number): string {
-  if (score >= 80) return '🟢'
-  if (score >= 60) return '🟡'
-  return '🔴'
 }
 
 /**
