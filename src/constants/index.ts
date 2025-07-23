@@ -56,7 +56,8 @@ export const OUTPUT_NAMES = {
 export const EVENT_TYPES = {
   PUSH: 'push',
   PULL_REQUEST: 'pull_request',
-  WORKFLOW_DISPATCH: 'workflow_dispatch'
+  WORKFLOW_DISPATCH: 'workflow_dispatch',
+  SCHEDULE: 'schedule'
 } as const
 
 /**

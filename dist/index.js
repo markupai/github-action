@@ -31288,7 +31288,8 @@ const OUTPUT_NAMES = {
 const EVENT_TYPES = {
     PUSH: 'push',
     PULL_REQUEST: 'pull_request',
-    WORKFLOW_DISPATCH: 'workflow_dispatch'
+    WORKFLOW_DISPATCH: 'workflow_dispatch',
+    SCHEDULE: 'schedule'
 };
 /**
  * Display constants
@@ -33417,6 +33418,7 @@ function createFileDiscoveryStrategy(context, githubToken) {
         case EVENT_TYPES.PULL_REQUEST:
             return createPullRequestEventStrategy(context.repo.owner, context.repo.repo, context.issue.number, githubToken);
         case EVENT_TYPES.WORKFLOW_DISPATCH:
+        case EVENT_TYPES.SCHEDULE:
             return createManualWorkflowStrategy(context.repo.owner, context.repo.repo, githubToken);
         default:
             // For other events, default to push strategy

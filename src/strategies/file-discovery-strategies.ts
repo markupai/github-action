@@ -131,6 +131,7 @@ export function createFileDiscoveryStrategy(
       )
 
     case EVENT_TYPES.WORKFLOW_DISPATCH:
+    case EVENT_TYPES.SCHEDULE:
       return createManualWorkflowStrategy(
         context.repo.owner,
         context.repo.repo,
