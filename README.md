@@ -1,42 +1,80 @@
 # Acrolinx Analyzer
 
-A GitHub Action that analyzes and displays recent commit changes with detailed
-diffs and file modifications, and runs Acrolinx style checks on modified files.
+[![Build and Test](https://github.com/acrolinx/github-action/actions/workflows/ci.yml/badge.svg)](https://github.com/acrolinx/github-action/actions/workflows/ci.yml)
+[![Coverage](https://github.com/acrolinx/github-action/blob/main/badges/coverage.svg)](https://github.com/acrolinx/github-action)
+
+A GitHub Action that analyzes commit changes and runs Acrolinx style checks on
+modified files. Automatically adapts to different GitHub events and provides
+detailed quality analysis with commit status updates and PR comments.
 
 ## Features
 
-- 📝 **Event-based Analysis**: Automatically adapts to different GitHub event
-  types
-- 🔄 **Push Events**: Analyzes files modified in push events with commit status
-  updates
-- 🔀 **Pull Request Events**: Analyzes files changed in pull requests with PR
-  comments
-- 🚀 **Manual Workflows**: Analyzes all files in repository when manually
-  triggered
-- 📅 **Scheduled Workflows**: Runs periodic analysis with automatic badge
-  updates
-- 📊 **Change statistics**: Display additions, deletions, and total changes per
-  file
-- 🔍 **Diff preview**: Show patch previews for modified files
-- 🎯 **Configurable**: Control which branch to analyze
-- 📈 **Output data**: Provides event type and file count for downstream steps
-- ✨ **Acrolinx Integration**: Run style checks on markdown and text files
-- 📋 **Style Analysis**: Comprehensive grammar, tone, and style guide checking
-- 📊 **Detailed Scores**: Quality, clarity, grammar, and tone scoring
-- 🏷️ **Quality Badges**: Automatic README badge updates for quality scores
-- ✅ **Commit Status**: Visual quality indicators on commits and pull requests
+- 🔍 **Smart File Discovery**: Automatically detects files to analyze based on
+  GitHub event type
+- 📝 **Event-Based Analysis**: Optimized behavior for push, pull request,
+  manual, and scheduled events
+- ✨ **Acrolinx Integration**: Comprehensive grammar, tone, and style guide
+  checking
+- 📊 **Quality Scoring**: Detailed quality, clarity, grammar, and tone metrics
+- 🏷️ **Visual Feedback**: Commit status updates and quality badges
+- 🔄 **Batch Processing**: Efficient analysis of multiple files
+- 📋 **Rich Outputs**: JSON results and detailed reporting
+
+## Supported File Types
+
+- **Markdown**: `.md`, `.markdown`
+- **Text**: `.txt`
+- **ReStructuredText**: `.rst`
+- **AsciiDoc**: `.adoc`
+
+## Usage
+
+### Basic Usage
+
+```yaml
+name: Analyze with Acrolinx
+on: [push, pull_request]
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Acrolinx Analysis
+        uses: acrolinx/github-action@v1
+        with:
+          acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+```
+
+### Advanced Configuration
+
+```yaml
+name: Custom Acrolinx Analysis
+on: [push]
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Custom Analysis
+        uses: acrolinx/github-action@v1
+        with:
+          acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+          dialect: 'british_english'
+          tone: 'academic'
+          style-guide: 'chicago'
+          add_commit_status: 'true'
+```
 
 ## Inputs
 
-| Input                | Description                                                                      | Required | Default            |
-| -------------------- | -------------------------------------------------------------------------------- | -------- | ------------------ |
-| `acrolinx-api-token` | Acrolinx API token for style checking                                            | Yes      | -                  |
-| `dialect`            | Language dialect for Acrolinx analysis (e.g., american_english, british_english) | No       | `american_english` |
-| `tone`               | Tone for Acrolinx analysis (e.g., formal, informal, academic)                    | No       | `formal`           |
-| `style-guide`        | Style guide for Acrolinx analysis (e.g., ap, chicago, apa)                       | No       | `ap`               |
-
-| `github-token` | GitHub token for API access (uses `GITHUB_TOKEN` by default)
-| No | - |
+| Input               | Description                                                                                           | Required | Default               |
+| ------------------- | ----------------------------------------------------------------------------------------------------- | -------- | --------------------- |
+| `acrolinx_token`    | Acrolinx API token for style checking. Can also be provided via `ACROLINX_TOKEN` environment variable | Yes      | -                     |
+| `dialect`           | Language dialect for analysis (e.g., `american_english`, `british_english`)                           | No       | `american_english`    |
+| `tone`              | Tone for analysis (e.g., `formal`, `informal`, `academic`)                                            | No       | `formal`              |
+| `style-guide`       | Style guide for analysis (e.g., `ap`, `chicago`, `apa`)                                               | No       | `ap`                  |
+| `github_token`      | GitHub token for API access (uses `GITHUB_TOKEN` by default)                                          | No       | `${{ github.token }}` |
+| `add_commit_status` | Whether to add commit status updates                                                                  | No       | `true`                |
 
 ## Outputs
 
@@ -46,223 +84,81 @@ diffs and file modifications, and runs Acrolinx style checks on modified files.
 | `files-analyzed`   | Number of files analyzed                         |
 | `acrolinx-results` | JSON string containing Acrolinx analysis results |
 
-## Usage
+## Event Types and Behavior
 
-### Basic Usage with Acrolinx
+The action automatically adapts its behavior based on the GitHub event type:
+
+### Push Events (`on: [push]`)
+
+- **Scope**: Analyzes only files modified in the push
+- **Features**: Commit status updates with quality score
+- **Use Case**: Quick analysis of direct commits
+
+### Pull Request Events (`on: [pull_request]`)
+
+- **Scope**: Analyzes files changed in the PR
+- **Features**: Detailed PR comments with analysis results
+- **Use Case**: Pre-merge quality checks
+
+### Manual Workflows (`on: [workflow_dispatch]`)
+
+- **Scope**: Analyzes all supported files in repository
+- **Features**: Quality badge updates in README
+- **Use Case**: Comprehensive repository-wide analysis
+
+### Scheduled Workflows (`on: [schedule]`)
+
+- **Scope**: Analyzes all supported files in repository
+- **Features**: Quality badge updates in README
+- **Use Case**: Periodic quality monitoring
+
+## Examples
+
+### Basic Push Analysis
 
 ```yaml
-name: Analyze Commits and Run Acrolinx
+name: Push Analysis
 on: [push]
 jobs:
-  analyze-commits:
+  analyze:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Analyze Commits and Run Acrolinx
-        uses: ./
+      - name: Analyze Changes
+        uses: acrolinx/github-action@v1
         with:
-          acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
+          acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
 ```
 
-### Custom Acrolinx Configuration
+### Pull Request Quality Gate
 
 ```yaml
-name: Custom Acrolinx Analysis
-on: [push]
-jobs:
-  custom-analysis:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run Custom Acrolinx Analysis
-        uses: ./
-        with:
-          acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
-          dialect: 'british_english'
-          tone: 'academic'
-          style-guide: 'chicago'
-```
-
-### Local Testing with Environment Variables
-
-For local testing, you can use environment variables instead of GitHub secrets:
-
-```bash
-# Set the environment variable
-export ACROLINX_API_TOKEN=your-acrolinx-api-token
-
-# Run the action locally
-npm run local-action
-```
-
-Or create a `.env` file in your project root:
-
-```env
-ACROLINX_API_TOKEN=your-acrolinx-api-token
-```
-
-Then run:
-
-```bash
-npm run local-action
-```
-
-## Event Types and File Discovery
-
-The action automatically adapts its behavior based on the GitHub event type that
-triggered it:
-
-### 🔄 Push Events (`on: [push]`)
-
-- **Behavior**: Analyzes only files that were modified in the push
-- **Use Case**: Quick analysis of changes in direct commits
-- **Files Analyzed**: Files changed in the commit
-
-```yaml
-name: Analyze Push Changes
-on: [push]
-jobs:
-  analyze-push:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Analyze Push Changes
-        uses: ./
-        with:
-          acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
-```
-
-### 🔀 Pull Request Events (`on: [pull_request]`)
-
-- **Behavior**: Analyzes files changed in the pull request
-- **Use Case**: Pre-merge quality checks on PR changes
-- **Files Analyzed**: Files modified in the PR (compared to base branch)
-
-```yaml
-name: Analyze PR Changes
+name: PR Quality Check
 on: [pull_request]
 jobs:
-  analyze-pr:
+  quality-gate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Analyze PR Changes
-        uses: ./
+      - name: Quality Analysis
+        id: analysis
+        uses: acrolinx/github-action@v1
         with:
-          acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
-```
+          acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+          dialect: 'american_english'
+          tone: 'formal'
+          style-guide: 'ap'
 
-### 🚀 Manual Workflow (`on: [workflow_dispatch]`)
-
-- **Behavior**: Analyzes all files in the repository
-- **Use Case**: Comprehensive repository-wide analysis
-- **Files Analyzed**: All supported files in the repository
-
-```yaml
-name: Full Repository Analysis
-on: [workflow_dispatch]
-jobs:
-  full-analysis:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Full Repository Analysis
-        uses: ./
-        with:
-          acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
-```
-
-### 🔧 Other Events
-
-- **Behavior**: Defaults to push strategy for unsupported events
-- **Use Case**: Fallback behavior for custom events
-- **Files Analyzed**: Files in the current commit
-
-### 📊 Event Information Output
-
-The action provides detailed information about the event type and analysis
-scope:
-
-```yaml
-- name: Get Analysis Results
-  id: analysis
-  uses: ./
-  with:
-    acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
-
-- name: Display Results
-  run: |
-    echo "Event Type: ${{ steps.analysis.outputs.event-type }}"
-    echo "Files Analyzed: ${{ steps.analysis.outputs.files-analyzed }}"
-    echo "Results: ${{ steps.analysis.outputs.acrolinx-results }}"
-```
-
-### Using Outputs
-
-```yaml
-name: Use Analysis Results
-on: [push]
-jobs:
-  analyze-and-notify:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Analyze Commits and Acrolinx
-        id: analyzer
-        uses: ./
-        with:
-          acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
-          commit-limit: '3'
-
-      - name: Use Analysis Results
+      - name: Check Quality Score
         run: |
-          echo "Analyzed commit: ${{ steps.analyzer.outputs.commit-sha }}"
-          echo "Acrolinx results: ${{ steps.analyzer.outputs.acrolinx-results }}"
+          results='${{ steps.analysis.outputs.acrolinx-results }}'
+          # Add your quality threshold logic here
 ```
 
-## Event-Specific Features
-
-### 🔄 Push Events - Commit Status Updates
-
-For push events, the action automatically updates the commit status with the
-Acrolinx quality score:
-
-- **Visual Indicators**: Shows quality status with emojis (🟢 Success, 🟡
-  Failure, 🔴 Error)
-- **Quality Thresholds**:
-  - 🟢 80+ (Success)
-  - 🟡 60-79 (Failure)
-  - 🔴 0-59 (Error)
-- **Status Details**: Includes quality score and number of files analyzed
-- **Action Links**: Links directly to the workflow run for detailed results
+### Scheduled Repository Analysis
 
 ```yaml
-name: Push Analysis with Status
-on: [push]
-jobs:
-  analyze-push:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Analyze Push Changes
-        uses: ./
-        with:
-          acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
-```
-
-### 🏷️ Manual/Scheduled Workflows - Quality Badges
-
-For manual (`workflow_dispatch`) and scheduled (`schedule`) events, the action
-automatically updates the README with an Acrolinx quality badge:
-
-- **Automatic Updates**: Creates or updates quality badge in README.md
-- **Dynamic Colors**: Badge color changes based on quality score
-- **Shields.io Integration**: Uses shields.io for professional badge styling
-- **Smart Placement**: Adds badge after the first heading or updates existing
-  badge
-
-```yaml
-name: Scheduled Quality Check
+name: Daily Quality Check
 on:
   schedule:
     - cron: '0 2 * * *' # Daily at 2 AM
@@ -274,52 +170,104 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Full Repository Analysis
-        uses: ./
+        uses: acrolinx/github-action@v1
         with:
-          acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
+          acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
 ```
 
-### 🔀 Pull Request Events - Enhanced Comments
+### Using Outputs
 
-Pull request events continue to receive detailed PR comments with analysis
-results, now enhanced with:
+```yaml
+name: Analysis with Outputs
+on: [push]
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Analysis
+        id: acrolinx
+        uses: acrolinx/github-action@v1
+        with:
+          acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
 
-- **Quality Score Summary**: Overall quality assessment
-- **Detailed Metrics**: All analysis scores in tabular format
-- **Configuration Display**: Shows analysis settings used
-- **Issue Tracking**: Links to specific quality issues found
+      - name: Display Results
+        run: |
+          echo "Event: ${{ steps.acrolinx.outputs.event-type }}"
+          echo "Files: ${{ steps.acrolinx.outputs.files-analyzed }}"
+          echo "Results: ${{ steps.acrolinx.outputs.acrolinx-results }}"
+```
+
+## Analysis Configuration
+
+### Available Dialects
+
+- `american_english` - American English
+- `british_english` - British English
+- And more supported by Acrolinx
+
+### Available Tones
+
+- `formal` - Formal writing style
+- `informal` - Informal writing style
+- `academic` - Academic writing style
+- And more supported by Acrolinx
+
+### Available Style Guides
+
+- `ap` - Associated Press Style Guide
+- `chicago` - Chicago Manual of Style
+- `apa` - American Psychological Association
+- And more supported by Acrolinx
+
+## Quality Scoring
+
+The action provides comprehensive quality metrics:
+
+- **Quality Score**: Overall content quality assessment (0-100)
+- **Clarity Score**: Readability and comprehension metrics
+- **Grammar Score**: Grammar and syntax quality
+- **Style Guide Score**: Style guide compliance
+- **Tone Score**: Tone appropriateness for specified tone
+- **Terminology Score**: Terminology consistency
+
+### Quality Thresholds
+
+- 🟢 **80+**: Excellent quality
+- 🟡 **60-79**: Good quality with room for improvement
+- 🔴 **0-59**: Needs significant improvement
+
+## Visual Feedback
+
+### Commit Status Updates (Push Events)
+
+For push events, the action automatically updates commit status with:
+
+- Quality score indicator
+- Number of files analyzed
+- Direct link to workflow run
+
+### Quality Badges (Manual/Scheduled Events)
+
+For manual and scheduled events, the action updates README with:
+
+- Dynamic quality badge using shields.io
+- Color-coded based on quality score
+- Automatic placement after first heading
+
+### Pull Request Comments
+
+For pull request events, the action creates detailed comments with:
+
+- Quality score summary
+- Detailed metrics table
+- Configuration used
+- Specific issues found
 
 ## Example Output
 
-The action will output detailed commit information and Acrolinx analysis
-results:
-
 ```
-🔍 Fetching current commit changes...
-📋 Current commit:
-==================================================
-
-📌 Commit:
-📝 Commit: abc12345
-📄 Message: feat: add new documentation
-👤 Author: John Doe
-📅 Date: 2024-01-15T10:30:00Z
-📊 Changes:
-  1. README.md (modified)
-     +45 -12 (57 total changes)
-     Patch preview:
-     + # New Feature Documentation
-     + This document describes the new feature.
-     - # Old Documentation
-     + ## Overview
-     ... (truncated)
-
 🔍 Running Acrolinx analysis on modified files...
-🔍 Running Acrolinx check on: README.md
-
-📊 Acrolinx Analysis Results:
-==================================================
-
 📄 File: README.md
 📈 Quality Score: 85.2
 📝 Clarity Score: 78.5
@@ -328,7 +276,7 @@ results:
 🎭 Tone Score: 82.3
 📚 Terminology Issues: 0
 
-⚠️  Issues Found:
+⚠️ Issues Found:
   1. passive_voice
      Original: "This document describes"
      Category: style_guide
@@ -337,143 +285,92 @@ results:
      Original: "This document describes the new feature that was implemented"
      Category: sentence_structure
      Position: 67
-
-📊 Acrolinx Analysis Results (JSON):
-==================================================
-[
-  {
-    "filePath": "README.md",
-    "result": {
-      "workflow_id": "abc123",
-      "status": "completed",
-      "scores": {
-        "quality": { "score": 85.2 },
-        "clarity": { "score": 78.5 },
-        "grammar": { "score": 90.1, "issues": 2 },
-        "style_guide": { "score": 88.3, "issues": 1 },
-        "tone": { "score": 82.3 },
-        "terminology": { "score": 95.0, "issues": 0 }
-      },
-      "issues": [...]
-    },
-    "timestamp": "2024-01-15T10:30:00Z"
-  }
-]
 ```
-
-## Features in Detail
-
-### Commit Information Displayed
-
-- **Commit SHA**: Short hash of the commit
-- **Commit Message**: The commit message/description
-- **Author**: Name of the person who made the commit
-- **Date**: When the commit was made
-- **File Changes**: List of all modified files with statistics
-
-### Acrolinx Analysis Features
-
-#### Supported File Types
-
-- **Markdown**: `.md`, `.markdown`
-- **Text**: `.txt`
-- **ReStructuredText**: `.rst`
-- **AsciiDoc**: `.adoc`
-
-#### Analysis Categories
-
-- **Quality Score**: Overall content quality assessment
-- **Clarity Score**: Readability and comprehension metrics
-- **Grammar Issues**: Grammar and syntax problems
-- **Style Guide Issues**: Style guide compliance violations
-- **Tone Score**: Tone appropriateness for the specified tone
-- **Terminology Issues**: Terminology consistency problems
-
-#### Available Dialects
-
-- `american_english`
-- `british_english`
-- And more supported by Acrolinx
-
-#### Available Tones
-
-- `formal`
-- `informal`
-- `academic`
-- And more supported by Acrolinx
-
-#### Available Style Guides
-
-- `ap` (Associated Press)
-- `chicago` (Chicago Manual of Style)
-- `apa` (American Psychological Association)
-- And more supported by Acrolinx
-
-### File Change Statistics
-
-For each file, the action shows:
-
-- **Filename**: Path to the modified file
-- **Status**: Type of change (added, modified, deleted, renamed)
-- **Additions**: Number of lines added
-- **Deletions**: Number of lines removed
-- **Total Changes**: Sum of additions and deletions
-
-### Patch Preview
-
-The action provides a preview of the actual code changes:
-
-- **Green lines** (`+`) show added code
-- **Red lines** (`-`) show removed code
-- **Context lines** show surrounding code for context
-- **Truncated display** for large changes (shows first 10 lines)
 
 ## Error Handling
 
-The action gracefully handles various error scenarios:
+The action gracefully handles various scenarios:
 
-- **Missing Acrolinx token**: Fails the workflow with clear error message
-- **Missing GitHub token**: Shows warning and exits gracefully
+- **Missing Acrolinx token**: Fails with clear error message
+- **Missing GitHub token**: Shows warning and continues
 - **API rate limits**: Logs error and continues execution
-- **Invalid commit data**: Skips problematic commits and continues with others
-- **File read errors**: Logs warning and skips problematic files
+- **Invalid commit data**: Skips problematic commits
+- **File read errors**: Logs warning and skips files
 - **Network issues**: Provides clear error messages
 
 ## Security
 
-- **API Token**: The Acrolinx API token should be stored as a GitHub secret
-- **Token Validation**: The action validates the presence of required tokens
-- **Secure Handling**: Tokens are handled securely and not logged
+- **API Token**: Store Acrolinx API token as GitHub secret
+- **Token Validation**: Action validates required tokens
+- **Secure Handling**: Tokens handled securely and not logged
 
-## Development
+## Local Development
 
-### Building
+### Prerequisites
+
+- Node.js 20+
+- Acrolinx API token
+
+### Setup
 
 ```bash
+# Clone the repository
+git clone https://github.com/acrolinx/github-action.git
+cd github-action
+
+# Install dependencies
 npm install
-npm run package
+
+# Set up environment variables
+export ACROLINX_TOKEN=your-acrolinx-token
+export GITHUB_TOKEN=your-github-token
+
+# Run locally
+npm run local-action
 ```
 
 ### Testing
 
 ```bash
+# Run tests
 npm test
-```
 
-### Local Testing
+# Run with coverage
+npm run ci-test
 
-```bash
-npm run local-action
+# Check formatting
+npm run format:check
+
+# Lint code
+npm run lint
 ```
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
 4. Add tests for new functionality
-5. Submit a pull request
+5. Ensure all tests pass (`npm test`)
+6. Commit your changes (`git commit -m 'Add amazing feature'`)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
+for details.
+
+## Support
+
+- 📖 [Documentation](https://github.com/acrolinx/github-action#readme)
+- 🐛 [Issues](https://github.com/acrolinx/github-action/issues)
+- 💬 [Discussions](https://github.com/acrolinx/github-action/discussions)
+
+## Related
+
+- [Acrolinx Platform](https://www.acrolinx.com/) - Content quality platform
+- [Acrolinx TypeScript SDK](https://github.com/acrolinx/typescript-sdk) -
+  Official SDK
+- [GitHub Actions Documentation](https://docs.github.com/en/actions) - Learn
+  more about GitHub Actions
