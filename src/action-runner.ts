@@ -142,7 +142,8 @@ export async function runAction(): Promise<void> {
           owner: github.context.repo.owner,
           repo: github.context.repo.repo,
           prNumber,
-          results
+          results,
+          config: analysisOptions
         })
       }
     }

@@ -90,6 +90,57 @@ jest.unstable_mockModule('@acrolinx/typescript-sdk', () => ({
       ]
     })
   ),
+  styleBatchCheckRequests: jest.fn(() => ({
+    progress: {
+      total: 1,
+      completed: 1,
+      failed: 0,
+      inProgress: 0,
+      pending: 0,
+      results: [
+        {
+          index: 0,
+          status: 'completed',
+          result: {
+            scores: {
+              quality: { score: 85.2 },
+              clarity: { score: 78.5 },
+              grammar: { score: 90.1, issues: 2 },
+              style_guide: { score: 88.3, issues: 1 },
+              tone: { score: 82.3 },
+              terminology: { score: 95.0, issues: 0 }
+            }
+          }
+        }
+      ],
+      startTime: Date.now()
+    },
+    promise: Promise.resolve({
+      total: 1,
+      completed: 1,
+      failed: 0,
+      inProgress: 0,
+      pending: 0,
+      results: [
+        {
+          index: 0,
+          status: 'completed',
+          result: {
+            scores: {
+              quality: { score: 85.2 },
+              clarity: { score: 78.5 },
+              grammar: { score: 90.1, issues: 2 },
+              style_guide: { score: 88.3, issues: 1 },
+              tone: { score: 82.3 },
+              terminology: { score: 95.0, issues: 0 }
+            }
+          }
+        }
+      ],
+      startTime: Date.now()
+    }),
+    cancel: jest.fn()
+  })),
   Config: jest.fn()
 }))
 
