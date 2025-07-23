@@ -7,10 +7,14 @@ diffs and file modifications, and runs Acrolinx style checks on modified files.
 
 - 📝 **Event-based Analysis**: Automatically adapts to different GitHub event
   types
-- 🔄 **Push Events**: Analyzes files modified in push events
-- 🔀 **Pull Request Events**: Analyzes files changed in pull requests
+- 🔄 **Push Events**: Analyzes files modified in push events with commit status
+  updates
+- 🔀 **Pull Request Events**: Analyzes files changed in pull requests with PR
+  comments
 - 🚀 **Manual Workflows**: Analyzes all files in repository when manually
   triggered
+- 📅 **Scheduled Workflows**: Runs periodic analysis with automatic badge
+  updates
 - 📊 **Change statistics**: Display additions, deletions, and total changes per
   file
 - 🔍 **Diff preview**: Show patch previews for modified files
@@ -19,6 +23,8 @@ diffs and file modifications, and runs Acrolinx style checks on modified files.
 - ✨ **Acrolinx Integration**: Run style checks on markdown and text files
 - 📋 **Style Analysis**: Comprehensive grammar, tone, and style guide checking
 - 📊 **Detailed Scores**: Quality, clarity, grammar, and tone scoring
+- 🏷️ **Quality Badges**: Automatic README badge updates for quality scores
+- ✅ **Commit Status**: Visual quality indicators on commits and pull requests
 
 ## Inputs
 
@@ -213,6 +219,75 @@ jobs:
           echo "Analyzed commit: ${{ steps.analyzer.outputs.commit-sha }}"
           echo "Acrolinx results: ${{ steps.analyzer.outputs.acrolinx-results }}"
 ```
+
+## Event-Specific Features
+
+### 🔄 Push Events - Commit Status Updates
+
+For push events, the action automatically updates the commit status with the
+Acrolinx quality score:
+
+- **Visual Indicators**: Shows quality status with emojis (🟢 Success, 🟡
+  Failure, 🔴 Error)
+- **Quality Thresholds**:
+  - 🟢 80+ (Success)
+  - 🟡 60-79 (Failure)
+  - 🔴 0-59 (Error)
+- **Status Details**: Includes quality score and number of files analyzed
+- **Action Links**: Links directly to the workflow run for detailed results
+
+```yaml
+name: Push Analysis with Status
+on: [push]
+jobs:
+  analyze-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Analyze Push Changes
+        uses: ./
+        with:
+          acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
+```
+
+### 🏷️ Manual/Scheduled Workflows - Quality Badges
+
+For manual (`workflow_dispatch`) and scheduled (`schedule`) events, the action
+automatically updates the README with an Acrolinx quality badge:
+
+- **Automatic Updates**: Creates or updates quality badge in README.md
+- **Dynamic Colors**: Badge color changes based on quality score
+- **Shields.io Integration**: Uses shields.io for professional badge styling
+- **Smart Placement**: Adds badge after the first heading or updates existing
+  badge
+
+```yaml
+name: Scheduled Quality Check
+on:
+  schedule:
+    - cron: '0 2 * * *' # Daily at 2 AM
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  quality-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Full Repository Analysis
+        uses: ./
+        with:
+          acrolinx-api-token: ${{ secrets.ACROLINX_API_TOKEN }}
+```
+
+### 🔀 Pull Request Events - Enhanced Comments
+
+Pull request events continue to receive detailed PR comments with analysis
+results, now enhanced with:
+
+- **Quality Score Summary**: Overall quality assessment
+- **Detailed Metrics**: All analysis scores in tabular format
+- **Configuration Display**: Shows analysis settings used
+- **Issue Tracking**: Links to specific quality issues found
 
 ## Example Output
 

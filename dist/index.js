@@ -33336,6 +33336,125 @@ async function getRepositoryFiles(octokit, owner, repo, ref = 'main', maxRetries
     }
     return [];
 }
+/**
+ * Update commit status with Acrolinx quality score
+ */
+async function updateCommitStatus(octokit, owner, repo, sha, qualityScore, filesAnalyzed) {
+    try {
+        const status = getQualityStatus(qualityScore);
+        const emoji = getQualityEmoji(qualityScore);
+        const description = `${emoji} Quality Score: ${qualityScore} | Files: ${filesAnalyzed}`;
+        await octokit.rest.repos.createCommitStatus({
+            owner,
+            repo,
+            sha,
+            state: status,
+            target_url: `${githubExports.context.serverUrl}/${owner}/${repo}/actions/runs/${githubExports.context.runId}`,
+            description,
+            context: 'Acrolinx Quality Check'
+        });
+        coreExports.info(`✅ Updated commit status: ${status} - ${description}`);
+    }
+    catch (error) {
+        coreExports.error(`Failed to update commit status: ${error}`);
+    }
+}
+/**
+ * Create or update Acrolinx badge in README
+ */
+async function createAcrolinxBadge(octokit, owner, repo, qualityScore, branch = 'main') {
+    try {
+        // Get current README content
+        const readmeResponse = await octokit.rest.repos.getContent({
+            owner,
+            repo,
+            path: 'README.md',
+            ref: branch
+        });
+        if (!Array.isArray(readmeResponse.data) &&
+            readmeResponse.data.type === 'file') {
+            const currentContent = Buffer.from(readmeResponse.data.content, 'base64').toString('utf-8');
+            const updatedContent = updateReadmeWithBadge(currentContent, qualityScore);
+            if (updatedContent !== currentContent) {
+                await octokit.rest.repos.createOrUpdateFileContents({
+                    owner,
+                    repo,
+                    path: 'README.md',
+                    message: `docs: update Acrolinx quality badge (${qualityScore})`,
+                    content: Buffer.from(updatedContent).toString('base64'),
+                    sha: readmeResponse.data.sha,
+                    branch
+                });
+                coreExports.info(`✅ Updated README with Acrolinx badge: ${qualityScore}`);
+            }
+            else {
+                coreExports.info(`ℹ️  README already has current Acrolinx badge: ${qualityScore}`);
+            }
+        }
+    }
+    catch (error) {
+        coreExports.error(`Failed to update README with Acrolinx badge: ${error}`);
+    }
+}
+/**
+ * Get quality status based on score
+ */
+function getQualityStatus(score) {
+    if (score >= 80)
+        return 'success';
+    if (score >= 60)
+        return 'failure';
+    return 'error';
+}
+/**
+ * Get quality emoji based on score
+ */
+function getQualityEmoji(score) {
+    if (score >= 80)
+        return '🟢';
+    if (score >= 60)
+        return '🟡';
+    return '🔴';
+}
+/**
+ * Update README content with Acrolinx badge
+ */
+function updateReadmeWithBadge(content, qualityScore) {
+    const badgeUrl = `https://img.shields.io/badge/Acrolinx%20Quality-${qualityScore}-${getBadgeColor(qualityScore)}?style=flat-square`;
+    const badgeMarkdown = `![Acrolinx Quality](${badgeUrl})`;
+    // Check if badge already exists
+    const badgePattern = /!\[Acrolinx Quality\]\(https:\/\/img\.shields\.io\/badge\/Acrolinx%20Quality-\d+-\w+\?style=flat-square\)/;
+    if (badgePattern.test(content)) {
+        // Replace existing badge
+        return content.replace(badgePattern, badgeMarkdown);
+    }
+    else {
+        // Add badge after the first heading
+        const headingMatch = content.match(/^(#+\s+.+)$/m);
+        if (headingMatch) {
+            const headingIndex = content.indexOf(headingMatch[1]) + headingMatch[1].length;
+            return (content.slice(0, headingIndex) +
+                '\n\n' +
+                badgeMarkdown +
+                '\n\n' +
+                content.slice(headingIndex));
+        }
+        else {
+            // Add at the beginning if no heading found
+            return badgeMarkdown + '\n\n' + content;
+        }
+    }
+}
+/**
+ * Get badge color based on quality score
+ */
+function getBadgeColor(score) {
+    if (score >= 80)
+        return 'brightgreen';
+    if (score >= 60)
+        return 'yellow';
+    return 'red';
+}
 
 /**
  * File discovery strategies for different GitHub event types
@@ -33576,186 +33695,6 @@ function displaySectionHeader(title) {
 }
 
 /**
- * PR Comment service for managing comments on pull requests
- */
-/**
- * Get emoji based on quality score
- */
-function getQualityEmoji(score) {
-    if (score >= 80)
-        return '🟢';
-    if (score >= 60)
-        return '🟡';
-    return '🔴';
-}
-/**
- * Generate markdown table for analysis results
- */
-function generateResultsTable(results) {
-    if (results.length === 0) {
-        return 'No files were analyzed.';
-    }
-    const tableHeader = `| File | Quality | Clarity | Grammar | Style Guide | Tone | Terminology |
-|------|---------|---------|---------|-------------|------|-------------|`;
-    const tableRows = results
-        .map((result) => {
-        const { filePath, result: scores } = result;
-        const qualityEmoji = getQualityEmoji(scores.quality.score);
-        return `| ${filePath} | ${qualityEmoji} ${scores.quality.score} | ${scores.clarity.score} | ${scores.grammar.score} | ${scores.style_guide.score} | ${scores.tone.score} | ${scores.terminology.score} |`;
-    })
-        .join('\n');
-    return `${tableHeader}\n${tableRows}`;
-}
-/**
- * Generate summary section
- */
-function generateSummary(results) {
-    if (results.length === 0) {
-        return '';
-    }
-    const totalQualityScore = results.reduce((sum, result) => sum + result.result.quality.score, 0);
-    const totalClarityScore = results.reduce((sum, result) => sum + result.result.clarity.score, 0);
-    const totalToneScore = results.reduce((sum, result) => sum + result.result.tone.score, 0);
-    const totalGrammarScore = results.reduce((sum, result) => sum + result.result.grammar.score, 0);
-    const totalStyleGuideScore = results.reduce((sum, result) => sum + result.result.style_guide.score, 0);
-    const totalTerminologyScore = results.reduce((sum, result) => sum + result.result.terminology.score, 0);
-    const averageQualityScore = Math.round(totalQualityScore / results.length);
-    const averageClarityScore = Math.round(totalClarityScore / results.length);
-    const averageToneScore = Math.round(totalToneScore / results.length);
-    const averageGrammarScore = Math.round(totalGrammarScore / results.length);
-    const averageStyleGuideScore = Math.round(totalStyleGuideScore / results.length);
-    const averageTerminologyScore = Math.round(totalTerminologyScore / results.length);
-    const overallQualityEmoji = getQualityEmoji(averageQualityScore);
-    return `
-## 📊 Summary
-
-**Overall Quality Score:** ${overallQualityEmoji} ${averageQualityScore}
-
-| Metric | Average Score |
-|--------|---------------|
-| Quality | ${averageQualityScore} |
-| Clarity | ${averageClarityScore} |
-| Grammar | ${averageGrammarScore} |
-| Style Guide | ${averageStyleGuideScore} |
-| Tone | ${averageToneScore} |
-| Terminology | ${averageTerminologyScore} |
-
-**Files Analyzed:** ${results.length}
-`;
-}
-/**
- * Generate complete comment body
- */
-function generateCommentBody(results, config) {
-    const header = `## 🔍 Acrolinx Analysis Results
-
-This comment was automatically generated by the Acrolinx Analyzer GitHub Action.`;
-    const table = generateResultsTable(results);
-    const summary = generateSummary(results);
-    return `${header}
-
-${table}
-
-${summary}
-
----
-*Analysis performed on ${new Date().toLocaleString()}*
-*Quality Score Legend: 🟢 80+ | 🟡 60-79 | 🔴 0-59*
-*Configuration: Dialect: ${config.dialect} | Tone: ${config.tone} | Style Guide: ${config.styleGuide}*`;
-}
-/**
- * Find existing Acrolinx comment on PR
- */
-async function findExistingAcrolinxComment(octokit, owner, repo, prNumber) {
-    try {
-        const response = await octokit.rest.issues.listComments({
-            owner,
-            repo,
-            issue_number: prNumber
-        });
-        const acrolinxComment = response.data.find((comment) => comment.body?.includes('## 🔍 Acrolinx Analysis Results'));
-        return acrolinxComment?.id || null;
-    }
-    catch (error) {
-        coreExports.warning(`Failed to find existing Acrolinx comment: ${error}`);
-        return null;
-    }
-}
-/**
- * Create or update PR comment with analysis results
- */
-async function createOrUpdatePRComment(octokit, commentData) {
-    const { owner, repo, prNumber, results, config } = commentData;
-    try {
-        // Check if we have permission to comment on PRs
-        try {
-            await octokit.rest.repos.get({
-                owner,
-                repo
-            });
-        }
-        catch (error) {
-            const githubError = error;
-            if (githubError.status === 403) {
-                coreExports.error('❌ Permission denied: Cannot access repository. Make sure the GitHub token has "pull-requests: write" permission.');
-                return;
-            }
-            throw error;
-        }
-        const commentBody = generateCommentBody(results, config);
-        const existingCommentId = await findExistingAcrolinxComment(octokit, owner, repo, prNumber);
-        if (existingCommentId) {
-            // Update existing comment
-            await octokit.rest.issues.updateComment({
-                owner,
-                repo,
-                comment_id: existingCommentId,
-                body: commentBody
-            });
-            coreExports.info(`✅ Updated existing Acrolinx comment on PR #${prNumber}`);
-        }
-        else {
-            // Create new comment
-            await octokit.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number: prNumber,
-                body: commentBody
-            });
-            coreExports.info(`✅ Created new Acrolinx comment on PR #${prNumber}`);
-        }
-    }
-    catch (error) {
-        const githubError = error;
-        if (githubError.status === 403) {
-            coreExports.error('❌ Permission denied: Cannot create or update comments on pull requests.');
-            coreExports.error('Please ensure the GitHub token has "pull-requests: write" permission.');
-        }
-        else if (githubError.status === 404) {
-            coreExports.error('❌ Pull request not found. Make sure the PR exists and is accessible.');
-        }
-        else {
-            coreExports.error(`❌ Failed to create/update PR comment: ${githubError.message}`);
-        }
-    }
-}
-/**
- * Check if current event is a pull request
- */
-function isPullRequestEvent() {
-    return githubExports.context.eventName === 'pull_request';
-}
-/**
- * Get PR number from context
- */
-function getPRNumber() {
-    if (githubExports.context.eventName === 'pull_request') {
-        return githubExports.context.issue.number;
-    }
-    return null;
-}
-
-/**
  * Main action runner that orchestrates the workflow
  */
 /**
@@ -33786,6 +33725,37 @@ function handleError(error) {
     }
     else {
         coreExports.setFailed(`An unexpected error occurred: ${String(error)}`);
+    }
+}
+/**
+ * Handle post-analysis actions based on event type
+ */
+async function handlePostAnalysisActions(eventInfo, results, config) {
+    if (results.length === 0) {
+        coreExports.info('No results to process for post-analysis actions.');
+        return;
+    }
+    const summary = getAnalysisSummary(results);
+    const octokit = createGitHubClient(config.githubToken);
+    const { owner, repo } = githubExports.context.repo;
+    // Handle different event types
+    switch (eventInfo.eventType) {
+        case EVENT_TYPES.PUSH:
+            // Update commit status for push events
+            displaySectionHeader('📊 Updating Commit Status');
+            await updateCommitStatus(octokit, owner, repo, githubExports.context.sha, summary.averageQualityScore, results.length);
+            break;
+        case EVENT_TYPES.WORKFLOW_DISPATCH:
+        case EVENT_TYPES.SCHEDULE:
+            // Create/update Acrolinx badge for manual/scheduled workflows
+            displaySectionHeader('🏷️  Updating Acrolinx Badge');
+            await createAcrolinxBadge(octokit, owner, repo, summary.averageQualityScore, githubExports.context.ref.replace('refs/heads/', ''));
+            break;
+        case EVENT_TYPES.PULL_REQUEST:
+            // PR comments are handled separately in the main flow
+            break;
+        default:
+            coreExports.info(`No specific post-analysis actions for event type: ${eventInfo.eventType}`);
     }
 }
 /**
@@ -33830,20 +33800,8 @@ async function runAction() {
         // Display summary
         displaySummary(results);
         // Handle PR comments for pull request events
-        if (isPullRequestEvent() && results.length > 0) {
-            const prNumber = getPRNumber();
-            if (prNumber) {
-                displaySectionHeader('💬 Creating PR Comment');
-                const octokit = createGitHubClient(config.githubToken);
-                await createOrUpdatePRComment(octokit, {
-                    owner: githubExports.context.repo.owner,
-                    repo: githubExports.context.repo.repo,
-                    prNumber,
-                    results,
-                    config: analysisOptions
-                });
-            }
-        }
+        // Handle post-analysis actions based on event type
+        await handlePostAnalysisActions(eventInfo, results, config);
     }
     catch (error) {
         handleError(error);

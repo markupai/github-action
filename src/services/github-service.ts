@@ -192,3 +192,148 @@ export async function getRepositoryInfo(
     return null
   }
 }
+
+/**
+ * Update commit status with Acrolinx quality score
+ */
+export async function updateCommitStatus(
+  octokit: ReturnType<typeof github.getOctokit>,
+  owner: string,
+  repo: string,
+  sha: string,
+  qualityScore: number,
+  filesAnalyzed: number
+): Promise<void> {
+  try {
+    const status = getQualityStatus(qualityScore)
+    const emoji = getQualityEmoji(qualityScore)
+    const description = `${emoji} Quality Score: ${qualityScore} | Files: ${filesAnalyzed}`
+
+    await octokit.rest.repos.createCommitStatus({
+      owner,
+      repo,
+      sha,
+      state: status,
+      target_url: `${github.context.serverUrl}/${owner}/${repo}/actions/runs/${github.context.runId}`,
+      description,
+      context: 'Acrolinx Quality Check'
+    })
+
+    core.info(`✅ Updated commit status: ${status} - ${description}`)
+  } catch (error) {
+    core.error(`Failed to update commit status: ${error}`)
+  }
+}
+
+/**
+ * Create or update Acrolinx badge in README
+ */
+export async function createAcrolinxBadge(
+  octokit: ReturnType<typeof github.getOctokit>,
+  owner: string,
+  repo: string,
+  qualityScore: number,
+  branch: string = 'main'
+): Promise<void> {
+  try {
+    // Get current README content
+    const readmeResponse = await octokit.rest.repos.getContent({
+      owner,
+      repo,
+      path: 'README.md',
+      ref: branch
+    })
+
+    if (
+      !Array.isArray(readmeResponse.data) &&
+      readmeResponse.data.type === 'file'
+    ) {
+      const currentContent = Buffer.from(
+        readmeResponse.data.content,
+        'base64'
+      ).toString('utf-8')
+      const updatedContent = updateReadmeWithBadge(currentContent, qualityScore)
+
+      if (updatedContent !== currentContent) {
+        await octokit.rest.repos.createOrUpdateFileContents({
+          owner,
+          repo,
+          path: 'README.md',
+          message: `docs: update Acrolinx quality badge (${qualityScore})`,
+          content: Buffer.from(updatedContent).toString('base64'),
+          sha: readmeResponse.data.sha,
+          branch
+        })
+
+        core.info(`✅ Updated README with Acrolinx badge: ${qualityScore}`)
+      } else {
+        core.info(
+          `ℹ️  README already has current Acrolinx badge: ${qualityScore}`
+        )
+      }
+    }
+  } catch (error) {
+    core.error(`Failed to update README with Acrolinx badge: ${error}`)
+  }
+}
+
+/**
+ * Get quality status based on score
+ */
+function getQualityStatus(score: number): 'success' | 'failure' | 'error' {
+  if (score >= 80) return 'success'
+  if (score >= 60) return 'failure'
+  return 'error'
+}
+
+/**
+ * Get quality emoji based on score
+ */
+function getQualityEmoji(score: number): string {
+  if (score >= 80) return '🟢'
+  if (score >= 60) return '🟡'
+  return '🔴'
+}
+
+/**
+ * Update README content with Acrolinx badge
+ */
+function updateReadmeWithBadge(content: string, qualityScore: number): string {
+  const badgeUrl = `https://img.shields.io/badge/Acrolinx%20Quality-${qualityScore}-${getBadgeColor(qualityScore)}?style=flat-square`
+  const badgeMarkdown = `![Acrolinx Quality](${badgeUrl})`
+
+  // Check if badge already exists
+  const badgePattern =
+    /!\[Acrolinx Quality\]\(https:\/\/img\.shields\.io\/badge\/Acrolinx%20Quality-\d+-\w+\?style=flat-square\)/
+
+  if (badgePattern.test(content)) {
+    // Replace existing badge
+    return content.replace(badgePattern, badgeMarkdown)
+  } else {
+    // Add badge after the first heading
+    const headingMatch = content.match(/^(#+\s+.+)$/m)
+    if (headingMatch) {
+      const headingIndex =
+        content.indexOf(headingMatch[1]) + headingMatch[1].length
+      return (
+        content.slice(0, headingIndex) +
+        '\n\n' +
+        badgeMarkdown +
+        '\n\n' +
+        content.slice(headingIndex)
+      )
+    } else {
+      // Add at the beginning if no heading found
+      return badgeMarkdown + '\n\n' + content
+    }
+  }
+}
+
+/**
+ * Get badge color based on quality score
+ */
+function getBadgeColor(score: number): string {
+  if (score >= 80) return 'brightgreen'
+  if (score >= 60) return 'yellow'
+  return 'red'
+}
