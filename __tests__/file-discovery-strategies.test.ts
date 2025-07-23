@@ -28,7 +28,7 @@ describe('File Discovery Strategies', () => {
         eventName: 'push',
         repo: { owner: 'test-owner', repo: 'test-repo' },
         sha: 'abc123'
-      } as any
+      } as typeof import('@actions/github').context
 
       const strategy = createFileDiscoveryStrategy(mockContext, 'test-token')
 
@@ -42,7 +42,7 @@ describe('File Discovery Strategies', () => {
         eventName: 'pull_request',
         repo: { owner: 'test-owner', repo: 'test-repo' },
         issue: { number: 123 }
-      } as any
+      } as typeof import('@actions/github').context
 
       const strategy = createFileDiscoveryStrategy(mockContext, 'test-token')
 
@@ -55,7 +55,7 @@ describe('File Discovery Strategies', () => {
       const mockContext = {
         eventName: 'workflow_dispatch',
         repo: { owner: 'test-owner', repo: 'test-repo' }
-      } as any
+      } as typeof import('@actions/github').context
 
       const strategy = createFileDiscoveryStrategy(mockContext, 'test-token')
 
@@ -68,7 +68,7 @@ describe('File Discovery Strategies', () => {
       const mockContext = {
         eventName: 'schedule',
         repo: { owner: 'test-owner', repo: 'test-repo' }
-      } as any
+      } as typeof import('@actions/github').context
 
       const strategy = createFileDiscoveryStrategy(mockContext, 'test-token')
 
@@ -82,7 +82,7 @@ describe('File Discovery Strategies', () => {
         eventName: 'unknown',
         repo: { owner: 'test-owner', repo: 'test-repo' },
         sha: 'abc123'
-      } as any
+      } as typeof import('@actions/github').context
 
       const strategy = createFileDiscoveryStrategy(mockContext, 'test-token')
 

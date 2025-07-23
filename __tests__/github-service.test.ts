@@ -2,6 +2,7 @@
  * Unit tests for GitHub service
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest } from '@jest/globals'
 import * as core from '../__fixtures__/core.js'
 
@@ -36,19 +37,31 @@ beforeAll(async () => {
 const mockOctokit = {
   rest: {
     repos: {
-      getCommit: jest.fn() as jest.MockedFunction<() => Promise<any>>,
-      get: jest.fn() as jest.MockedFunction<() => Promise<any>>,
-      createCommitStatus: jest.fn() as jest.MockedFunction<() => Promise<any>>,
-      getContent: jest.fn() as jest.MockedFunction<() => Promise<any>>,
+      getCommit: jest.fn() as jest.MockedFunction<
+        (...args: unknown[]) => Promise<unknown>
+      >,
+      get: jest.fn() as jest.MockedFunction<
+        (...args: unknown[]) => Promise<unknown>
+      >,
+      createCommitStatus: jest.fn() as jest.MockedFunction<
+        (...args: unknown[]) => Promise<unknown>
+      >,
+      getContent: jest.fn() as jest.MockedFunction<
+        (...args: unknown[]) => Promise<unknown>
+      >,
       createOrUpdateFileContents: jest.fn() as jest.MockedFunction<
-        () => Promise<any>
+        (...args: unknown[]) => Promise<unknown>
       >
     },
     pulls: {
-      listFiles: jest.fn() as jest.MockedFunction<() => Promise<any>>
+      listFiles: jest.fn() as jest.MockedFunction<
+        (...args: unknown[]) => Promise<unknown>
+      >
     },
     git: {
-      getTree: jest.fn() as jest.MockedFunction<() => Promise<any>>
+      getTree: jest.fn() as jest.MockedFunction<
+        (...args: unknown[]) => Promise<unknown>
+      >
     }
   }
 }

@@ -34130,7 +34130,12 @@ async function handlePostAnalysisActions(eventInfo, results, config, analysisOpt
             // Update commit status for push events (if enabled)
             if (config.addCommitStatus) {
                 displaySectionHeader('📊 Updating Commit Status');
-                await updateCommitStatus(octokit, owner, repo, githubExports.context.sha, summary.averageQualityScore, results.length);
+                try {
+                    await updateCommitStatus(octokit, owner, repo, githubExports.context.sha, summary.averageQualityScore, results.length);
+                }
+                catch (error) {
+                    coreExports.error(`Failed to update commit status: ${error}`);
+                }
             }
             else {
                 coreExports.info('📊 Commit status update disabled by configuration');
@@ -34140,7 +34145,12 @@ async function handlePostAnalysisActions(eventInfo, results, config, analysisOpt
         case EVENT_TYPES.SCHEDULE:
             // Create/update Acrolinx badge for manual/scheduled workflows
             displaySectionHeader('🏷️  Updating Acrolinx Badge');
-            await createAcrolinxBadge(octokit, owner, repo, summary.averageQualityScore, githubExports.context.ref.replace('refs/heads/', ''));
+            try {
+                await createAcrolinxBadge(octokit, owner, repo, summary.averageQualityScore, githubExports.context.ref.replace('refs/heads/', ''));
+            }
+            catch (error) {
+                coreExports.error(`Failed to create Acrolinx badge: ${error}`);
+            }
             break;
         case EVENT_TYPES.PULL_REQUEST:
             // Handle PR comments for pull request events
@@ -34148,13 +34158,18 @@ async function handlePostAnalysisActions(eventInfo, results, config, analysisOpt
                 const prNumber = getPRNumber();
                 if (prNumber) {
                     displaySectionHeader('💬 Creating PR Comment');
-                    await createOrUpdatePRComment(octokit, {
-                        owner,
-                        repo,
-                        prNumber,
-                        results,
-                        config: analysisOptions
-                    });
+                    try {
+                        await createOrUpdatePRComment(octokit, {
+                            owner,
+                            repo,
+                            prNumber,
+                            results,
+                            config: analysisOptions
+                        });
+                    }
+                    catch (error) {
+                        coreExports.error(`Failed to create PR comment: ${error}`);
+                    }
                 }
             }
             break;

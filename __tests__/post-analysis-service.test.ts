@@ -26,8 +26,8 @@ jest.unstable_mockModule('@actions/github', () => ({
 }))
 
 // Mock dependencies
-const mockGetAnalysisSummary = jest.fn() as jest.MockedFunction<() => any>
-const mockCreateGitHubClient = jest.fn() as jest.MockedFunction<() => any>
+const mockGetAnalysisSummary = jest.fn() as jest.MockedFunction<() => unknown>
+const mockCreateGitHubClient = jest.fn() as jest.MockedFunction<() => unknown>
 const mockUpdateCommitStatus = jest.fn() as jest.MockedFunction<
   () => Promise<void>
 >
@@ -115,7 +115,7 @@ describe('Post Analysis Service', () => {
       },
       timestamp: '2024-01-15T10:30:00Z'
     }
-  ] as any
+  ] as import('../src/types/index.js').AcrolinxAnalysisResult[]
 
   const mockConfig = {
     githubToken: 'test-token',
@@ -320,7 +320,7 @@ describe('Post Analysis Service', () => {
       it('should log info for unknown event type', async () => {
         await postAnalysisService.handlePostAnalysisActions(
           {
-            eventType: 'unknown_event' as any,
+            eventType: 'unknown_event' as string,
             filesCount: 1,
             description: 'Unknown event'
           },
