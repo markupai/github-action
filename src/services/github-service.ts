@@ -205,23 +205,59 @@ export async function updateCommitStatus(
   filesAnalyzed: number
 ): Promise<void> {
   try {
+    // Validate inputs
+    if (!owner || !repo || !sha) {
+      core.error('Invalid parameters for commit status update')
+      return
+    }
+
+    // Validate SHA format (should be 40 characters for full SHA, or 7+ for short SHA)
+    if (!/^[a-fA-F0-9]{7,40}$/.test(sha)) {
+      core.error(`Invalid SHA format: ${sha}`)
+      return
+    }
+
+    if (qualityScore < 0 || qualityScore > 100) {
+      core.error('Quality score must be between 0 and 100')
+      return
+    }
+
     const status = getQualityStatus(qualityScore)
     const emoji = getQualityEmoji(qualityScore)
-    const description = `${emoji} Quality Score: ${qualityScore} | Files: ${filesAnalyzed}`
 
-    await octokit.rest.repos.createCommitStatus({
+    // Create a shorter description that fits within GitHub's 140 character limit
+    const description = `${emoji} Quality: ${qualityScore} | Files: ${filesAnalyzed}`
+
+    // Build target URL safely
+    const serverUrl = github.context.serverUrl || 'https://github.com'
+    const targetUrl = `${serverUrl}/${owner}/${repo}/actions/runs/${github.context.runId}`
+
+    core.info(`🔍 Creating commit status for ${owner}/${repo}@${sha}`)
+    core.info(`📊 Status: ${status}, Description: "${description}"`)
+    core.info(`🔗 Target URL: ${targetUrl}`)
+    core.info(`📝 Context: Acrolinx`)
+
+    const statusData = {
       owner,
       repo,
       sha,
       state: status,
-      target_url: `${github.context.serverUrl}/${owner}/${repo}/actions/runs/${github.context.runId}`,
+      target_url: targetUrl,
       description,
-      context: 'Acrolinx Quality Check'
-    })
+      context: 'Acrolinx'
+    }
+
+    core.info(`📋 Status data: ${JSON.stringify(statusData, null, 2)}`)
+
+    await octokit.rest.repos.createCommitStatus(statusData)
 
     core.info(`✅ Updated commit status: ${status} - ${description}`)
   } catch (error) {
     core.error(`Failed to update commit status: ${error}`)
+    // Log more details about the error
+    if (error && typeof error === 'object' && 'message' in error) {
+      core.error(`Error message: ${error.message}`)
+    }
   }
 }
 
