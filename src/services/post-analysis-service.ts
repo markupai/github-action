@@ -44,14 +44,18 @@ export async function handlePostAnalysisActions(
       // Update commit status for push events (if enabled)
       if (config.addCommitStatus) {
         displaySectionHeader('📊 Updating Commit Status')
-        await updateCommitStatus(
-          octokit,
-          owner,
-          repo,
-          github.context.sha,
-          summary.averageQualityScore,
-          results.length
-        )
+        try {
+          await updateCommitStatus(
+            octokit,
+            owner,
+            repo,
+            github.context.sha,
+            summary.averageQualityScore,
+            results.length
+          )
+        } catch (error) {
+          core.error(`Failed to update commit status: ${error}`)
+        }
       } else {
         core.info('📊 Commit status update disabled by configuration')
       }
@@ -61,13 +65,17 @@ export async function handlePostAnalysisActions(
     case EVENT_TYPES.SCHEDULE:
       // Create/update Acrolinx badge for manual/scheduled workflows
       displaySectionHeader('🏷️  Updating Acrolinx Badge')
-      await createAcrolinxBadge(
-        octokit,
-        owner,
-        repo,
-        summary.averageQualityScore,
-        github.context.ref.replace('refs/heads/', '')
-      )
+      try {
+        await createAcrolinxBadge(
+          octokit,
+          owner,
+          repo,
+          summary.averageQualityScore,
+          github.context.ref.replace('refs/heads/', '')
+        )
+      } catch (error) {
+        core.error(`Failed to create Acrolinx badge: ${error}`)
+      }
       break
 
     case EVENT_TYPES.PULL_REQUEST:
@@ -76,13 +84,17 @@ export async function handlePostAnalysisActions(
         const prNumber = getPRNumber()
         if (prNumber) {
           displaySectionHeader('💬 Creating PR Comment')
-          await createOrUpdatePRComment(octokit, {
-            owner,
-            repo,
-            prNumber,
-            results,
-            config: analysisOptions
-          })
+          try {
+            await createOrUpdatePRComment(octokit, {
+              owner,
+              repo,
+              prNumber,
+              results,
+              config: analysisOptions
+            })
+          } catch (error) {
+            core.error(`Failed to create PR comment: ${error}`)
+          }
         }
       }
       break
