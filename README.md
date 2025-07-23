@@ -1,5 +1,9 @@
 # Acrolinx Analyzer
 
+![Acrolinx Quality](https://img.shields.io/badge/Acrolinx%20Quality-60.71-yellow?style=flat-square)
+
+
+
 [![Build and Test](https://github.com/acrolinx/github-action/actions/workflows/ci.yml/badge.svg)](https://github.com/acrolinx/github-action/actions/workflows/ci.yml)
 [![Coverage](https://github.com/acrolinx/github-action/blob/main/badges/coverage.svg)](https://github.com/acrolinx/github-action)
 
