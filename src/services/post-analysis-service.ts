@@ -13,6 +13,7 @@ import {
   getPRNumber
 } from './pr-comment-service.js'
 import { createGitHubClient, updateCommitStatus } from './github-service.js'
+import { createJobSummary } from './job-summary-service.js'
 import { getAnalysisOptions } from '../config/action-config.js'
 import { displaySectionHeader } from '../utils/display-utils.js'
 
@@ -59,10 +60,13 @@ export async function handlePostAnalysisActions(
 
     case EVENT_TYPES.WORKFLOW_DISPATCH:
     case EVENT_TYPES.SCHEDULE:
-      // No specific actions for manual/scheduled workflows
-      core.info(
-        '📋 Manual/scheduled workflow completed - no additional actions required'
-      )
+      // Create job summary for manual/scheduled workflows
+      displaySectionHeader('📋 Creating Job Summary')
+      try {
+        await createJobSummary(results, analysisOptions, eventInfo.eventType)
+      } catch (error) {
+        core.error(`Failed to create job summary: ${error}`)
+      }
       break
 
     case EVENT_TYPES.PULL_REQUEST:

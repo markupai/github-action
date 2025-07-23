@@ -38,6 +38,9 @@ const mockCreateOrUpdatePRComment = jest.fn() as jest.MockedFunction<
   () => Promise<void>
 >
 const mockDisplaySectionHeader = jest.fn() as jest.MockedFunction<() => void>
+const mockCreateJobSummary = jest.fn() as jest.MockedFunction<
+  () => Promise<void>
+>
 
 jest.unstable_mockModule('../src/services/acrolinx-service.js', () => ({
   getAnalysisSummary: mockGetAnalysisSummary
@@ -52,6 +55,10 @@ jest.unstable_mockModule('../src/services/pr-comment-service.js', () => ({
   createOrUpdatePRComment: mockCreateOrUpdatePRComment,
   isPullRequestEvent: mockIsPullRequestEvent,
   getPRNumber: mockGetPRNumber
+}))
+
+jest.unstable_mockModule('../src/services/job-summary-service.js', () => ({
+  createJobSummary: mockCreateJobSummary
 }))
 
 jest.unstable_mockModule('../src/utils/display-utils.js', () => ({
@@ -196,7 +203,7 @@ describe('Post Analysis Service', () => {
     })
 
     describe('Workflow dispatch events', () => {
-      it('should handle workflow dispatch events', async () => {
+      it('should create job summary for workflow dispatch events', async () => {
         await postAnalysisService.handlePostAnalysisActions(
           {
             eventType: EVENT_TYPES.WORKFLOW_DISPATCH,
@@ -208,14 +215,19 @@ describe('Post Analysis Service', () => {
           mockAnalysisOptions
         )
 
-        expect(core.info).toHaveBeenCalledWith(
-          '📋 Manual/scheduled workflow completed - no additional actions required'
+        expect(mockDisplaySectionHeader).toHaveBeenCalledWith(
+          '📋 Creating Job Summary'
+        )
+        expect(mockCreateJobSummary).toHaveBeenCalledWith(
+          mockResults,
+          mockAnalysisOptions,
+          EVENT_TYPES.WORKFLOW_DISPATCH
         )
       })
     })
 
     describe('Schedule events', () => {
-      it('should handle schedule events', async () => {
+      it('should create job summary for schedule events', async () => {
         await postAnalysisService.handlePostAnalysisActions(
           {
             eventType: EVENT_TYPES.SCHEDULE,
@@ -227,8 +239,13 @@ describe('Post Analysis Service', () => {
           mockAnalysisOptions
         )
 
-        expect(core.info).toHaveBeenCalledWith(
-          '📋 Manual/scheduled workflow completed - no additional actions required'
+        expect(mockDisplaySectionHeader).toHaveBeenCalledWith(
+          '📋 Creating Job Summary'
+        )
+        expect(mockCreateJobSummary).toHaveBeenCalledWith(
+          mockResults,
+          mockAnalysisOptions,
+          EVENT_TYPES.SCHEDULE
         )
       })
     })
@@ -359,6 +376,26 @@ describe('Post Analysis Service', () => {
         )
 
         expect(mockCreateOrUpdatePRComment).toHaveBeenCalled()
+        // The function should not throw, it should handle the error gracefully
+      })
+
+      it('should handle errors in createJobSummary', async () => {
+        mockCreateJobSummary.mockRejectedValue(
+          new Error('Job summary creation failed')
+        )
+
+        await postAnalysisService.handlePostAnalysisActions(
+          {
+            eventType: EVENT_TYPES.WORKFLOW_DISPATCH,
+            filesCount: 1,
+            description: 'Manual workflow'
+          },
+          mockResults,
+          mockConfig,
+          mockAnalysisOptions
+        )
+
+        expect(mockCreateJobSummary).toHaveBeenCalled()
         // The function should not throw, it should handle the error gracefully
       })
     })
