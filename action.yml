@@ -15,7 +15,7 @@ inputs:
     description:
       Acrolinx API token for style checking (can also be provided via
       ACROLINX_API_TOKEN environment variable)
-    required: false
+    required: true
   dialect:
     description:
       Language dialect for Acrolinx analysis (e.g., american_english,
@@ -32,7 +32,7 @@ inputs:
     default: 'ap'
   github_token:
     description: GitHub token for API access (uses GITHUB_TOKEN by default)
-    required: false
+    required: true
   add_commit_status:
     description: Add commit status updates (default is true)
     required: false

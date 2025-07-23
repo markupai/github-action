@@ -66,11 +66,12 @@ jobs:
         id: test-action
         uses: ./
         with:
-          acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           tone: formal
           dialect: american_english
           style-guide: ap
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACROLINX_TOKEN: ${{ secrets.ACROLINX_TOKEN }}
 
       - name: Print Output
         id: output
