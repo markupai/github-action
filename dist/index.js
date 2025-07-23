@@ -33928,7 +33928,7 @@ function handleError(error) {
 /**
  * Handle post-analysis actions based on event type
  */
-async function handlePostAnalysisActions(eventInfo, results, config) {
+async function handlePostAnalysisActions(eventInfo, results, config, analysisOptions) {
     if (results.length === 0) {
         coreExports.info('No results to process for post-analysis actions.');
         return;
@@ -33950,7 +33950,20 @@ async function handlePostAnalysisActions(eventInfo, results, config) {
             await createAcrolinxBadge(octokit, owner, repo, summary.averageQualityScore, githubExports.context.ref.replace('refs/heads/', ''));
             break;
         case EVENT_TYPES.PULL_REQUEST:
-            // PR comments are handled separately in the main flow
+            // Handle PR comments for pull request events
+            if (isPullRequestEvent()) {
+                const prNumber = getPRNumber();
+                if (prNumber) {
+                    displaySectionHeader('💬 Creating PR Comment');
+                    await createOrUpdatePRComment(octokit, {
+                        owner,
+                        repo,
+                        prNumber,
+                        results,
+                        config: analysisOptions
+                    });
+                }
+            }
             break;
         default:
             coreExports.info(`No specific post-analysis actions for event type: ${eventInfo.eventType}`);
@@ -33997,23 +34010,8 @@ async function runAction() {
         setOutputs(eventInfo, results);
         // Display summary
         displaySummary(results);
-        // Handle PR comments for pull request events
-        if (isPullRequestEvent() && results.length > 0) {
-            const prNumber = getPRNumber();
-            if (prNumber) {
-                displaySectionHeader('💬 Creating PR Comment');
-                const octokit = createGitHubClient(config.githubToken);
-                await createOrUpdatePRComment(octokit, {
-                    owner: githubExports.context.repo.owner,
-                    repo: githubExports.context.repo.repo,
-                    prNumber,
-                    results,
-                    config: analysisOptions
-                });
-            }
-        }
         // Handle post-analysis actions based on event type
-        await handlePostAnalysisActions(eventInfo, results, config);
+        await handlePostAnalysisActions(eventInfo, results, config, analysisOptions);
     }
     catch (error) {
         handleError(error);

@@ -78,7 +78,8 @@ function handleError(error: unknown): void {
 async function handlePostAnalysisActions(
   eventInfo: EventInfo,
   results: AcrolinxAnalysisResult[],
-  config: { githubToken: string }
+  config: { githubToken: string },
+  analysisOptions: ReturnType<typeof getAnalysisOptions>
 ): Promise<void> {
   if (results.length === 0) {
     core.info('No results to process for post-analysis actions.')
@@ -118,7 +119,20 @@ async function handlePostAnalysisActions(
       break
 
     case EVENT_TYPES.PULL_REQUEST:
-      // PR comments are handled separately in the main flow
+      // Handle PR comments for pull request events
+      if (isPullRequestEvent()) {
+        const prNumber = getPRNumber()
+        if (prNumber) {
+          displaySectionHeader('💬 Creating PR Comment')
+          await createOrUpdatePRComment(octokit, {
+            owner,
+            repo,
+            prNumber,
+            results,
+            config: analysisOptions
+          })
+        }
+      }
       break
 
     default:
@@ -191,25 +205,8 @@ export async function runAction(): Promise<void> {
     // Display summary
     displaySummary(results)
 
-    // Handle PR comments for pull request events
-    if (isPullRequestEvent() && results.length > 0) {
-      const prNumber = getPRNumber()
-      if (prNumber) {
-        displaySectionHeader('💬 Creating PR Comment')
-        const octokit = createGitHubClient(config.githubToken)
-
-        await createOrUpdatePRComment(octokit, {
-          owner: github.context.repo.owner,
-          repo: github.context.repo.repo,
-          prNumber,
-          results,
-          config: analysisOptions
-        })
-      }
-    }
-
     // Handle post-analysis actions based on event type
-    await handlePostAnalysisActions(eventInfo, results, config)
+    await handlePostAnalysisActions(eventInfo, results, config, analysisOptions)
   } catch (error) {
     handleError(error)
   }
