@@ -31265,7 +31265,8 @@ const INPUT_NAMES = {
     DIALECT: 'dialect',
     TONE: 'tone',
     STYLE_GUIDE: 'style-guide',
-    GITHUB_TOKEN: 'github_token'
+    GITHUB_TOKEN: 'github_token',
+    ADD_COMMIT_STATUS: 'add_commit_status'
 };
 /**
  * Environment variable names
@@ -33356,9 +33357,9 @@ async function updateCommitStatus(octokit, owner, repo, sha, qualityScore, files
             return;
         }
         const status = getQualityStatus(qualityScore);
-        const emoji = getQualityEmoji$1(qualityScore);
+        // const emoji = getQualityEmoji(qualityScore)
         // Create a shorter description that fits within GitHub's 140 character limit
-        const description = `${emoji} Quality: ${qualityScore} | Files: ${filesAnalyzed}`;
+        const description = `Quality: ${qualityScore} | Files: ${filesAnalyzed}`;
         // Build target URL safely
         const serverUrl = githubExports.context.serverUrl || 'https://github.com';
         const targetUrl = `${serverUrl}/${owner}/${repo}/actions/runs/${githubExports.context.runId}`;
@@ -33433,16 +33434,6 @@ function getQualityStatus(score) {
     if (score >= 60)
         return 'failure';
     return 'error';
-}
-/**
- * Get quality emoji based on score
- */
-function getQualityEmoji$1(score) {
-    if (score >= 80)
-        return '🟢';
-    if (score >= 60)
-        return '🟡';
-    return '🔴';
 }
 /**
  * Update README content with Acrolinx badge
@@ -33586,12 +33577,14 @@ function getActionConfig() {
     const dialect = getOptionalInput(INPUT_NAMES.DIALECT, DEFAULT_ANALYSIS_OPTIONS.dialect);
     const tone = getOptionalInput(INPUT_NAMES.TONE, DEFAULT_ANALYSIS_OPTIONS.tone);
     const styleGuide = getOptionalInput(INPUT_NAMES.STYLE_GUIDE, DEFAULT_ANALYSIS_OPTIONS.styleGuide);
+    const addCommitStatus = getBooleanInput(INPUT_NAMES.ADD_COMMIT_STATUS, true);
     return {
         acrolinxApiToken,
         githubToken,
         dialect,
         tone,
-        styleGuide
+        styleGuide,
+        addCommitStatus
     };
 }
 /**
@@ -33621,6 +33614,16 @@ function getOptionalInput(inputName, defaultValue) {
     return (coreExports.getInput(inputName) ||
         process.env[inputName.toUpperCase()] ||
         defaultValue);
+}
+/**
+ * Get a boolean input value with fallback to environment variable and default
+ */
+function getBooleanInput(inputName, defaultValue) {
+    const value = coreExports.getInput(inputName) || process.env[inputName.toUpperCase()];
+    if (value === undefined || value === '') {
+        return defaultValue;
+    }
+    return value.toLowerCase() === 'true';
 }
 /**
  * Validate configuration
@@ -33903,6 +33906,59 @@ function getPRNumber() {
 }
 
 /**
+ * Post-analysis service for handling actions after Acrolinx analysis
+ */
+/**
+ * Handle post-analysis actions based on event type
+ */
+async function handlePostAnalysisActions(eventInfo, results, config, analysisOptions) {
+    if (results.length === 0) {
+        coreExports.info('No results to process for post-analysis actions.');
+        return;
+    }
+    const summary = getAnalysisSummary(results);
+    const octokit = createGitHubClient(config.githubToken);
+    const { owner, repo } = githubExports.context.repo;
+    // Handle different event types
+    switch (eventInfo.eventType) {
+        case EVENT_TYPES.PUSH:
+            // Update commit status for push events (if enabled)
+            if (config.addCommitStatus) {
+                displaySectionHeader('📊 Updating Commit Status');
+                await updateCommitStatus(octokit, owner, repo, githubExports.context.sha, summary.averageQualityScore, results.length);
+            }
+            else {
+                coreExports.info('📊 Commit status update disabled by configuration');
+            }
+            break;
+        case EVENT_TYPES.WORKFLOW_DISPATCH:
+        case EVENT_TYPES.SCHEDULE:
+            // Create/update Acrolinx badge for manual/scheduled workflows
+            displaySectionHeader('🏷️  Updating Acrolinx Badge');
+            await createAcrolinxBadge(octokit, owner, repo, summary.averageQualityScore, githubExports.context.ref.replace('refs/heads/', ''));
+            break;
+        case EVENT_TYPES.PULL_REQUEST:
+            // Handle PR comments for pull request events
+            if (isPullRequestEvent()) {
+                const prNumber = getPRNumber();
+                if (prNumber) {
+                    displaySectionHeader('💬 Creating PR Comment');
+                    await createOrUpdatePRComment(octokit, {
+                        owner,
+                        repo,
+                        prNumber,
+                        results,
+                        config: analysisOptions
+                    });
+                }
+            }
+            break;
+        default:
+            coreExports.info(`No specific post-analysis actions for event type: ${eventInfo.eventType}`);
+    }
+}
+
+/**
  * Main action runner that orchestrates the workflow
  */
 /**
@@ -33933,37 +33989,6 @@ function handleError(error) {
     }
     else {
         coreExports.setFailed(`An unexpected error occurred: ${String(error)}`);
-    }
-}
-/**
- * Handle post-analysis actions based on event type
- */
-async function handlePostAnalysisActions(eventInfo, results, config) {
-    if (results.length === 0) {
-        coreExports.info('No results to process for post-analysis actions.');
-        return;
-    }
-    const summary = getAnalysisSummary(results);
-    const octokit = createGitHubClient(config.githubToken);
-    const { owner, repo } = githubExports.context.repo;
-    // Handle different event types
-    switch (eventInfo.eventType) {
-        case EVENT_TYPES.PUSH:
-            // Update commit status for push events
-            displaySectionHeader('📊 Updating Commit Status');
-            await updateCommitStatus(octokit, owner, repo, githubExports.context.sha, summary.averageQualityScore, results.length);
-            break;
-        case EVENT_TYPES.WORKFLOW_DISPATCH:
-        case EVENT_TYPES.SCHEDULE:
-            // Create/update Acrolinx badge for manual/scheduled workflows
-            displaySectionHeader('🏷️  Updating Acrolinx Badge');
-            await createAcrolinxBadge(octokit, owner, repo, summary.averageQualityScore, githubExports.context.ref.replace('refs/heads/', ''));
-            break;
-        case EVENT_TYPES.PULL_REQUEST:
-            // PR comments are handled separately in the main flow
-            break;
-        default:
-            coreExports.info(`No specific post-analysis actions for event type: ${eventInfo.eventType}`);
     }
 }
 /**
@@ -34007,23 +34032,8 @@ async function runAction() {
         setOutputs(eventInfo, results);
         // Display summary
         displaySummary(results);
-        // Handle PR comments for pull request events
-        if (isPullRequestEvent() && results.length > 0) {
-            const prNumber = getPRNumber();
-            if (prNumber) {
-                displaySectionHeader('💬 Creating PR Comment');
-                const octokit = createGitHubClient(config.githubToken);
-                await createOrUpdatePRComment(octokit, {
-                    owner: githubExports.context.repo.owner,
-                    repo: githubExports.context.repo.repo,
-                    prNumber,
-                    results,
-                    config: analysisOptions
-                });
-            }
-        }
         // Handle post-analysis actions based on event type
-        await handlePostAnalysisActions(eventInfo, results, config);
+        await handlePostAnalysisActions(eventInfo, results, config, analysisOptions);
     }
     catch (error) {
         handleError(error);

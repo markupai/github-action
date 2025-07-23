@@ -34,12 +34,15 @@ export function getActionConfig(): ActionConfig {
     DEFAULT_ANALYSIS_OPTIONS.styleGuide
   )
 
+  const addCommitStatus = getBooleanInput(INPUT_NAMES.ADD_COMMIT_STATUS, true)
+
   return {
     acrolinxApiToken,
     githubToken,
     dialect,
     tone,
-    styleGuide
+    styleGuide,
+    addCommitStatus
   }
 }
 
@@ -78,6 +81,19 @@ function getOptionalInput(inputName: string, defaultValue: string): string {
     process.env[inputName.toUpperCase()] ||
     defaultValue
   )
+}
+
+/**
+ * Get a boolean input value with fallback to environment variable and default
+ */
+function getBooleanInput(inputName: string, defaultValue: boolean): boolean {
+  const value = core.getInput(inputName) || process.env[inputName.toUpperCase()]
+
+  if (value === undefined || value === '') {
+    return defaultValue
+  }
+
+  return value.toLowerCase() === 'true'
 }
 
 /**

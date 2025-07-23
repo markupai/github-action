@@ -13,7 +13,8 @@
 - **Faster Review Cycles**: Reduces time spent on content review and approval
   processes
 - **Reduced Costs**: Minimizes the need for extensive editing and revision
-- **Scalability**: Supports growing content teams and increasing content volumes
+- **Scalability**: Supports growing content teams and increasing content
+  volumes.
 
 ## ROI and Impact
 
@@ -42,4 +43,4 @@ languages makes it an essential tool for global enterprises.
 
 Acrolinx regularly updates its platform with new features and capabilities based
 on customer feedback and emerging industry trends, ensuring users always have
-access to the latest content optimization technology.
+access to the latest content optimization technology
