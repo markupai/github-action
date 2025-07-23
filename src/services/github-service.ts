@@ -237,12 +237,12 @@ export async function updateCommitStatus(
     core.info(`🔗 Target URL: ${targetUrl}`)
     core.info(`📝 Context: Acrolinx`)
 
+    // Try with minimal parameters first
     const statusData = {
       owner,
       repo,
       sha,
       state: status,
-      target_url: targetUrl,
       description,
       context: 'Acrolinx'
     }

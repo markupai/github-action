@@ -33366,12 +33366,12 @@ async function updateCommitStatus(octokit, owner, repo, sha, qualityScore, files
         coreExports.info(`📊 Status: ${status}, Description: "${description}"`);
         coreExports.info(`🔗 Target URL: ${targetUrl}`);
         coreExports.info(`📝 Context: Acrolinx`);
+        // Try with minimal parameters first
         const statusData = {
             owner,
             repo,
             sha,
             state: status,
-            target_url: targetUrl,
             description,
             context: 'Acrolinx'
         };
