@@ -33906,38 +33906,8 @@ function getPRNumber() {
 }
 
 /**
- * Main action runner that orchestrates the workflow
+ * Post-analysis service for handling actions after Acrolinx analysis
  */
-/**
- * Set GitHub Action outputs
- */
-function setOutputs(eventInfo, results) {
-    coreExports.setOutput(OUTPUT_NAMES.EVENT_TYPE, eventInfo.eventType);
-    coreExports.setOutput(OUTPUT_NAMES.FILES_ANALYZED, results.length.toString());
-    coreExports.setOutput(OUTPUT_NAMES.ACROLINX_RESULTS, JSON.stringify(results));
-}
-/**
- * Display analysis summary
- */
-function displaySummary(results) {
-    const summary = getAnalysisSummary(results);
-    displaySectionHeader('📊 Analysis Summary');
-    coreExports.info(`📄 Total Files Analyzed: ${summary.totalFiles}`);
-    coreExports.info(`📈 Average Quality Score: ${summary.averageQualityScore}`);
-    coreExports.info(`📝 Average Clarity Score: ${summary.averageClarityScore}`);
-    coreExports.info(`🎭 Average Tone Score: ${summary.averageToneScore}`);
-}
-/**
- * Handle errors gracefully
- */
-function handleError(error) {
-    if (error instanceof Error) {
-        coreExports.setFailed(error.message);
-    }
-    else {
-        coreExports.setFailed(`An unexpected error occurred: ${String(error)}`);
-    }
-}
 /**
  * Handle post-analysis actions based on event type
  */
@@ -33985,6 +33955,40 @@ async function handlePostAnalysisActions(eventInfo, results, config, analysisOpt
             break;
         default:
             coreExports.info(`No specific post-analysis actions for event type: ${eventInfo.eventType}`);
+    }
+}
+
+/**
+ * Main action runner that orchestrates the workflow
+ */
+/**
+ * Set GitHub Action outputs
+ */
+function setOutputs(eventInfo, results) {
+    coreExports.setOutput(OUTPUT_NAMES.EVENT_TYPE, eventInfo.eventType);
+    coreExports.setOutput(OUTPUT_NAMES.FILES_ANALYZED, results.length.toString());
+    coreExports.setOutput(OUTPUT_NAMES.ACROLINX_RESULTS, JSON.stringify(results));
+}
+/**
+ * Display analysis summary
+ */
+function displaySummary(results) {
+    const summary = getAnalysisSummary(results);
+    displaySectionHeader('📊 Analysis Summary');
+    coreExports.info(`📄 Total Files Analyzed: ${summary.totalFiles}`);
+    coreExports.info(`📈 Average Quality Score: ${summary.averageQualityScore}`);
+    coreExports.info(`📝 Average Clarity Score: ${summary.averageClarityScore}`);
+    coreExports.info(`🎭 Average Tone Score: ${summary.averageToneScore}`);
+}
+/**
+ * Handle errors gracefully
+ */
+function handleError(error) {
+    if (error instanceof Error) {
+        coreExports.setFailed(error.message);
+    }
+    else {
+        coreExports.setFailed(`An unexpected error occurred: ${String(error)}`);
     }
 }
 /**
