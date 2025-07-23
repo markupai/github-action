@@ -31,9 +31,7 @@ const mockCreateGitHubClient = jest.fn() as jest.MockedFunction<() => unknown>
 const mockUpdateCommitStatus = jest.fn() as jest.MockedFunction<
   () => Promise<void>
 >
-const mockCreateAcrolinxBadge = jest.fn() as jest.MockedFunction<
-  () => Promise<void>
->
+
 const mockIsPullRequestEvent = jest.fn() as jest.MockedFunction<() => boolean>
 const mockGetPRNumber = jest.fn() as jest.MockedFunction<() => number | null>
 const mockCreateOrUpdatePRComment = jest.fn() as jest.MockedFunction<
@@ -47,8 +45,7 @@ jest.unstable_mockModule('../src/services/acrolinx-service.js', () => ({
 
 jest.unstable_mockModule('../src/services/github-service.js', () => ({
   createGitHubClient: mockCreateGitHubClient,
-  updateCommitStatus: mockUpdateCommitStatus,
-  createAcrolinxBadge: mockCreateAcrolinxBadge
+  updateCommitStatus: mockUpdateCommitStatus
 }))
 
 jest.unstable_mockModule('../src/services/pr-comment-service.js', () => ({
@@ -199,7 +196,7 @@ describe('Post Analysis Service', () => {
     })
 
     describe('Workflow dispatch events', () => {
-      it('should create Acrolinx badge', async () => {
+      it('should handle workflow dispatch events', async () => {
         await postAnalysisService.handlePostAnalysisActions(
           {
             eventType: EVENT_TYPES.WORKFLOW_DISPATCH,
@@ -211,21 +208,14 @@ describe('Post Analysis Service', () => {
           mockAnalysisOptions
         )
 
-        expect(mockDisplaySectionHeader).toHaveBeenCalledWith(
-          '🏷️  Updating Acrolinx Badge'
-        )
-        expect(mockCreateAcrolinxBadge).toHaveBeenCalledWith(
-          mockOctokit,
-          'test-owner',
-          'test-repo',
-          85,
-          'main'
+        expect(core.info).toHaveBeenCalledWith(
+          '📋 Manual/scheduled workflow completed - no additional actions required'
         )
       })
     })
 
     describe('Schedule events', () => {
-      it('should create Acrolinx badge', async () => {
+      it('should handle schedule events', async () => {
         await postAnalysisService.handlePostAnalysisActions(
           {
             eventType: EVENT_TYPES.SCHEDULE,
@@ -237,15 +227,8 @@ describe('Post Analysis Service', () => {
           mockAnalysisOptions
         )
 
-        expect(mockDisplaySectionHeader).toHaveBeenCalledWith(
-          '🏷️  Updating Acrolinx Badge'
-        )
-        expect(mockCreateAcrolinxBadge).toHaveBeenCalledWith(
-          mockOctokit,
-          'test-owner',
-          'test-repo',
-          85,
-          'main'
+        expect(core.info).toHaveBeenCalledWith(
+          '📋 Manual/scheduled workflow completed - no additional actions required'
         )
       })
     })
@@ -354,26 +337,6 @@ describe('Post Analysis Service', () => {
         )
 
         expect(mockUpdateCommitStatus).toHaveBeenCalled()
-        // The function should not throw, it should handle the error gracefully
-      })
-
-      it('should handle errors in createAcrolinxBadge', async () => {
-        mockCreateAcrolinxBadge.mockRejectedValue(
-          new Error('Badge creation failed')
-        )
-
-        await postAnalysisService.handlePostAnalysisActions(
-          {
-            eventType: EVENT_TYPES.WORKFLOW_DISPATCH,
-            filesCount: 1,
-            description: 'Manual workflow'
-          },
-          mockResults,
-          mockConfig,
-          mockAnalysisOptions
-        )
-
-        expect(mockCreateAcrolinxBadge).toHaveBeenCalled()
         // The function should not throw, it should handle the error gracefully
       })
 

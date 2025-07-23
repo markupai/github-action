@@ -33085,14 +33085,6 @@ const QUALITY_EMOJIS = {
     POOR: '🔴'
 };
 /**
- * Badge color mapping
- */
-const BADGE_COLORS = {
-    EXCELLENT: 'brightgreen',
-    GOOD: 'yellow',
-    POOR: 'red'
-};
-/**
  * Get quality status based on score
  */
 function getQualityStatus(score) {
@@ -33111,16 +33103,6 @@ function getQualityEmoji(score) {
     if (score >= QUALITY_THRESHOLDS.GOOD)
         return QUALITY_EMOJIS.GOOD;
     return QUALITY_EMOJIS.POOR;
-}
-/**
- * Get badge color based on quality score
- */
-function getBadgeColor(score) {
-    if (score >= QUALITY_THRESHOLDS.EXCELLENT)
-        return BADGE_COLORS.EXCELLENT;
-    if (score >= QUALITY_THRESHOLDS.GOOD)
-        return BADGE_COLORS.GOOD;
-    return BADGE_COLORS.POOR;
 }
 /**
  * Calculate average score from an array of scores
@@ -33634,72 +33616,6 @@ async function updateCommitStatus(octokit, owner, repo, sha, qualityScore, files
         }
     }
 }
-/**
- * Create or update Acrolinx badge in README
- */
-async function createAcrolinxBadge(octokit, owner, repo, qualityScore, branch = 'main') {
-    try {
-        // Get current README content
-        const readmeResponse = await octokit.rest.repos.getContent({
-            owner,
-            repo,
-            path: 'README.md',
-            ref: branch
-        });
-        if (!Array.isArray(readmeResponse.data) &&
-            readmeResponse.data.type === 'file') {
-            const currentContent = Buffer.from(readmeResponse.data.content, 'base64').toString('utf-8');
-            const updatedContent = updateReadmeWithBadge(currentContent, qualityScore);
-            if (updatedContent !== currentContent) {
-                await octokit.rest.repos.createOrUpdateFileContents({
-                    owner,
-                    repo,
-                    path: 'README.md',
-                    message: `docs: update Acrolinx quality badge (${qualityScore})`,
-                    content: Buffer.from(updatedContent).toString('base64'),
-                    sha: readmeResponse.data.sha,
-                    branch
-                });
-                coreExports.info(`✅ Updated README with Acrolinx badge: ${qualityScore}`);
-            }
-            else {
-                coreExports.info(`ℹ️  README already has current Acrolinx badge: ${qualityScore}`);
-            }
-        }
-    }
-    catch (error) {
-        coreExports.error(`Failed to update README with Acrolinx badge: ${error}`);
-    }
-}
-/**
- * Update README content with Acrolinx badge
- */
-function updateReadmeWithBadge(content, qualityScore) {
-    const badgeUrl = `https://img.shields.io/badge/Acrolinx%20Quality-${qualityScore}-${getBadgeColor(qualityScore)}?style=flat-square`;
-    const badgeMarkdown = `![Acrolinx Quality](${badgeUrl})`;
-    // Check if badge already exists
-    const badgePattern = /!\[Acrolinx Quality\]\(https:\/\/img\.shields\.io\/badge\/Acrolinx%20Quality-\d+-\w+\?style=flat-square\)/;
-    if (badgePattern.test(content)) {
-        // Replace existing badge
-        return content.replace(badgePattern, badgeMarkdown);
-    }
-    else {
-        // Add badge after the first heading
-        const headingMatch = content.match(/^(#+\s+.+)$/m);
-        if (headingMatch) {
-            const headingIndex = content.indexOf(headingMatch[1]) + headingMatch[1].length;
-            return (content.slice(0, headingIndex) +
-                '\n\n' +
-                badgeMarkdown +
-                '\n\n' +
-                content.slice(headingIndex));
-        }
-        else {
-            // Add at the beginning if no heading found
-            return badgeMarkdown + '\n\n' + content;
-        }
-    }
-}
 
 /**
  * File discovery strategies for different GitHub event types
@@ -34143,14 +34059,8 @@ async function handlePostAnalysisActions(eventInfo, results, config, analysisOpt
             break;
         case EVENT_TYPES.WORKFLOW_DISPATCH:
         case EVENT_TYPES.SCHEDULE:
-            // Create/update Acrolinx badge for manual/scheduled workflows
-            displaySectionHeader('🏷️  Updating Acrolinx Badge');
-            try {
-                await createAcrolinxBadge(octokit, owner, repo, summary.averageQualityScore, githubExports.context.ref.replace('refs/heads/', ''));
-            }
-            catch (error) {
-                coreExports.error(`Failed to create Acrolinx badge: ${error}`);
-            }
+            // No specific actions for manual/scheduled workflows
+            coreExports.info('📋 Manual/scheduled workflow completed - no additional actions required');
             break;
         case EVENT_TYPES.PULL_REQUEST:
             // Handle PR comments for pull request events

@@ -6,7 +6,7 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { CommitInfo, FileChange } from '../types/index.js'
 import { withRetry, logError } from '../utils/error-utils.js'
-import { getQualityStatus, getBadgeColor } from '../utils/score-utils.js'
+import { getQualityStatus } from '../utils/score-utils.js'
 import { isValidSHA, isValidQualityScore } from '../utils/type-guards.js'
 
 /**
@@ -246,92 +246,6 @@ export async function updateCommitStatus(
     // Log more details about the error
     if (error && typeof error === 'object' && 'message' in error) {
       core.error(`Error message: ${error.message}`)
-    }
-  }
-}
-
-/**
- * Create or update Acrolinx badge in README
- */
-export async function createAcrolinxBadge(
-  octokit: ReturnType<typeof github.getOctokit>,
-  owner: string,
-  repo: string,
-  qualityScore: number,
-  branch: string = 'main'
-): Promise<void> {
-  try {
-    // Get current README content
-    const readmeResponse = await octokit.rest.repos.getContent({
-      owner,
-      repo,
-      path: 'README.md',
-      ref: branch
-    })
-
-    if (
-      !Array.isArray(readmeResponse.data) &&
-      readmeResponse.data.type === 'file'
-    ) {
-      const currentContent = Buffer.from(
-        readmeResponse.data.content,
-        'base64'
-      ).toString('utf-8')
-      const updatedContent = updateReadmeWithBadge(currentContent, qualityScore)
-
-      if (updatedContent !== currentContent) {
-        await octokit.rest.repos.createOrUpdateFileContents({
-          owner,
-          repo,
-          path: 'README.md',
-          message: `docs: update Acrolinx quality badge (${qualityScore})`,
-          content: Buffer.from(updatedContent).toString('base64'),
-          sha: readmeResponse.data.sha,
-          branch
-        })
-
-        core.info(`✅ Updated README with Acrolinx badge: ${qualityScore}`)
-      } else {
-        core.info(
-          `ℹ️  README already has current Acrolinx badge: ${qualityScore}`
-        )
-      }
-    }
-  } catch (error) {
-    core.error(`Failed to update README with Acrolinx badge: ${error}`)
-  }
-}
-
-/**
- * Update README content with Acrolinx badge
- */
-function updateReadmeWithBadge(content: string, qualityScore: number): string {
-  const badgeUrl = `https://img.shields.io/badge/Acrolinx%20Quality-${qualityScore}-${getBadgeColor(qualityScore)}?style=flat-square`
-  const badgeMarkdown = `![Acrolinx Quality](${badgeUrl})`
-
-  // Check if badge already exists
-  const badgePattern =
-    /!\[Acrolinx Quality\]\(https:\/\/img\.shields\.io\/badge\/Acrolinx%20Quality-\d+-\w+\?style=flat-square\)/
-
-  if (badgePattern.test(content)) {
-    // Replace existing badge
-    return content.replace(badgePattern, badgeMarkdown)
-  } else {
-    // Add badge after the first heading
-    const headingMatch = content.match(/^(#+\s+.+)$/m)
-    if (headingMatch) {
-      const headingIndex =
-        content.indexOf(headingMatch[1]) + headingMatch[1].length
-      return (
-        content.slice(0, headingIndex) +
-        '\n\n' +
-        badgeMarkdown +
-        '\n\n' +
-        content.slice(headingIndex)
-      )
-    } else {
-      // Add at the beginning if no heading found
-      return badgeMarkdown + '\n\n' + content
     }
   }
 }

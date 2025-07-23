@@ -20,7 +20,7 @@ detailed quality analysis with commit status updates and PR comments.
 - ✨ **Acrolinx Integration**: Comprehensive grammar, tone, and style guide
   checking
 - 📊 **Quality Scoring**: Detailed quality, clarity, grammar, and tone metrics
-- 🏷️ **Visual Feedback**: Commit status updates and quality badges
+- 🏷️ **Visual Feedback**: Commit status updates
 - 🔄 **Batch Processing**: Efficient analysis of multiple files
 - 📋 **Rich Outputs**: JSON results and detailed reporting
 
@@ -161,14 +161,14 @@ The action automatically adapts its behavior based on the GitHub event type:
 ### Manual Workflows (`on: [workflow_dispatch]`)
 
 - **Scope**: Analyzes all supported files in repository
-- **Features**: Quality badge updates in README
-- **Use Case**: Comprehensive repository-wide analysis
+- **Features**: Comprehensive repository-wide analysis
+- **Use Case**: Manual quality checks and monitoring
 
 ### Scheduled Workflows (`on: [schedule]`)
 
 - **Scope**: Analyzes all supported files in repository
-- **Features**: Quality badge updates in README
-- **Use Case**: Periodic quality monitoring
+- **Features**: Periodic quality monitoring
+- **Use Case**: Automated quality checks
 
 ## Examples
 
@@ -311,13 +311,7 @@ For push events, the action automatically updates commit status with:
 - Number of files analyzed
 - Direct link to workflow run
 
-### Quality Badges (Manual/Scheduled Events)
 
-For manual and scheduled events, the action updates README with:
-
-- Dynamic quality badge using shields.io
-- Color-coded based on quality score
-- Automatic placement after first heading
 
 ### Pull Request Comments
 

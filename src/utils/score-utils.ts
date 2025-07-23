@@ -26,15 +26,6 @@ export const QUALITY_EMOJIS = {
 } as const
 
 /**
- * Badge color mapping
- */
-export const BADGE_COLORS = {
-  EXCELLENT: 'brightgreen',
-  GOOD: 'yellow',
-  POOR: 'red'
-} as const
-
-/**
  * Interface for score summary
  */
 export interface ScoreSummary {
@@ -75,15 +66,6 @@ export function getQualityEmoji(score: number): string {
   if (score >= QUALITY_THRESHOLDS.EXCELLENT) return QUALITY_EMOJIS.EXCELLENT
   if (score >= QUALITY_THRESHOLDS.GOOD) return QUALITY_EMOJIS.GOOD
   return QUALITY_EMOJIS.POOR
-}
-
-/**
- * Get badge color based on quality score
- */
-export function getBadgeColor(score: number): string {
-  if (score >= QUALITY_THRESHOLDS.EXCELLENT) return BADGE_COLORS.EXCELLENT
-  if (score >= QUALITY_THRESHOLDS.GOOD) return BADGE_COLORS.GOOD
-  return BADGE_COLORS.POOR
 }
 
 /**

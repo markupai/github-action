@@ -12,7 +12,6 @@ const {
   QUALITY_THRESHOLDS,
   getQualityStatus,
   getQualityEmoji,
-  getBadgeColor,
   calculateAverageScore,
   calculateScoreSummary
 } = await import('../src/utils/score-utils.js')
@@ -69,26 +68,6 @@ describe('Score Utils', () => {
       expect(getQualityEmoji(55)).toBe('🔴')
       expect(getQualityEmoji(0)).toBe('🔴')
       expect(getQualityEmoji(30)).toBe('🔴')
-    })
-  })
-
-  describe('getBadgeColor', () => {
-    it('should return brightgreen for scores 80 and above', () => {
-      expect(getBadgeColor(95)).toBe('brightgreen')
-      expect(getBadgeColor(80)).toBe('brightgreen')
-      expect(getBadgeColor(100)).toBe('brightgreen')
-    })
-
-    it('should return yellow for scores 60-79', () => {
-      expect(getBadgeColor(75)).toBe('yellow')
-      expect(getBadgeColor(60)).toBe('yellow')
-      expect(getBadgeColor(79)).toBe('yellow')
-    })
-
-    it('should return red for scores below 60', () => {
-      expect(getBadgeColor(55)).toBe('red')
-      expect(getBadgeColor(0)).toBe('red')
-      expect(getBadgeColor(30)).toBe('red')
     })
   })
 

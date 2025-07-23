@@ -12,11 +12,7 @@ import {
   isPullRequestEvent,
   getPRNumber
 } from './pr-comment-service.js'
-import {
-  createGitHubClient,
-  updateCommitStatus,
-  createAcrolinxBadge
-} from './github-service.js'
+import { createGitHubClient, updateCommitStatus } from './github-service.js'
 import { getAnalysisOptions } from '../config/action-config.js'
 import { displaySectionHeader } from '../utils/display-utils.js'
 
@@ -63,19 +59,10 @@ export async function handlePostAnalysisActions(
 
     case EVENT_TYPES.WORKFLOW_DISPATCH:
     case EVENT_TYPES.SCHEDULE:
-      // Create/update Acrolinx badge for manual/scheduled workflows
-      displaySectionHeader('🏷️  Updating Acrolinx Badge')
-      try {
-        await createAcrolinxBadge(
-          octokit,
-          owner,
-          repo,
-          summary.averageQualityScore,
-          github.context.ref.replace('refs/heads/', '')
-        )
-      } catch (error) {
-        core.error(`Failed to create Acrolinx badge: ${error}`)
-      }
+      // No specific actions for manual/scheduled workflows
+      core.info(
+        '📋 Manual/scheduled workflow completed - no additional actions required'
+      )
       break
 
     case EVENT_TYPES.PULL_REQUEST:
