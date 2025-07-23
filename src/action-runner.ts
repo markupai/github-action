@@ -25,6 +25,7 @@ import {
   displayAcrolinxResults,
   displaySectionHeader
 } from './utils/index.js'
+import { logError } from './utils/error-utils.js'
 import { handlePostAnalysisActions } from './services/post-analysis-service.js'
 
 /**
@@ -56,6 +57,7 @@ function displaySummary(results: AcrolinxAnalysisResult[]): void {
  * Handle errors gracefully
  */
 function handleError(error: unknown): void {
+  logError(error, 'Action execution failed')
   if (error instanceof Error) {
     core.setFailed(error.message)
   } else {

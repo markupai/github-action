@@ -33068,6 +33068,165 @@ function getFileBasename(filePath) {
 }
 
 /**
+ * Centralized score calculation and quality evaluation utilities
+ */
+/**
+ * Quality score thresholds
+ */
+const QUALITY_THRESHOLDS = {
+    EXCELLENT: 80,
+    GOOD: 60};
+/**
+ * Quality emoji mapping
+ */
+const QUALITY_EMOJIS = {
+    EXCELLENT: '🟢',
+    GOOD: '🟡',
+    POOR: '🔴'
+};
+/**
+ * Badge color mapping
+ */
+const BADGE_COLORS = {
+    EXCELLENT: 'brightgreen',
+    GOOD: 'yellow',
+    POOR: 'red'
+};
+/**
+ * Get quality status based on score
+ */
+function getQualityStatus(score) {
+    if (score >= QUALITY_THRESHOLDS.EXCELLENT)
+        return 'success';
+    if (score >= QUALITY_THRESHOLDS.GOOD)
+        return 'failure';
+    return 'error';
+}
+/**
+ * Get quality emoji based on score
+ */
+function getQualityEmoji(score) {
+    if (score >= QUALITY_THRESHOLDS.EXCELLENT)
+        return QUALITY_EMOJIS.EXCELLENT;
+    if (score >= QUALITY_THRESHOLDS.GOOD)
+        return QUALITY_EMOJIS.GOOD;
+    return QUALITY_EMOJIS.POOR;
+}
+/**
+ * Get badge color based on quality score
+ */
+function getBadgeColor(score) {
+    if (score >= QUALITY_THRESHOLDS.EXCELLENT)
+        return BADGE_COLORS.EXCELLENT;
+    if (score >= QUALITY_THRESHOLDS.GOOD)
+        return BADGE_COLORS.GOOD;
+    return BADGE_COLORS.POOR;
+}
+/**
+ * Calculate average score from an array of scores
+ */
+function calculateAverageScore(scores) {
+    if (scores.length === 0)
+        return 0;
+    const sum = scores.reduce((acc, score) => acc + score, 0);
+    return Math.round((sum / scores.length) * 100) / 100;
+}
+/**
+ * Calculate comprehensive score summary from analysis results
+ */
+function calculateScoreSummary(results) {
+    if (results.length === 0) {
+        return {
+            totalFiles: 0,
+            averageQualityScore: 0,
+            averageClarityScore: 0,
+            averageToneScore: 0,
+            averageGrammarScore: 0,
+            averageStyleGuideScore: 0,
+            averageTerminologyScore: 0
+        };
+    }
+    const qualityScores = results.map((r) => r.result.quality.score);
+    const clarityScores = results.map((r) => r.result.clarity.score);
+    const toneScores = results.map((r) => r.result.tone.score);
+    const grammarScores = results.map((r) => r.result.grammar.score);
+    const styleGuideScores = results.map((r) => r.result.style_guide.score);
+    const terminologyScores = results.map((r) => r.result.terminology.score);
+    return {
+        totalFiles: results.length,
+        averageQualityScore: calculateAverageScore(qualityScores),
+        averageClarityScore: calculateAverageScore(clarityScores),
+        averageToneScore: calculateAverageScore(toneScores),
+        averageGrammarScore: calculateAverageScore(grammarScores),
+        averageStyleGuideScore: calculateAverageScore(styleGuideScores),
+        averageTerminologyScore: calculateAverageScore(terminologyScores)
+    };
+}
+
+/**
+ * Batch processing utilities for optimized operations
+ */
+/**
+ * Default batch configuration
+ */
+const DEFAULT_BATCH_CONFIG = {
+    maxConcurrent: 100,
+    batchSize: 50,
+    delayBetweenBatches: 1000
+};
+/**
+ * Process items in batches with concurrency control
+ */
+async function processBatch(items, processor, config = DEFAULT_BATCH_CONFIG) {
+    if (items.length === 0) {
+        return [];
+    }
+    const results = [];
+    const batches = chunkArray(items, config.batchSize);
+    coreExports.info(`🚀 Processing ${items.length} items in ${batches.length} batches`);
+    for (let i = 0; i < batches.length; i++) {
+        const batch = batches[i];
+        coreExports.info(`📦 Processing batch ${i + 1}/${batches.length} (${batch.length} items)`);
+        const batchResults = await Promise.allSettled(batch.map((item) => processor(item)));
+        // Process results
+        batchResults.forEach((result, index) => {
+            if (result.status === 'fulfilled') {
+                results.push(result.value);
+            }
+            else {
+                coreExports.error(`Failed to process item ${i * config.batchSize + index}: ${result.reason}`);
+            }
+        });
+        // Add delay between batches to avoid overwhelming APIs
+        if (i < batches.length - 1 && config.delayBetweenBatches > 0) {
+            await new Promise((resolve) => setTimeout(resolve, config.delayBetweenBatches));
+        }
+    }
+    coreExports.info(`✅ Batch processing completed: ${results.length}/${items.length} items processed successfully`);
+    return results;
+}
+/**
+ * Split array into chunks
+ */
+function chunkArray(array, chunkSize) {
+    const chunks = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+        chunks.push(array.slice(i, i + chunkSize));
+    }
+    return chunks;
+}
+/**
+ * Process file reading in optimized batches
+ */
+async function processFileReading(filePaths, readFileContent, config = DEFAULT_BATCH_CONFIG) {
+    const fileContents = await processBatch(filePaths, async (filePath) => {
+        const content = await readFileContent(filePath);
+        return content ? { filePath, content } : null;
+    }, config);
+    return fileContents.filter((item) => item !== null);
+}
+
+/**
  * Acrolinx service for handling style analysis
  */
 /**
@@ -33109,14 +33268,8 @@ async function analyzeFilesBatch(files, options, config, readFileContent) {
         return [];
     }
     coreExports.info(`🚀 Starting batch analysis of ${files.length} files`);
-    // Read all file contents first
-    const fileContents = [];
-    for (const filePath of files) {
-        const content = await readFileContent(filePath);
-        if (content) {
-            fileContents.push({ filePath, content });
-        }
-    }
+    // Read all file contents first using optimized batch processing
+    const fileContents = await processFileReading(files, readFileContent);
     if (fileContents.length === 0) {
         coreExports.warning('No valid file contents found for analysis');
         return [];
@@ -33203,23 +33356,138 @@ async function analyzeFiles(files, options, config, readFileContent) {
  * Get analysis summary statistics
  */
 function getAnalysisSummary(results) {
-    if (results.length === 0) {
-        return {
-            totalFiles: 0,
-            averageQualityScore: 0,
-            averageClarityScore: 0,
-            averageToneScore: 0
-        };
-    }
-    const totalQualityScore = results.reduce((sum, result) => sum + result.result.quality.score, 0);
-    const totalClarityScore = results.reduce((sum, result) => sum + result.result.clarity.score, 0);
-    const totalToneScore = results.reduce((sum, result) => sum + result.result.tone.score, 0);
+    const summary = calculateScoreSummary(results);
     return {
-        totalFiles: results.length,
-        averageQualityScore: Math.round((totalQualityScore / results.length) * 100) / 100,
-        averageClarityScore: Math.round((totalClarityScore / results.length) * 100) / 100,
-        averageToneScore: Math.round((totalToneScore / results.length) * 100) / 100
+        totalFiles: summary.totalFiles,
+        averageQualityScore: summary.averageQualityScore,
+        averageClarityScore: summary.averageClarityScore,
+        averageToneScore: summary.averageToneScore,
+        averageGrammarScore: summary.averageGrammarScore,
+        averageStyleGuideScore: summary.averageStyleGuideScore,
+        averageTerminologyScore: summary.averageTerminologyScore
     };
+}
+
+/**
+ * Centralized error handling and retry utilities
+ */
+/**
+ * Default retry configuration
+ */
+const DEFAULT_RETRY_CONFIG = {
+    maxRetries: 3,
+    baseDelay: 1000,
+    maxDelay: 10000,
+    backoffMultiplier: 2
+};
+/**
+ * Error types for better error handling
+ */
+class GitHubAPIError extends Error {
+    status;
+    code;
+    constructor(message, status, code) {
+        super(message);
+        this.status = status;
+        this.code = code;
+        this.name = 'GitHubAPIError';
+    }
+}
+/**
+ * Utility function for delay with exponential backoff
+ */
+function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+/**
+ * Calculate delay with exponential backoff
+ */
+function calculateBackoffDelay(attempt, config) {
+    const delay = config.baseDelay * Math.pow(config.backoffMultiplier, attempt - 1);
+    return Math.min(delay, config.maxDelay);
+}
+/**
+ * Generic retry function with exponential backoff
+ */
+async function withRetry(operation, config = DEFAULT_RETRY_CONFIG, operationName = 'Operation') {
+    let lastError = null;
+    for (let attempt = 1; attempt <= config.maxRetries; attempt++) {
+        try {
+            return await operation();
+        }
+        catch (error) {
+            lastError = error instanceof Error ? error : new Error(String(error));
+            if (attempt === config.maxRetries) {
+                coreExports.error(`${operationName} failed after ${config.maxRetries} attempts: ${lastError.message}`);
+                throw lastError;
+            }
+            const backoffDelay = calculateBackoffDelay(attempt, config);
+            coreExports.warning(`Attempt ${attempt} failed for ${operationName}, retrying in ${backoffDelay}ms... Error: ${lastError.message}`);
+            await delay(backoffDelay);
+        }
+    }
+    // This should never be reached, but TypeScript requires it
+    throw lastError || new Error(`${operationName} failed`);
+}
+/**
+ * Handle GitHub API errors with proper typing
+ */
+function handleGitHubError(error, context) {
+    if (error instanceof GitHubAPIError) {
+        return error;
+    }
+    if (error && typeof error === 'object' && 'status' in error) {
+        const githubError = error;
+        return new GitHubAPIError(`${context}: ${githubError.message || 'Unknown GitHub API error'}`, githubError.status);
+    }
+    return new GitHubAPIError(`${context}: ${error instanceof Error ? error.message : String(error)}`);
+}
+/**
+ * Log error with context
+ */
+function logError(error, context) {
+    if (error instanceof Error) {
+        coreExports.error(`${context}: ${error.message}`);
+        if (error.stack) {
+            coreExports.debug(`Stack trace: ${error.stack}`);
+        }
+    }
+    else {
+        coreExports.error(`${context}: ${String(error)}`);
+    }
+}
+
+/**
+ * Type guard utilities for improved type safety
+ */
+/**
+ * Type guard for checking if a value is a string
+ */
+function isString(value) {
+    return typeof value === 'string';
+}
+/**
+ * Type guard for checking if a value is a number
+ */
+function isNumber(value) {
+    return typeof value === 'number' && !isNaN(value);
+}
+/**
+ * Type guard for checking if a value is a valid SHA
+ */
+function isValidSHA(value) {
+    if (!isString(value))
+        return false;
+    // SHA-1 is 40 characters, short SHA is 7+ characters
+    return /^[a-fA-F0-9]{7,40}$/.test(value);
+}
+/**
+ * Type guard for checking if a value is a valid quality score
+ */
+function isValidQualityScore(value) {
+    if (!isNumber(value))
+        return false;
+    return value >= 0 && value <= 100;
 }
 
 /**
@@ -33232,17 +33500,11 @@ function createGitHubClient(token) {
     return githubExports.getOctokit(token);
 }
 /**
- * Utility function for delay
- */
-function delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
-/**
  * Get commit changes from GitHub API with retry logic
  */
-async function getCommitChanges(octokit, owner, repo, sha, maxRetries = 3) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
+async function getCommitChanges(octokit, owner, repo, sha) {
+    try {
+        return await withRetry(async () => {
             const response = await octokit.rest.repos.getCommit({
                 owner,
                 repo,
@@ -33264,24 +33526,19 @@ async function getCommitChanges(octokit, owner, repo, sha, maxRetries = 3) {
                 date: commit.commit.author?.date || new Date().toISOString(),
                 changes
             };
-        }
-        catch (error) {
-            if (attempt === maxRetries) {
-                coreExports.error(`Failed to get commit changes after ${maxRetries} attempts: ${error}`);
-                return null;
-            }
-            coreExports.warning(`Attempt ${attempt} failed, retrying... Error: ${error}`);
-            await delay(1000 * attempt); // Exponential backoff
-        }
+        }, undefined, `Get commit changes for ${owner}/${repo}@${sha}`);
     }
-    return null;
+    catch (error) {
+        logError(error, `Failed to get commit changes for ${owner}/${repo}@${sha}`);
+        return null;
+    }
 }
 /**
  * Get files changed in a pull request
  */
-async function getPullRequestFiles(octokit, owner, repo, prNumber, maxRetries = 3) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
+async function getPullRequestFiles(octokit, owner, repo, prNumber) {
+    try {
+        return await withRetry(async () => {
             coreExports.info(`🔍 Fetching files for PR #${prNumber} in ${owner}/${repo}`);
             const response = await octokit.rest.pulls.listFiles({
                 owner,
@@ -33290,26 +33547,19 @@ async function getPullRequestFiles(octokit, owner, repo, prNumber, maxRetries = 
             });
             coreExports.info(`✅ Found ${response.data.length} files in PR`);
             return response.data.map((file) => file.filename);
-        }
-        catch (error) {
-            if (attempt === maxRetries) {
-                coreExports.error(`Failed to get PR files after ${maxRetries} attempts: ${error}`);
-                coreExports.error(`PR Details: #${prNumber} in ${owner}/${repo}`);
-                coreExports.error(`Error details: ${JSON.stringify(error, null, 2)}`);
-                return [];
-            }
-            coreExports.warning(`Attempt ${attempt} failed, retrying... Error: ${error}`);
-            await delay(1000 * attempt); // Exponential backoff
-        }
+        }, undefined, `Get PR files for #${prNumber} in ${owner}/${repo}`);
     }
-    return [];
+    catch (error) {
+        logError(error, `Failed to get PR files for #${prNumber} in ${owner}/${repo}`);
+        return [];
+    }
 }
 /**
  * Get all files in repository tree
  */
-async function getRepositoryFiles(octokit, owner, repo, ref = 'main', maxRetries = 3) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
+async function getRepositoryFiles(octokit, owner, repo, ref = 'main') {
+    try {
+        return await withRetry(async () => {
             const response = await octokit.rest.git.getTree({
                 owner,
                 repo,
@@ -33325,17 +33575,12 @@ async function getRepositoryFiles(octokit, owner, repo, ref = 'main', maxRetries
                 }
             }
             return files;
-        }
-        catch (error) {
-            if (attempt === maxRetries) {
-                coreExports.error(`Failed to get repository files after ${maxRetries} attempts: ${error}`);
-                return [];
-            }
-            coreExports.warning(`Attempt ${attempt} failed, retrying... Error: ${error}`);
-            await delay(1000 * attempt); // Exponential backoff
-        }
+        }, undefined, `Get repository files for ${owner}/${repo}@${ref}`);
     }
-    return [];
+    catch (error) {
+        logError(error, `Failed to get repository files for ${owner}/${repo}@${ref}`);
+        return [];
+    }
 }
 /**
  * Update commit status with Acrolinx quality score
@@ -33347,12 +33592,13 @@ async function updateCommitStatus(octokit, owner, repo, sha, qualityScore, files
             coreExports.error('Invalid parameters for commit status update');
             return;
         }
-        // Validate SHA format (should be 40 characters for full SHA, or 7+ for short SHA)
-        if (!/^[a-fA-F0-9]{7,40}$/.test(sha)) {
+        // Validate SHA format using type guard
+        if (!isValidSHA(sha)) {
             coreExports.error(`Invalid SHA format: ${sha}`);
             return;
         }
-        if (qualityScore < 0 || qualityScore > 100) {
+        // Validate quality score using type guard
+        if (!isValidQualityScore(qualityScore)) {
             coreExports.error('Quality score must be between 0 and 100');
             return;
         }
@@ -33426,16 +33672,6 @@ async function createAcrolinxBadge(octokit, owner, repo, qualityScore, branch = 
     }
 }
 /**
- * Get quality status based on score
- */
-function getQualityStatus(score) {
-    if (score >= 80)
-        return 'success';
-    if (score >= 60)
-        return 'failure';
-    return 'error';
-}
-/**
  * Update README content with Acrolinx badge
  */
 function updateReadmeWithBadge(content, qualityScore) {
@@ -33463,16 +33699,6 @@ function updateReadmeWithBadge(content, qualityScore) {
             return badgeMarkdown + '\n\n' + content;
         }
     }
-}
-/**
- * Get badge color based on quality score
- */
-function getBadgeColor(score) {
-    if (score >= 80)
-        return 'brightgreen';
-    if (score >= 60)
-        return 'yellow';
-    return 'red';
 }
 
 /**
@@ -33729,16 +33955,6 @@ function displaySectionHeader(title) {
  * PR Comment service for managing comments on pull requests
  */
 /**
- * Get emoji based on quality score
- */
-function getQualityEmoji(score) {
-    if (score >= 80)
-        return '🟢';
-    if (score >= 60)
-        return '🟡';
-    return '🔴';
-}
-/**
  * Generate markdown table for analysis results
  */
 function generateResultsTable(results) {
@@ -33763,34 +33979,23 @@ function generateSummary(results) {
     if (results.length === 0) {
         return '';
     }
-    const totalQualityScore = results.reduce((sum, result) => sum + result.result.quality.score, 0);
-    const totalClarityScore = results.reduce((sum, result) => sum + result.result.clarity.score, 0);
-    const totalToneScore = results.reduce((sum, result) => sum + result.result.tone.score, 0);
-    const totalGrammarScore = results.reduce((sum, result) => sum + result.result.grammar.score, 0);
-    const totalStyleGuideScore = results.reduce((sum, result) => sum + result.result.style_guide.score, 0);
-    const totalTerminologyScore = results.reduce((sum, result) => sum + result.result.terminology.score, 0);
-    const averageQualityScore = Math.round(totalQualityScore / results.length);
-    const averageClarityScore = Math.round(totalClarityScore / results.length);
-    const averageToneScore = Math.round(totalToneScore / results.length);
-    const averageGrammarScore = Math.round(totalGrammarScore / results.length);
-    const averageStyleGuideScore = Math.round(totalStyleGuideScore / results.length);
-    const averageTerminologyScore = Math.round(totalTerminologyScore / results.length);
-    const overallQualityEmoji = getQualityEmoji(averageQualityScore);
+    const summary = calculateScoreSummary(results);
+    const overallQualityEmoji = getQualityEmoji(summary.averageQualityScore);
     return `
 ## 📊 Summary
 
-**Overall Quality Score:** ${overallQualityEmoji} ${averageQualityScore}
+**Overall Quality Score:** ${overallQualityEmoji} ${summary.averageQualityScore}
 
 | Metric | Average Score |
 |--------|---------------|
-| Quality | ${averageQualityScore} |
-| Clarity | ${averageClarityScore} |
-| Grammar | ${averageGrammarScore} |
-| Style Guide | ${averageStyleGuideScore} |
-| Tone | ${averageToneScore} |
-| Terminology | ${averageTerminologyScore} |
+| Quality | ${summary.averageQualityScore} |
+| Clarity | ${summary.averageClarityScore} |
+| Grammar | ${summary.averageGrammarScore} |
+| Style Guide | ${summary.averageStyleGuideScore} |
+| Tone | ${summary.averageToneScore} |
+| Terminology | ${summary.averageTerminologyScore} |
 
-**Files Analyzed:** ${results.length}
+**Files Analyzed:** ${summary.totalFiles}
 `;
 }
 /**
@@ -33876,7 +34081,7 @@ async function createOrUpdatePRComment(octokit, commentData) {
         }
     }
     catch (error) {
-        const githubError = error;
+        const githubError = handleGitHubError(error, 'Create/update PR comment');
         if (githubError.status === 403) {
             coreExports.error('❌ Permission denied: Cannot create or update comments on pull requests.');
             coreExports.error('Please ensure the GitHub token has "pull-requests: write" permission.');
@@ -33885,7 +34090,7 @@ async function createOrUpdatePRComment(octokit, commentData) {
             coreExports.error('❌ Pull request not found. Make sure the PR exists and is accessible.');
         }
         else {
-            coreExports.error(`❌ Failed to create/update PR comment: ${githubError.message}`);
+            logError(githubError, 'Failed to create/update PR comment');
         }
     }
 }
@@ -33984,6 +34189,7 @@ function displaySummary(results) {
  * Handle errors gracefully
  */
 function handleError(error) {
+    logError(error, 'Action execution failed');
     if (error instanceof Error) {
         coreExports.setFailed(error.message);
     }

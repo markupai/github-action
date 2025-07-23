@@ -5,6 +5,8 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { AcrolinxAnalysisResult, AnalysisOptions } from '../types/index.js'
+import { getQualityEmoji, calculateScoreSummary } from '../utils/score-utils.js'
+import { handleGitHubError, logError } from '../utils/error-utils.js'
 
 /**
  * Interface for PR comment data
@@ -15,15 +17,6 @@ export interface PRCommentData {
   prNumber: number
   results: AcrolinxAnalysisResult[]
   config: AnalysisOptions
-}
-
-/**
- * Get emoji based on quality score
- */
-function getQualityEmoji(score: number): string {
-  if (score >= 80) return '🟢'
-  if (score >= 60) return '🟡'
-  return '🔴'
 }
 
 /**
@@ -57,59 +50,24 @@ function generateSummary(results: AcrolinxAnalysisResult[]): string {
     return ''
   }
 
-  const totalQualityScore = results.reduce(
-    (sum, result) => sum + result.result.quality.score,
-    0
-  )
-  const totalClarityScore = results.reduce(
-    (sum, result) => sum + result.result.clarity.score,
-    0
-  )
-  const totalToneScore = results.reduce(
-    (sum, result) => sum + result.result.tone.score,
-    0
-  )
-  const totalGrammarScore = results.reduce(
-    (sum, result) => sum + result.result.grammar.score,
-    0
-  )
-  const totalStyleGuideScore = results.reduce(
-    (sum, result) => sum + result.result.style_guide.score,
-    0
-  )
-  const totalTerminologyScore = results.reduce(
-    (sum, result) => sum + result.result.terminology.score,
-    0
-  )
-
-  const averageQualityScore = Math.round(totalQualityScore / results.length)
-  const averageClarityScore = Math.round(totalClarityScore / results.length)
-  const averageToneScore = Math.round(totalToneScore / results.length)
-  const averageGrammarScore = Math.round(totalGrammarScore / results.length)
-  const averageStyleGuideScore = Math.round(
-    totalStyleGuideScore / results.length
-  )
-  const averageTerminologyScore = Math.round(
-    totalTerminologyScore / results.length
-  )
-
-  const overallQualityEmoji = getQualityEmoji(averageQualityScore)
+  const summary = calculateScoreSummary(results)
+  const overallQualityEmoji = getQualityEmoji(summary.averageQualityScore)
 
   return `
 ## 📊 Summary
 
-**Overall Quality Score:** ${overallQualityEmoji} ${averageQualityScore}
+**Overall Quality Score:** ${overallQualityEmoji} ${summary.averageQualityScore}
 
 | Metric | Average Score |
 |--------|---------------|
-| Quality | ${averageQualityScore} |
-| Clarity | ${averageClarityScore} |
-| Grammar | ${averageGrammarScore} |
-| Style Guide | ${averageStyleGuideScore} |
-| Tone | ${averageToneScore} |
-| Terminology | ${averageTerminologyScore} |
+| Quality | ${summary.averageQualityScore} |
+| Clarity | ${summary.averageClarityScore} |
+| Grammar | ${summary.averageGrammarScore} |
+| Style Guide | ${summary.averageStyleGuideScore} |
+| Tone | ${summary.averageToneScore} |
+| Terminology | ${summary.averageTerminologyScore} |
 
-**Files Analyzed:** ${results.length}
+**Files Analyzed:** ${summary.totalFiles}
 `
 }
 
@@ -221,7 +179,8 @@ export async function createOrUpdatePRComment(
       core.info(`✅ Created new Acrolinx comment on PR #${prNumber}`)
     }
   } catch (error: unknown) {
-    const githubError = error as { status?: number; message?: string }
+    const githubError = handleGitHubError(error, 'Create/update PR comment')
+
     if (githubError.status === 403) {
       core.error(
         '❌ Permission denied: Cannot create or update comments on pull requests.'
@@ -234,9 +193,7 @@ export async function createOrUpdatePRComment(
         '❌ Pull request not found. Make sure the PR exists and is accessible.'
       )
     } else {
-      core.error(
-        `❌ Failed to create/update PR comment: ${githubError.message}`
-      )
+      logError(githubError, 'Failed to create/update PR comment')
     }
   }
 }

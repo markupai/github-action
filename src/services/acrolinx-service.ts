@@ -12,6 +12,8 @@ import {
 } from '@acrolinx/typescript-sdk'
 import { AcrolinxAnalysisResult, AnalysisOptions } from '../types/index.js'
 import { getFileBasename } from '../utils/file-utils.js'
+import { calculateScoreSummary, ScoreSummary } from '../utils/score-utils.js'
+import { processFileReading } from '../utils/batch-utils.js'
 
 /**
  * Create Acrolinx configuration
@@ -68,14 +70,8 @@ export async function analyzeFilesBatch(
 
   core.info(`🚀 Starting batch analysis of ${files.length} files`)
 
-  // Read all file contents first
-  const fileContents: Array<{ filePath: string; content: string }> = []
-  for (const filePath of files) {
-    const content = await readFileContent(filePath)
-    if (content) {
-      fileContents.push({ filePath, content })
-    }
-  }
+  // Read all file contents first using optimized batch processing
+  const fileContents = await processFileReading(files, readFileContent)
 
   if (fileContents.length === 0) {
     core.warning('No valid file contents found for analysis')
@@ -202,40 +198,17 @@ export async function analyzeFiles(
 /**
  * Get analysis summary statistics
  */
-export function getAnalysisSummary(results: AcrolinxAnalysisResult[]): {
-  totalFiles: number
-  averageQualityScore: number
-  averageClarityScore: number
-  averageToneScore: number
-} {
-  if (results.length === 0) {
-    return {
-      totalFiles: 0,
-      averageQualityScore: 0,
-      averageClarityScore: 0,
-      averageToneScore: 0
-    }
-  }
-
-  const totalQualityScore = results.reduce(
-    (sum, result) => sum + result.result.quality.score,
-    0
-  )
-  const totalClarityScore = results.reduce(
-    (sum, result) => sum + result.result.clarity.score,
-    0
-  )
-  const totalToneScore = results.reduce(
-    (sum, result) => sum + result.result.tone.score,
-    0
-  )
-
+export function getAnalysisSummary(
+  results: AcrolinxAnalysisResult[]
+): ScoreSummary {
+  const summary = calculateScoreSummary(results)
   return {
-    totalFiles: results.length,
-    averageQualityScore:
-      Math.round((totalQualityScore / results.length) * 100) / 100,
-    averageClarityScore:
-      Math.round((totalClarityScore / results.length) * 100) / 100,
-    averageToneScore: Math.round((totalToneScore / results.length) * 100) / 100
+    totalFiles: summary.totalFiles,
+    averageQualityScore: summary.averageQualityScore,
+    averageClarityScore: summary.averageClarityScore,
+    averageToneScore: summary.averageToneScore,
+    averageGrammarScore: summary.averageGrammarScore,
+    averageStyleGuideScore: summary.averageStyleGuideScore,
+    averageTerminologyScore: summary.averageTerminologyScore
   }
 }

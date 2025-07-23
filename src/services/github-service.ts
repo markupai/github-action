@@ -5,6 +5,9 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { CommitInfo, FileChange } from '../types/index.js'
+import { withRetry, logError } from '../utils/error-utils.js'
+import { getQualityStatus, getBadgeColor } from '../utils/score-utils.js'
+import { isValidSHA, isValidQualityScore } from '../utils/type-guards.js'
 
 /**
  * Create GitHub Octokit instance
@@ -16,69 +19,58 @@ export function createGitHubClient(
 }
 
 /**
- * Utility function for delay
- */
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-/**
  * Get commit changes from GitHub API with retry logic
  */
 export async function getCommitChanges(
   octokit: ReturnType<typeof github.getOctokit>,
   owner: string,
   repo: string,
-  sha: string,
-  maxRetries: number = 3
+  sha: string
 ): Promise<CommitInfo | null> {
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      const response = await octokit.rest.repos.getCommit({
-        owner,
-        repo,
-        ref: sha
-      })
+  try {
+    return await withRetry(
+      async () => {
+        const response = await octokit.rest.repos.getCommit({
+          owner,
+          repo,
+          ref: sha
+        })
 
-      const commit = response.data
-      const changes: FileChange[] =
-        commit.files?.map(
-          (file: {
-            filename: string
-            status: string
-            additions?: number
-            deletions?: number
-            changes?: number
-            patch?: string
-          }) => ({
-            filename: file.filename,
-            status: file.status,
-            additions: file.additions || 0,
-            deletions: file.deletions || 0,
-            changes: file.changes || 0,
-            patch: file.patch
-          })
-        ) || []
+        const commit = response.data
+        const changes: FileChange[] =
+          commit.files?.map(
+            (file: {
+              filename: string
+              status: string
+              additions?: number
+              deletions?: number
+              changes?: number
+              patch?: string
+            }) => ({
+              filename: file.filename,
+              status: file.status,
+              additions: file.additions || 0,
+              deletions: file.deletions || 0,
+              changes: file.changes || 0,
+              patch: file.patch
+            })
+          ) || []
 
-      return {
-        sha: commit.sha,
-        message: commit.commit.message,
-        author: commit.commit.author?.name || 'Unknown',
-        date: commit.commit.author?.date || new Date().toISOString(),
-        changes
-      }
-    } catch (error) {
-      if (attempt === maxRetries) {
-        core.error(
-          `Failed to get commit changes after ${maxRetries} attempts: ${error}`
-        )
-        return null
-      }
-      core.warning(`Attempt ${attempt} failed, retrying... Error: ${error}`)
-      await delay(1000 * attempt) // Exponential backoff
-    }
+        return {
+          sha: commit.sha,
+          message: commit.commit.message,
+          author: commit.commit.author?.name || 'Unknown',
+          date: commit.commit.author?.date || new Date().toISOString(),
+          changes
+        }
+      },
+      undefined,
+      `Get commit changes for ${owner}/${repo}@${sha}`
+    )
+  } catch (error) {
+    logError(error, `Failed to get commit changes for ${owner}/${repo}@${sha}`)
+    return null
   }
-  return null
 }
 
 /**
@@ -88,35 +80,32 @@ export async function getPullRequestFiles(
   octokit: ReturnType<typeof github.getOctokit>,
   owner: string,
   repo: string,
-  prNumber: number,
-  maxRetries: number = 3
+  prNumber: number
 ): Promise<string[]> {
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      core.info(`🔍 Fetching files for PR #${prNumber} in ${owner}/${repo}`)
+  try {
+    return await withRetry(
+      async () => {
+        core.info(`🔍 Fetching files for PR #${prNumber} in ${owner}/${repo}`)
 
-      const response = await octokit.rest.pulls.listFiles({
-        owner,
-        repo,
-        pull_number: prNumber
-      })
+        const response = await octokit.rest.pulls.listFiles({
+          owner,
+          repo,
+          pull_number: prNumber
+        })
 
-      core.info(`✅ Found ${response.data.length} files in PR`)
-      return response.data.map((file) => file.filename)
-    } catch (error) {
-      if (attempt === maxRetries) {
-        core.error(
-          `Failed to get PR files after ${maxRetries} attempts: ${error}`
-        )
-        core.error(`PR Details: #${prNumber} in ${owner}/${repo}`)
-        core.error(`Error details: ${JSON.stringify(error, null, 2)}`)
-        return []
-      }
-      core.warning(`Attempt ${attempt} failed, retrying... Error: ${error}`)
-      await delay(1000 * attempt) // Exponential backoff
-    }
+        core.info(`✅ Found ${response.data.length} files in PR`)
+        return response.data.map((file) => file.filename)
+      },
+      undefined,
+      `Get PR files for #${prNumber} in ${owner}/${repo}`
+    )
+  } catch (error) {
+    logError(
+      error,
+      `Failed to get PR files for #${prNumber} in ${owner}/${repo}`
+    )
+    return []
   }
-  return []
 }
 
 /**
@@ -126,40 +115,39 @@ export async function getRepositoryFiles(
   octokit: ReturnType<typeof github.getOctokit>,
   owner: string,
   repo: string,
-  ref: string = 'main',
-  maxRetries: number = 3
+  ref: string = 'main'
 ): Promise<string[]> {
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      const response = await octokit.rest.git.getTree({
-        owner,
-        repo,
-        tree_sha: ref,
-        recursive: 'true'
-      })
+  try {
+    return await withRetry(
+      async () => {
+        const response = await octokit.rest.git.getTree({
+          owner,
+          repo,
+          tree_sha: ref,
+          recursive: 'true'
+        })
 
-      const files: string[] = []
-      if (response.data.tree) {
-        for (const item of response.data.tree) {
-          if (item.type === 'blob' && item.path) {
-            files.push(item.path)
+        const files: string[] = []
+        if (response.data.tree) {
+          for (const item of response.data.tree) {
+            if (item.type === 'blob' && item.path) {
+              files.push(item.path)
+            }
           }
         }
-      }
 
-      return files
-    } catch (error) {
-      if (attempt === maxRetries) {
-        core.error(
-          `Failed to get repository files after ${maxRetries} attempts: ${error}`
-        )
-        return []
-      }
-      core.warning(`Attempt ${attempt} failed, retrying... Error: ${error}`)
-      await delay(1000 * attempt) // Exponential backoff
-    }
+        return files
+      },
+      undefined,
+      `Get repository files for ${owner}/${repo}@${ref}`
+    )
+  } catch (error) {
+    logError(
+      error,
+      `Failed to get repository files for ${owner}/${repo}@${ref}`
+    )
+    return []
   }
-  return []
 }
 
 /**
@@ -211,13 +199,14 @@ export async function updateCommitStatus(
       return
     }
 
-    // Validate SHA format (should be 40 characters for full SHA, or 7+ for short SHA)
-    if (!/^[a-fA-F0-9]{7,40}$/.test(sha)) {
+    // Validate SHA format using type guard
+    if (!isValidSHA(sha)) {
       core.error(`Invalid SHA format: ${sha}`)
       return
     }
 
-    if (qualityScore < 0 || qualityScore > 100) {
+    // Validate quality score using type guard
+    if (!isValidQualityScore(qualityScore)) {
       core.error('Quality score must be between 0 and 100')
       return
     }
@@ -314,15 +303,6 @@ export async function createAcrolinxBadge(
 }
 
 /**
- * Get quality status based on score
- */
-function getQualityStatus(score: number): 'success' | 'failure' | 'error' {
-  if (score >= 80) return 'success'
-  if (score >= 60) return 'failure'
-  return 'error'
-}
-
-/**
  * Update README content with Acrolinx badge
  */
 function updateReadmeWithBadge(content: string, qualityScore: number): string {
@@ -354,13 +334,4 @@ function updateReadmeWithBadge(content: string, qualityScore: number): string {
       return badgeMarkdown + '\n\n' + content
     }
   }
-}
-
-/**
- * Get badge color based on quality score
- */
-function getBadgeColor(score: number): string {
-  if (score >= 80) return 'brightgreen'
-  if (score >= 60) return 'yellow'
-  return 'red'
 }
