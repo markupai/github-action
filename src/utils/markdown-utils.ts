@@ -23,7 +23,7 @@ export function generateResultsTable(
       const { filePath, result: scores } = result
       const qualityEmoji = getQualityEmoji(scores.quality.score)
 
-      return `| ${filePath} | ${qualityEmoji} ${scores.quality.score} | ${scores.clarity.score} | ${scores.grammar.score} | ${scores.style_guide.score} | ${scores.tone.score} | ${scores.terminology.score} |`
+      return `| ${filePath} | ${qualityEmoji} ${Math.round(scores.quality.score)} | ${Math.round(scores.clarity.score)} | ${Math.round(scores.grammar.score)} | ${Math.round(scores.style_guide.score)} | ${Math.round(scores.tone.score)} | ${Math.round(scores.terminology.score)} |`
     })
     .join('\n')
 
@@ -44,16 +44,16 @@ export function generateSummary(results: AcrolinxAnalysisResult[]): string {
   return `
 ## 📊 Summary
 
-**Overall Quality Score:** ${overallQualityEmoji} ${summary.averageQualityScore}
+**Overall Quality Score:** ${overallQualityEmoji} ${Math.round(summary.averageQualityScore)}
 
 | Metric | Average Score |
 |--------|---------------|
-| Quality | ${summary.averageQualityScore} |
-| Clarity | ${summary.averageClarityScore} |
-| Grammar | ${summary.averageGrammarScore} |
-| Style Guide | ${summary.averageStyleGuideScore} |
-| Tone | ${summary.averageToneScore} |
-| Terminology | ${summary.averageTerminologyScore} |
+| Quality | ${Math.round(summary.averageQualityScore)} |
+| Clarity | ${Math.round(summary.averageClarityScore)} |
+| Grammar | ${Math.round(summary.averageGrammarScore)} |
+| Style Guide | ${Math.round(summary.averageStyleGuideScore)} |
+| Tone | ${Math.round(summary.averageToneScore)} |
+| Terminology | ${Math.round(summary.averageTerminologyScore)} |
 
 **Files Analyzed:** ${summary.totalFiles}
 `
@@ -66,14 +66,12 @@ export function generateFooter(
   config: AnalysisOptions,
   eventType: string
 ): string {
-  const eventInfo = ` for **${eventType}** event`
-
   return `
 ---
 *Analysis performed on ${new Date().toLocaleString()}*
 *Quality Score Legend: 🟢 80+ | 🟡 60-79 | 🔴 0-59*
 *Configuration: Dialect: ${config.dialect} | Tone: ${config.tone} | Style Guide: ${config.styleGuide}*
-*Event: ${eventInfo}*`
+*Event: ${eventType}*`
 }
 
 /**
