@@ -1,13 +1,13 @@
-name: Acrolinx Analyzer
+name: Acrolinx NextGen Analyzer
 description:
   A GitHub Action that analyzes and displays recent commit changes with detailed
   diffs and file modifications, and runs Acrolinx style checks on modified files
-author: Your name or organization here
+author: Acrolinx
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
   icon: check-circle
-  color: green
+  color: blue
 
 # Define your inputs here.
 inputs:
