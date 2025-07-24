@@ -26,8 +26,6 @@ describe('File Utils', () => {
       expect(isSupportedFile('test.md')).toBe(true)
       expect(isSupportedFile('test.txt')).toBe(true)
       expect(isSupportedFile('test.markdown')).toBe(true)
-      expect(isSupportedFile('test.rst')).toBe(true)
-      expect(isSupportedFile('test.adoc')).toBe(true)
     })
 
     it('should return false for unsupported file extensions', () => {
@@ -60,14 +58,14 @@ describe('File Utils', () => {
         'script.js',
         'readme.txt',
         'config.json',
-        'docs.rst'
+        'docs.markdown'
       ]
 
       const result = filterSupportedFiles(files)
 
       expect(result).toContain('test.md')
       expect(result).toContain('readme.txt')
-      expect(result).toContain('docs.rst')
+      expect(result).toContain('docs.markdown')
       expect(result).not.toContain('script.js')
       expect(result).not.toContain('config.json')
     })
@@ -81,11 +79,11 @@ describe('File Utils', () => {
     })
 
     it('should return all files if all are supported', () => {
-      const files = ['readme.md', 'docs.txt', 'guide.rst']
+      const files = ['readme.md', 'docs.txt', 'guide.markdown']
 
       const result = filterSupportedFiles(files)
 
-      expect(result).toEqual(['readme.md', 'docs.txt', 'guide.rst'])
+      expect(result).toEqual(['readme.md', 'docs.txt', 'guide.markdown'])
     })
 
     it('should handle empty array', () => {
@@ -106,7 +104,7 @@ describe('File Utils', () => {
     it('should return lowercase file extension', () => {
       expect(getFileExtension('test.MD')).toBe('.md')
       expect(getFileExtension('test.TXT')).toBe('.txt')
-      expect(getFileExtension('test.RST')).toBe('.rst')
+      expect(getFileExtension('test.MARKDOWN')).toBe('.markdown')
     })
 
     it('should handle files without extensions', () => {

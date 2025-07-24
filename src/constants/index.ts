@@ -5,13 +5,7 @@
 /**
  * Supported file extensions for Acrolinx analysis
  */
-export const SUPPORTED_EXTENSIONS = [
-  '.md',
-  '.txt',
-  '.markdown',
-  '.rst',
-  '.adoc'
-] as const
+export const SUPPORTED_EXTENSIONS = ['.md', '.txt', '.markdown'] as const
 
 /**
  * Default analysis options

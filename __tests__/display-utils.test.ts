@@ -202,14 +202,14 @@ describe('Display Utils', () => {
 
   describe('displayFilesToAnalyze', () => {
     it('should display files within limit', () => {
-      const files = ['file1.md', 'file2.txt', 'file3.rst']
+      const files = ['file1.md', 'file2.txt', 'file3.markdown']
 
       displayFilesToAnalyze(files)
 
       expect(core.info).toHaveBeenCalledWith('\n📄 Files to analyze:')
       expect(core.info).toHaveBeenCalledWith('  1. file1.md')
       expect(core.info).toHaveBeenCalledWith('  2. file2.txt')
-      expect(core.info).toHaveBeenCalledWith('  3. file3.rst')
+      expect(core.info).toHaveBeenCalledWith('  3. file3.markdown')
       expect(core.info).not.toHaveBeenCalledWith(
         expect.stringContaining('... and')
       )
@@ -219,16 +219,16 @@ describe('Display Utils', () => {
       const files = [
         'file1.md',
         'file2.txt',
-        'file3.rst',
-        'file4.adoc',
+        'file3.markdown',
+        'file4.md',
         'file5.md',
         'file6.txt',
-        'file7.rst',
-        'file8.adoc',
+        'file7.markdown',
+        'file8.md',
         'file9.md',
         'file10.txt',
-        'file11.rst',
-        'file12.adoc'
+        'file11.markdown',
+        'file12.md'
       ]
 
       displayFilesToAnalyze(files)
@@ -236,12 +236,12 @@ describe('Display Utils', () => {
       expect(core.info).toHaveBeenCalledWith('\n📄 Files to analyze:')
       expect(core.info).toHaveBeenCalledWith('  1. file1.md')
       expect(core.info).toHaveBeenCalledWith('  2. file2.txt')
-      expect(core.info).toHaveBeenCalledWith('  3. file3.rst')
-      expect(core.info).toHaveBeenCalledWith('  4. file4.adoc')
+      expect(core.info).toHaveBeenCalledWith('  3. file3.markdown')
+      expect(core.info).toHaveBeenCalledWith('  4. file4.md')
       expect(core.info).toHaveBeenCalledWith('  5. file5.md')
       expect(core.info).toHaveBeenCalledWith('  6. file6.txt')
-      expect(core.info).toHaveBeenCalledWith('  7. file7.rst')
-      expect(core.info).toHaveBeenCalledWith('  8. file8.adoc')
+      expect(core.info).toHaveBeenCalledWith('  7. file7.markdown')
+      expect(core.info).toHaveBeenCalledWith('  8. file8.md')
       expect(core.info).toHaveBeenCalledWith('  9. file9.md')
       expect(core.info).toHaveBeenCalledWith('  10. file10.txt')
       expect(core.info).toHaveBeenCalledWith('  ... and 2 more files')
@@ -258,12 +258,12 @@ describe('Display Utils', () => {
       const files = [
         'file1.md',
         'file2.txt',
-        'file3.rst',
-        'file4.adoc',
+        'file3.markdown',
+        'file4.md',
         'file5.md',
         'file6.txt',
-        'file7.rst',
-        'file8.adoc',
+        'file7.markdown',
+        'file8.md',
         'file9.md',
         'file10.txt'
       ]

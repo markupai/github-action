@@ -24,8 +24,6 @@ detailed quality analysis with commit status updates and PR comments.
 
 - **Markdown**: `.md`, `.markdown`
 - **Text**: `.txt`
-- **ReStructuredText**: `.rst`
-- **AsciiDoc**: `.adoc`
 
 ## Usage
 

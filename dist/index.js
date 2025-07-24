@@ -31242,13 +31242,7 @@ var githubExports = requireGithub();
 /**
  * Supported file extensions for Acrolinx analysis
  */
-const SUPPORTED_EXTENSIONS = [
-    '.md',
-    '.txt',
-    '.markdown',
-    '.rst',
-    '.adoc'
-];
+const SUPPORTED_EXTENSIONS = ['.md', '.txt', '.markdown'];
 /**
  * Default analysis options
  */
