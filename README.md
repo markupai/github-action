@@ -1,7 +1,7 @@
 # Acrolinx Analyzer
 
-[![Build and Test](https://github.com/acrolinx/github-action/actions/workflows/ci.yml/badge.svg)](https://github.com/acrolinx/github-action/actions/workflows/ci.yml)
-[![Coverage](https://github.com/acrolinx/github-action/blob/main/badges/coverage.svg)](https://github.com/acrolinx/github-action)
+[![Build and Test](https://github.com/acrolinx/nextgen-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/acrolinx/nextgen-analyzer/actions/workflows/ci.yml)
+[![Coverage](https://github.com/acrolinx/nextgen-analyzer/blob/main/badges/coverage.svg)](https://github.com/acrolinx/nextgen-analyzer)
 
 A GitHub Action that analyzes commit changes and runs Acrolinx style checks on
 modified files. Automatically adapts to different GitHub events and provides
@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run Acrolinx Analysis
-        uses: acrolinx/github-action@v1
+        uses: acrolinx/nextgen-analyzer@v1
         with:
           acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -57,7 +57,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run Custom Analysis
-        uses: acrolinx/github-action@v1
+        uses: acrolinx/nextgen-analyzer@v1
         with:
           acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -92,7 +92,7 @@ as action inputs or environment variables:
 
 ```yaml
 - name: Run Acrolinx Analysis
-  uses: acrolinx/github-action@v1
+  uses: acrolinx/nextgen-analyzer@v1
   with:
     acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
     github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -102,7 +102,7 @@ as action inputs or environment variables:
 
 ```yaml
 - name: Run Acrolinx Analysis
-  uses: acrolinx/github-action@v1
+  uses: acrolinx/nextgen-analyzer@v1
   env:
     ACROLINX_TOKEN: ${{ secrets.ACROLINX_TOKEN }}
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -112,7 +112,7 @@ as action inputs or environment variables:
 
 ```yaml
 - name: Run Acrolinx Analysis
-  uses: acrolinx/github-action@v1
+  uses: acrolinx/nextgen-analyzer@v1
   with:
     acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
   env:
@@ -179,7 +179,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Analyze Changes
-        uses: acrolinx/github-action@v1
+        uses: acrolinx/nextgen-analyzer@v1
         with:
           acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -197,7 +197,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Quality Analysis
         id: analysis
-        uses: acrolinx/github-action@v1
+        uses: acrolinx/nextgen-analyzer@v1
         with:
           acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -226,7 +226,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Full Repository Analysis
-        uses: acrolinx/github-action@v1
+        uses: acrolinx/nextgen-analyzer@v1
         with:
           acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -244,7 +244,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run Analysis
         id: acrolinx
-        uses: acrolinx/github-action@v1
+        uses: acrolinx/nextgen-analyzer@v1
         with:
           acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -363,8 +363,8 @@ The action gracefully handles various scenarios:
 
 ```bash
 # Clone the repository
-git clone https://github.com/acrolinx/github-action.git
-cd github-action
+git clone https://github.com/acrolinx/nextgen-analyzer.git
+cd nextgen-analyzer
 
 # Install dependencies
 npm install
@@ -411,9 +411,9 @@ for details.
 
 ## Support
 
-- 📖 [Documentation](https://github.com/acrolinx/github-action#readme)
-- 🐛 [Issues](https://github.com/acrolinx/github-action/issues)
-- 💬 [Discussions](https://github.com/acrolinx/github-action/discussions)
+- 📖 [Documentation](https://github.com/acrolinx/nextgen-analyzer#readme)
+- 🐛 [Issues](https://github.com/acrolinx/nextgen-analyzer/issues)
+- 💬 [Discussions](https://github.com/acrolinx/nextgen-analyzer/discussions)
 
 ## Related
 
