@@ -271,6 +271,7 @@ describe('Post Analysis Service', () => {
         )
         expect(mockCreateOrUpdatePRComment).toHaveBeenCalledWith(mockOctokit, {
           owner: 'test-owner',
+          eventType: 'pull_request',
           repo: 'test-repo',
           prNumber: 123,
           results: mockResults,

@@ -64,9 +64,9 @@ export function generateSummary(results: AcrolinxAnalysisResult[]): string {
  */
 export function generateFooter(
   config: AnalysisOptions,
-  eventType?: string
+  eventType: string
 ): string {
-  const eventInfo = eventType ? ` for **${eventType}** event` : ''
+  const eventInfo = ` for **${eventType}** event`
 
   return `
 ---
@@ -83,7 +83,7 @@ export function generateAnalysisContent(
   results: AcrolinxAnalysisResult[],
   config: AnalysisOptions,
   header: string,
-  eventType?: string
+  eventType: string
 ): string {
   const table = generateResultsTable(results)
   const summary = generateSummary(results)

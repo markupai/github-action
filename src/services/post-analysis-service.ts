@@ -81,7 +81,8 @@ export async function handlePostAnalysisActions(
               repo,
               prNumber,
               results,
-              config: analysisOptions
+              config: analysisOptions,
+              eventType: eventInfo.eventType
             })
           } catch (error) {
             core.error(`Failed to create PR comment: ${error}`)
