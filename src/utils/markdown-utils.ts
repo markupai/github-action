@@ -46,6 +46,8 @@ export function generateSummary(results: AcrolinxAnalysisResult[]): string {
 
 **Overall Quality Score:** ${overallQualityEmoji} ${Math.round(summary.averageQualityScore)}
 
+**Files Analyzed:** ${summary.totalFiles}
+
 | Metric | Average Score |
 |--------|---------------|
 | Quality | ${Math.round(summary.averageQualityScore)} |
@@ -55,7 +57,6 @@ export function generateSummary(results: AcrolinxAnalysisResult[]): string {
 | Tone | ${Math.round(summary.averageToneScore)} |
 | Terminology | ${Math.round(summary.averageTerminologyScore)} |
 
-**Files Analyzed:** ${summary.totalFiles}
 `
 }
 
