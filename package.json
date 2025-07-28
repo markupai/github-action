@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "author": "Acrolinx",
   "type": "module",
+  "license": "Apache-2.0",
   "private": true,
   "homepage": "https://github.com/acrolinx/nextgen-analyzer",
   "repository": {
