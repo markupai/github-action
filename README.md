@@ -38,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run Acrolinx Analysis
-        uses: acrolinx/nextgen-analyzer@v1
+        uses: acrolinx/nextgen-analyzer@v0.0.5
         with:
           acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -55,7 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run Custom Analysis
-        uses: acrolinx/nextgen-analyzer@v1
+        uses: acrolinx/nextgen-analyzer@v0.0.5
         with:
           acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -90,7 +90,7 @@ as action inputs or environment variables:
 
 ```yaml
 - name: Run Acrolinx Analysis
-  uses: acrolinx/nextgen-analyzer@v1
+  uses: acrolinx/nextgen-analyzer@v0.0.5
   with:
     acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
     github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -100,7 +100,7 @@ as action inputs or environment variables:
 
 ```yaml
 - name: Run Acrolinx Analysis
-  uses: acrolinx/nextgen-analyzer@v1
+  uses: acrolinx/nextgen-analyzer@v0.0.5
   env:
     ACROLINX_TOKEN: ${{ secrets.ACROLINX_TOKEN }}
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -110,7 +110,7 @@ as action inputs or environment variables:
 
 ```yaml
 - name: Run Acrolinx Analysis
-  uses: acrolinx/nextgen-analyzer@v1
+  uses: acrolinx/nextgen-analyzer@v0.0.5
   with:
     acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
   env:
@@ -177,7 +177,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Analyze Changes
-        uses: acrolinx/nextgen-analyzer@v1
+        uses: acrolinx/nextgen-analyzer@v0.0.5
         with:
           acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -195,7 +195,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Quality Analysis
         id: analysis
-        uses: acrolinx/nextgen-analyzer@v1
+        uses: acrolinx/nextgen-analyzer@v0.0.5
         with:
           acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -224,7 +224,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Full Repository Analysis
-        uses: acrolinx/nextgen-analyzer@v1
+        uses: acrolinx/nextgen-analyzer@v0.0.5
         with:
           acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -242,7 +242,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run Analysis
         id: acrolinx
-        uses: acrolinx/nextgen-analyzer@v1
+        uses: acrolinx/nextgen-analyzer@v0.0.5
         with:
           acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
