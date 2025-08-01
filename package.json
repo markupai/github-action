@@ -50,7 +50,7 @@
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-typescript": "^12.1.4",
     "@types/jest": "^30.0.0",
-    "@types/node": "^20.19.9",
+    "@types/node": "^24.1.0",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
     "eslint": "^9.32.0",
@@ -62,7 +62,7 @@
     "jest": "^30.0.5",
     "prettier": "^3.6.2",
     "prettier-eslint": "^16.4.2",
-    "rollup": "^4.46.1",
+    "rollup": "^4.46.2",
     "ts-jest": "^29.4.0",
     "ts-jest-resolver": "^2.0.1",
     "typescript": "^5.8.3"
