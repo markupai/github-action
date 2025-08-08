@@ -9,7 +9,7 @@ import * as core from '../__fixtures__/core.js'
 jest.unstable_mockModule('@actions/core', () => core)
 
 // Mock the Acrolinx SDK
-jest.unstable_mockModule('@acrolinx/typescript-sdk', () => ({
+jest.unstable_mockModule('@acrolinx/nextgen-toolkit', () => ({
   styleCheck: jest.fn(),
   styleBatchCheckRequests: jest.fn(),
   Config: jest.fn()
@@ -72,7 +72,7 @@ describe('Acrolinx Service Batch Functionality', () => {
 
     it('should process multiple files using batch API', async () => {
       const { styleBatchCheckRequests } = await import(
-        '@acrolinx/typescript-sdk'
+        '@acrolinx/nextgen-toolkit'
       )
       const mockBatchResponse = {
         progress: {
@@ -200,7 +200,7 @@ describe('Acrolinx Service Batch Functionality', () => {
 
     it('should handle failed batch requests', async () => {
       const { styleBatchCheckRequests } = await import(
-        '@acrolinx/typescript-sdk'
+        '@acrolinx/nextgen-toolkit'
       )
       const mockBatchResponse = {
         progress: {
@@ -273,7 +273,7 @@ describe('Acrolinx Service Batch Functionality', () => {
 
     it('should handle batch processing errors', async () => {
       const { styleBatchCheckRequests } = await import(
-        '@acrolinx/typescript-sdk'
+        '@acrolinx/nextgen-toolkit'
       )
       jest.mocked(styleBatchCheckRequests).mockImplementation(() => {
         throw new Error('Batch processing failed')
@@ -292,7 +292,7 @@ describe('Acrolinx Service Batch Functionality', () => {
 
   describe('analyzeFiles with batch processing', () => {
     it('should use sequential processing for small batches (≤3 files)', async () => {
-      const { styleCheck } = await import('@acrolinx/typescript-sdk')
+      const { styleCheck } = await import('@acrolinx/nextgen-toolkit')
       jest.mocked(styleCheck).mockResolvedValue({
         scores: {
           quality: { score: 85 },
@@ -314,7 +314,7 @@ describe('Acrolinx Service Batch Functionality', () => {
 
     it('should use batch processing for larger batches (>3 files)', async () => {
       const { styleBatchCheckRequests } = await import(
-        '@acrolinx/typescript-sdk'
+        '@acrolinx/nextgen-toolkit'
       )
       const mockBatchResponse = {
         progress: {

@@ -67,7 +67,7 @@ jest.unstable_mockModule('@actions/github', () => ({
 }))
 
 // Mock the Acrolinx SDK
-jest.unstable_mockModule('@acrolinx/typescript-sdk', () => ({
+jest.unstable_mockModule('@acrolinx/nextgen-toolkit', () => ({
   styleCheck: jest.fn(() =>
     Promise.resolve({
       workflow_id: 'test-workflow-123',

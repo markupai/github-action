@@ -8,10 +8,12 @@ const config = {
   input: 'src/index.ts',
   output: {
     esModule: true,
-    file: 'dist/index.js',
+    dir: 'dist',
     format: 'es',
-    sourcemap: true
+    sourcemap: true,
+    entryFileNames: 'index.js'
   },
+  preserveEntrySignatures: false,
   plugins: [typescript(), nodeResolve({ preferBuiltins: true }), commonjs()],
   onwarn(warning, warn) {
     // Suppress circular dependency warnings from @actions/core
