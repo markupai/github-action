@@ -1,7 +1,7 @@
 {
   "name": "acrolinx-nextgen-analyzer",
   "description": "Acrolinx NextGen Analyzer",
-  "version": "0.0.1",
+  "version": "0.0.6",
   "author": "Acrolinx",
   "type": "module",
   "license": "Apache-2.0",
@@ -37,7 +37,7 @@
     "all": "npm run format:write && npm run lint && npm run test && npm run coverage && npm run package"
   },
   "dependencies": {
-    "@acrolinx/typescript-sdk": "^0.0.64",
+    "@acrolinx/nextgen-toolkit": "^0.0.67",
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.1",
     "octokit": "^5.0.3"
