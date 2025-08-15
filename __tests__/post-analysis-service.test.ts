@@ -42,7 +42,7 @@ const mockCreateJobSummary = jest.fn() as jest.MockedFunction<
   () => Promise<void>
 >
 
-jest.unstable_mockModule('../src/services/acrolinx-service.js', () => ({
+jest.unstable_mockModule('../src/services/api-service.js', () => ({
   getAnalysisSummary: mockGetAnalysisSummary
 }))
 

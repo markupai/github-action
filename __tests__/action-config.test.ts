@@ -170,7 +170,7 @@ describe('Action Config', () => {
       expect(core.info).toHaveBeenCalledWith('  Dialect: british_english')
       expect(core.info).toHaveBeenCalledWith('  Tone: informal')
       expect(core.info).toHaveBeenCalledWith('  Style Guide: chicago')
-      expect(core.info).toHaveBeenCalledWith('  Token: [PROVIDED]')
+      expect(core.info).toHaveBeenCalledWith('  API Token: [PROVIDED]')
       expect(core.info).toHaveBeenCalledWith('  GitHub Token: [PROVIDED]')
     })
 
@@ -270,7 +270,7 @@ describe('Action Config', () => {
       core.getInput.mockReturnValue('')
 
       expect(() => getActionConfig()).toThrow(
-        "Required input 'github_token' or environment variable 'GITHUB_TOKEN' is not provided"
+        "Required input 'markup_ai_token' or environment variable 'MARKUP_AI_TOKEN' is not provided"
       )
     })
   })
