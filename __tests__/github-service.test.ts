@@ -63,7 +63,10 @@ const mockOctokit = {
         (...args: unknown[]) => Promise<unknown>
       >
     }
-  }
+  },
+  paginate: jest.fn() as jest.MockedFunction<
+    (...args: unknown[]) => Promise<unknown>
+  >
 }
 
 describe('GitHub Service', () => {
@@ -217,9 +220,7 @@ describe('GitHub Service', () => {
         { filename: 'file3.js' }
       ]
 
-      mockOctokit.rest.pulls.listFiles.mockResolvedValue({
-        data: mockFiles
-      })
+      mockOctokit.paginate.mockResolvedValue(mockFiles)
 
       const result = await githubService.getPullRequestFiles(
         mockOctokit as any,
@@ -229,6 +230,15 @@ describe('GitHub Service', () => {
       )
 
       expect(result).toEqual(['file1.md', 'file2.txt', 'file3.js'])
+      expect(mockOctokit.paginate).toHaveBeenCalledWith(
+        mockOctokit.rest.pulls.listFiles,
+        {
+          owner: 'test-owner',
+          repo: 'test-repo',
+          pull_number: 123,
+          per_page: 100
+        }
+      )
       expect(core.info).toHaveBeenCalledWith(
         '🔍 Fetching files for PR #123 in test-owner/test-repo'
       )
@@ -236,7 +246,7 @@ describe('GitHub Service', () => {
     })
 
     it('should handle API errors', async () => {
-      mockOctokit.rest.pulls.listFiles.mockRejectedValue(new Error('API Error'))
+      mockOctokit.paginate.mockRejectedValue(new Error('API Error'))
 
       const result = await githubService.getPullRequestFiles(
         mockOctokit as any,

@@ -75,6 +75,10 @@ export async function getCommitChanges(
 
 /**
  * Get files changed in a pull request
+ *
+ * Uses pagination to fetch all files (up to GitHub's limit of 3000 files).
+ * The GitHub API returns 30 files per page by default, but we use 100 per page
+ * to reduce the number of API calls needed.
  */
 export async function getPullRequestFiles(
   octokit: ReturnType<typeof github.getOctokit>,
@@ -87,14 +91,15 @@ export async function getPullRequestFiles(
       async () => {
         core.info(`🔍 Fetching files for PR #${prNumber} in ${owner}/${repo}`)
 
-        const response = await octokit.rest.pulls.listFiles({
+        const files = await octokit.paginate(octokit.rest.pulls.listFiles, {
           owner,
           repo,
-          pull_number: prNumber
+          pull_number: prNumber,
+          per_page: 100
         })
 
-        core.info(`✅ Found ${response.data.length} files in PR`)
-        return response.data.map((file) => file.filename)
+        core.info(`✅ Found ${files.length} files in PR`)
+        return files.map((file) => file.filename)
       },
       undefined,
       `Get PR files for #${prNumber} in ${owner}/${repo}`
