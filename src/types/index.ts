@@ -25,13 +25,12 @@ export interface FileChange {
   patch?: string
 }
 
-// Import types from Acrolinx SDK first
 import type { StyleScores } from '@acrolinx/nextgen-toolkit'
 
 /**
- * Interface for Acrolinx analysis result
+ * Interface for analysis result
  */
-export interface AcrolinxAnalysisResult {
+export interface AnalysisResult {
   filePath: string
   result: StyleScores
   timestamp: string
@@ -59,7 +58,7 @@ export interface FileDiscoveryStrategy {
  * Configuration for the action
  */
 export interface ActionConfig {
-  acrolinxApiToken: string
+  apiToken: string
   dialect: string
   tone: string
   styleGuide: string
@@ -68,7 +67,7 @@ export interface ActionConfig {
 }
 
 /**
- * Analysis options for Acrolinx
+ * Analysis options
  */
 export interface AnalysisOptions {
   dialect: string
@@ -76,5 +75,5 @@ export interface AnalysisOptions {
   styleGuide: string
 }
 
-// Re-export types from Acrolinx SDK
+// Re-export types from SDK
 export type { StyleAnalysisReq, Config } from '@acrolinx/nextgen-toolkit'

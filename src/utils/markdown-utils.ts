@@ -1,16 +1,14 @@
 /**
- * Markdown generation utility functions for Acrolinx analysis results
+ * Markdown generation utility functions for analysis results
  */
 
-import { AcrolinxAnalysisResult, AnalysisOptions } from '../types/index.js'
+import { AnalysisResult, AnalysisOptions } from '../types/index.js'
 import { getQualityEmoji, calculateScoreSummary } from './score-utils.js'
 
 /**
  * Generate markdown table for analysis results
  */
-export function generateResultsTable(
-  results: AcrolinxAnalysisResult[]
-): string {
+export function generateResultsTable(results: AnalysisResult[]): string {
   if (results.length === 0) {
     return 'No files were analyzed.'
   }
@@ -33,7 +31,7 @@ export function generateResultsTable(
 /**
  * Generate summary section
  */
-export function generateSummary(results: AcrolinxAnalysisResult[]): string {
+export function generateSummary(results: AnalysisResult[]): string {
   if (results.length === 0) {
     return ''
   }
@@ -79,7 +77,7 @@ export function generateFooter(
  * Generate complete analysis content with customizable header
  */
 export function generateAnalysisContent(
-  results: AcrolinxAnalysisResult[],
+  results: AnalysisResult[],
   config: AnalysisOptions,
   header: string,
   eventType: string

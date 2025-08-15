@@ -1,18 +1,18 @@
 {
-  "name": "acrolinx-nextgen-analyzer",
-  "description": "Acrolinx NextGen Analyzer",
-  "version": "0.0.6",
-  "author": "Acrolinx",
+  "name": "markup-ai-github-action",
+  "description": "Markup AI GitHub Action",
+  "version": "0.0.1",
+  "author": "Markup AI",
   "type": "module",
   "license": "Apache-2.0",
   "private": true,
-  "homepage": "https://github.com/acrolinx/nextgen-analyzer",
+  "homepage": "https://github.com/markupai/markup-ai-github-action",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/acrolinx/nextgen-analyzer.git"
+    "url": "git+https://github.com/markupai/markup-ai-github-action.git"
   },
   "bugs": {
-    "url": "https://github.com/acrolinx/nextgen-analyzer/issues"
+    "url": "https://github.com/markupai/markup-ai-github-action/issues"
   },
   "keywords": [
     "actions"

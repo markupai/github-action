@@ -57,7 +57,7 @@ const {
   generateFooter,
   generateAnalysisContent
 } = await import('../src/utils/markdown-utils.js')
-import { AcrolinxAnalysisResult, AnalysisOptions } from '../src/types/index.js'
+import { AnalysisResult, AnalysisOptions } from '../src/types/index.js'
 
 describe('Markdown Utils', () => {
   const mockAnalysisOptions: AnalysisOptions = {
@@ -76,7 +76,7 @@ describe('Markdown Utils', () => {
       tone: number
       terminology: number
     }
-  ): AcrolinxAnalysisResult => ({
+  ): AnalysisResult => ({
     filePath,
     result: {
       quality: { score: scores.quality },
@@ -398,7 +398,7 @@ describe('Markdown Utils', () => {
         })
       ]
 
-      const header = '# Acrolinx Analysis Results'
+      const header = '# Analysis Results'
       const result = generateAnalysisContent(
         results,
         mockAnalysisOptions,
@@ -422,7 +422,7 @@ describe('Markdown Utils', () => {
     })
 
     it('should handle empty results', () => {
-      const header = '# Acrolinx Analysis Results'
+      const header = '# Analysis Results'
       const result = generateAnalysisContent(
         [],
         mockAnalysisOptions,

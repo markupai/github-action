@@ -71,7 +71,7 @@ jobs:
           style-guide: ap
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ACROLINX_TOKEN: ${{ secrets.ACROLINX_TOKEN }}
+          MARKUP_AI_TOKEN: ${{ secrets.MARKUP_AI_TOKEN }}
 
       - name: Print Output
         id: output

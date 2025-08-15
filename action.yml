@@ -1,8 +1,8 @@
-name: Acrolinx NextGen Analyzer
+name: Markup AI GitHub Action
 description:
   A GitHub Action that analyzes and displays recent commit changes with detailed
-  diffs and file modifications, and runs Acrolinx style checks on modified files
-author: Acrolinx
+  diffs and file modifications, and runs style checks on modified files
+author: Markup AI
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
@@ -11,23 +11,22 @@ branding:
 
 # Define your inputs here.
 inputs:
-  acrolinx_token:
+  markup_ai_token:
     description:
-      Acrolinx API token for style checking (can also be provided via
-      ACROLINX_API_TOKEN environment variable)
+      API token for style checking (can also be provided via MARKUP_AI_TOKEN
+      environment variable)
     required: true
   dialect:
     description:
-      Language dialect for Acrolinx analysis (e.g., american_english,
-      british_english)
+      Language dialect for analysis (e.g., american_english, british_english)
     required: false
     default: 'american_english'
   tone:
-    description: Tone for Acrolinx analysis (e.g., formal, informal, academic)
+    description: Tone for analysis (e.g., formal, informal, academic)
     required: false
     default: 'formal'
   style-guide:
-    description: Style guide for Acrolinx analysis (e.g., ap, chicago, apa)
+    description: Style guide for analysis (e.g., ap, chicago, apa)
     required: false
     default: 'ap'
   github_token:
@@ -44,8 +43,8 @@ outputs:
     description: Type of GitHub event that triggered the action
   files-analyzed:
     description: Number of files analyzed
-  acrolinx-results:
-    description: JSON string containing Acrolinx analysis results
+  results:
+    description: JSON string containing analysis results
 
 # Define permissions required by the action
 permissions:

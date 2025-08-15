@@ -18,7 +18,7 @@ import {
   isValidQualityScore,
   isValidFilePath,
   isGitHubAPIError,
-  isAcrolinxAPIError,
+  isApiError,
   safeGet,
   safeArrayGet
 } from '../src/utils/type-guards.js'
@@ -308,22 +308,22 @@ describe('Type Guards', () => {
       })
     })
 
-    describe('isAcrolinxAPIError', () => {
-      it('should return true for Acrolinx API errors', () => {
-        expect(
-          isAcrolinxAPIError({ status: 500, message: 'Internal error' })
-        ).toBe(true)
-        expect(isAcrolinxAPIError({ status: 400 })).toBe(true)
-        expect(isAcrolinxAPIError({ message: 'Error message' })).toBe(true)
+    describe('isApiError', () => {
+      it('should return true for API errors', () => {
+        expect(isApiError({ status: 500, message: 'Internal error' })).toBe(
+          true
+        )
+        expect(isApiError({ status: 400 })).toBe(true)
+        expect(isApiError({ message: 'Error message' })).toBe(true)
       })
 
-      it('should return false for non-Acrolinx API errors', () => {
-        expect(isAcrolinxAPIError({ other: 'property' })).toBe(false)
-        expect(isAcrolinxAPIError('string')).toBe(false)
-        expect(isAcrolinxAPIError(123)).toBe(false)
-        expect(isAcrolinxAPIError(null)).toBe(false)
-        expect(isAcrolinxAPIError(undefined)).toBe(false)
-        expect(isAcrolinxAPIError([])).toBe(false)
+      it('should return false for non API errors', () => {
+        expect(isApiError({ other: 'property' })).toBe(false)
+        expect(isApiError('string')).toBe(false)
+        expect(isApiError(123)).toBe(false)
+        expect(isApiError(null)).toBe(false)
+        expect(isApiError(undefined)).toBe(false)
+        expect(isApiError([])).toBe(false)
       })
     })
   })

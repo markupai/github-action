@@ -3,7 +3,7 @@
  */
 
 import * as core from '@actions/core'
-import { AcrolinxAnalysisResult, EventInfo } from '../types/index.js'
+import { AnalysisResult, EventInfo } from '../types/index.js'
 import { DISPLAY } from '../constants/index.js'
 
 /**
@@ -23,17 +23,15 @@ export function displayEventInfo(eventInfo: EventInfo): void {
 }
 
 /**
- * Display Acrolinx analysis results in a formatted way
+ * Display analysis results in a formatted way
  */
-export function displayAcrolinxResults(
-  results: AcrolinxAnalysisResult[]
-): void {
+export function displayResults(results: AnalysisResult[]): void {
   if (results.length === 0) {
-    core.info('📊 No Acrolinx analysis results to display.')
+    core.info('📊 No analysis results to display.')
     return
   }
 
-  core.info('📊 Acrolinx Analysis Results:')
+  core.info('📊 Analysis Results:')
   core.info('='.repeat(DISPLAY.SEPARATOR_LENGTH))
 
   results.forEach((analysis, index) => {

@@ -15,9 +15,9 @@ import {
  * Get and validate action configuration from inputs
  */
 export function getActionConfig(): ActionConfig {
-  const acrolinxApiToken = getRequiredInput(
-    INPUT_NAMES.ACROLINX_TOKEN,
-    ENV_VARS.ACROLINX_TOKEN
+  const apiToken = getRequiredInput(
+    INPUT_NAMES.MARKUP_AI_TOKEN,
+    ENV_VARS.MARKUP_AI_TOKEN
   )
   const githubToken = getRequiredInput(
     INPUT_NAMES.GITHUB_TOKEN,
@@ -37,7 +37,7 @@ export function getActionConfig(): ActionConfig {
   const addCommitStatus = getBooleanInput(INPUT_NAMES.ADD_COMMIT_STATUS, true)
 
   return {
-    acrolinxApiToken,
+    apiToken,
     githubToken,
     dialect,
     tone,
@@ -100,8 +100,8 @@ function getBooleanInput(inputName: string, defaultValue: boolean): boolean {
  * Validate configuration
  */
 export function validateConfig(config: ActionConfig): void {
-  if (!config.acrolinxApiToken) {
-    throw new Error(ERROR_MESSAGES.ACROLINX_TOKEN_REQUIRED)
+  if (!config.apiToken) {
+    throw new Error(ERROR_MESSAGES.API_TOKEN_REQUIRED)
   }
 
   if (!config.githubToken) {
@@ -131,9 +131,7 @@ export function logConfiguration(config: ActionConfig): void {
   core.info(`  Dialect: ${config.dialect}`)
   core.info(`  Tone: ${config.tone}`)
   core.info(`  Style Guide: ${config.styleGuide}`)
-  core.info(
-    `  Acrolinx Token: ${config.acrolinxApiToken ? '[PROVIDED]' : '[MISSING]'}`
-  )
+  core.info(`  API Token: ${config.apiToken ? '[PROVIDED]' : '[MISSING]'}`)
   core.info(
     `  GitHub Token: ${config.githubToken ? '[PROVIDED]' : '[MISSING]'}`
   )

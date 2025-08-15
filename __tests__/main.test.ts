@@ -66,7 +66,6 @@ jest.unstable_mockModule('@actions/github', () => ({
   }
 }))
 
-// Mock the Acrolinx SDK
 jest.unstable_mockModule('@acrolinx/nextgen-toolkit', () => ({
   styleCheck: jest.fn(() =>
     Promise.resolve({
@@ -146,7 +145,7 @@ jest.unstable_mockModule('@acrolinx/nextgen-toolkit', () => ({
 
 // Mock fs/promises
 jest.unstable_mockModule('fs/promises', () => ({
-  readFile: jest.fn(() => Promise.resolve('Test content for Acrolinx analysis'))
+  readFile: jest.fn(() => Promise.resolve('Test content for analysis'))
 }))
 
 // The module being tested should be imported dynamically. This ensures that the
@@ -158,8 +157,8 @@ describe('main.ts', () => {
     // Set the action's inputs as return values from core.getInput().
     core.getInput.mockImplementation((name: string) => {
       switch (name) {
-        case 'acrolinx_token':
-          return 'test-acrolinx-token'
+        case 'markup_ai_token':
+          return 'test-markup_ai_token'
         case 'dialect':
           return 'american_english'
         case 'tone':
@@ -190,17 +189,14 @@ describe('main.ts', () => {
     // Verify the new outputs were set correctly
     expect(core.setOutput).toHaveBeenCalledWith('event-type', 'push')
     expect(core.setOutput).toHaveBeenCalledWith('files-analyzed', '1')
-    expect(core.setOutput).toHaveBeenCalledWith(
-      'acrolinx-results',
-      expect.any(String)
-    )
+    expect(core.setOutput).toHaveBeenCalledWith('results', expect.any(String))
   })
 
-  it('Fails when Acrolinx API token is missing', async () => {
-    // Clear the getInput mock and return empty for acrolinx_token
+  it('Fails when API token is missing', async () => {
+    // Clear the getInput mock and return empty for markup_ai_token
     core.getInput.mockClear().mockImplementation((name: string) => {
       switch (name) {
-        case 'acrolinx_token':
+        case 'markup_ai_token':
           return ''
         case 'dialect':
           return 'american_english'
@@ -219,7 +215,7 @@ describe('main.ts', () => {
 
     // Verify that the action was marked as failed.
     expect(core.setFailed).toHaveBeenCalledWith(
-      "Required input 'acrolinx_token' or environment variable 'ACROLINX_TOKEN' is not provided"
+      "Required input 'markup_ai_token' or environment variable 'MARKUP_AI_TOKEN' is not provided"
     )
   })
 })

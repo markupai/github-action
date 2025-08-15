@@ -118,9 +118,9 @@ export function isGitHubAPIError(
 }
 
 /**
- * Type guard for checking if an error is an Acrolinx API error
+ * Type guard for checking if an error is an API error
  */
-export function isAcrolinxAPIError(
+export function isApiError(
   error: unknown
 ): error is { status?: number; message?: string } {
   return isObject(error) && ('status' in error || 'message' in error)

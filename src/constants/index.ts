@@ -2,9 +2,6 @@
  * Application constants and configuration
  */
 
-/**
- * Supported file extensions for Acrolinx analysis
- */
 export const SUPPORTED_EXTENSIONS = ['.md', '.txt', '.markdown'] as const
 
 /**
@@ -20,7 +17,7 @@ export const DEFAULT_ANALYSIS_OPTIONS = {
  * Input names for GitHub Actions
  */
 export const INPUT_NAMES = {
-  ACROLINX_TOKEN: 'acrolinx_token',
+  MARKUP_AI_TOKEN: 'markup_ai_token',
   DIALECT: 'dialect',
   TONE: 'tone',
   STYLE_GUIDE: 'style-guide',
@@ -32,7 +29,7 @@ export const INPUT_NAMES = {
  * Environment variable names
  */
 export const ENV_VARS = {
-  ACROLINX_TOKEN: 'ACROLINX_TOKEN',
+  MARKUP_AI_TOKEN: 'MARKUP_AI_TOKEN',
   GITHUB_TOKEN: 'GITHUB_TOKEN'
 } as const
 
@@ -42,7 +39,7 @@ export const ENV_VARS = {
 export const OUTPUT_NAMES = {
   EVENT_TYPE: 'event-type',
   FILES_ANALYZED: 'files-analyzed',
-  ACROLINX_RESULTS: 'acrolinx-results'
+  RESULTS: 'results'
 } as const
 
 /**
@@ -68,7 +65,7 @@ export const DISPLAY = {
  * Error messages
  */
 export const ERROR_MESSAGES = {
-  ACROLINX_TOKEN_REQUIRED: 'Acrolinx API token is required',
+  API_TOKEN_REQUIRED: 'API token is required',
   GITHUB_TOKEN_WARNING:
     'GitHub token not provided. Cannot fetch commit information.',
   UNSUPPORTED_EVENT: 'Unsupported event type: {eventType}. Using push strategy.'

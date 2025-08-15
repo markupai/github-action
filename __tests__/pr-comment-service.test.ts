@@ -140,7 +140,7 @@ const setupExistingComment = (commentId: number): void => {
     data: [
       {
         id: commentId,
-        body: '## 🔍 Acrolinx Analysis Results\nSome old content'
+        body: '## 🔍 Analysis Results\nSome old content'
       }
     ]
   })
@@ -208,7 +208,7 @@ describe('PR Comment Service', () => {
           owner: 'test-owner',
           repo: 'test-repo',
           issue_number: 123,
-          body: expect.stringContaining('## 🔍 Acrolinx Analysis Results')
+          body: expect.stringContaining('## 🔍 Analysis Results')
         })
       })
 
@@ -226,7 +226,7 @@ describe('PR Comment Service', () => {
           owner: 'test-owner',
           repo: 'test-repo',
           comment_id: 789,
-          body: expect.stringContaining('## 🔍 Acrolinx Analysis Results')
+          body: expect.stringContaining('## 🔍 Analysis Results')
         })
       })
     })
@@ -335,7 +335,7 @@ describe('PR Comment Service', () => {
       const commentBody = createCall.body
 
       // Test header and structure
-      expect(commentBody).toContain('## 🔍 Acrolinx Analysis Results')
+      expect(commentBody).toContain('## 🔍 Analysis Results')
       expect(commentBody).toContain('## 📊 Summary')
       expect(commentBody).toContain(
         'Quality Score Legend: 🟢 80+ | 🟡 60-79 | 🔴 0-59'

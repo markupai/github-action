@@ -14,12 +14,12 @@ const {
   calculateBackoffDelay,
   withRetry,
   handleGitHubError,
-  handleAcrolinxError,
+  handleApiError,
   isNetworkError,
   isRateLimitError,
   logError,
   GitHubAPIError,
-  AcrolinxAPIError
+  ApiError
 } = await import('../src/utils/error-utils.js')
 
 // Import the type separately
@@ -59,17 +59,17 @@ describe('Error Utils', () => {
       })
     })
 
-    describe('AcrolinxAPIError', () => {
-      it('should create Acrolinx API error with message', () => {
-        const error = new AcrolinxAPIError('Test error')
+    describe('ApiError', () => {
+      it('should create API error with message', () => {
+        const error = new ApiError('Test error')
         expect(error.message).toBe('Test error')
-        expect(error.name).toBe('AcrolinxAPIError')
+        expect(error.name).toBe('ApiError')
         expect(error.status).toBeUndefined()
         expect(error.code).toBeUndefined()
       })
 
-      it('should create Acrolinx API error with status and code', () => {
-        const error = new AcrolinxAPIError('Test error', 500, 'INTERNAL_ERROR')
+      it('should create API error with status and code', () => {
+        const error = new ApiError('Test error', 500, 'INTERNAL_ERROR')
         expect(error.message).toBe('Test error')
         expect(error.status).toBe(500)
         expect(error.code).toBe('INTERNAL_ERROR')
@@ -256,28 +256,28 @@ describe('Error Utils', () => {
     })
   })
 
-  describe('handleAcrolinxError', () => {
-    it('should return existing AcrolinxAPIError unchanged', () => {
-      const originalError = new AcrolinxAPIError('Original error', 500)
-      const result = handleAcrolinxError(originalError, 'Test context')
+  describe('handleApiError', () => {
+    it('should return existing ApiError unchanged', () => {
+      const originalError = new ApiError('Original error', 500)
+      const result = handleApiError(originalError, 'Test context')
 
       expect(result).toBe(originalError)
     })
 
-    it('should wrap error with status in AcrolinxAPIError', () => {
+    it('should wrap error with status in ApiError', () => {
       const error = { status: 500, message: 'Internal error' }
-      const result = handleAcrolinxError(error, 'Test context')
+      const result = handleApiError(error, 'Test context')
 
-      expect(result).toBeInstanceOf(AcrolinxAPIError)
+      expect(result).toBeInstanceOf(ApiError)
       expect(result.message).toBe('Test context: Internal error')
       expect(result.status).toBe(500)
     })
 
-    it('should wrap generic error in AcrolinxAPIError', () => {
+    it('should wrap generic error in ApiError', () => {
       const error = new Error('Generic error')
-      const result = handleAcrolinxError(error, 'Test context')
+      const result = handleApiError(error, 'Test context')
 
-      expect(result).toBeInstanceOf(AcrolinxAPIError)
+      expect(result).toBeInstanceOf(ApiError)
       expect(result.message).toBe('Test context: Generic error')
     })
   })

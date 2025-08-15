@@ -41,5 +41,6 @@
 ### Advanced Analytics
 
 - Comprehensive reporting dashboards
+- Comprehensive reporting boards
 - Performance metrics and insights.
 - Custom analytics and data export capabilities.

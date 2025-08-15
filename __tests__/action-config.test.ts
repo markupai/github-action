@@ -20,13 +20,13 @@ describe('Action Config', () => {
     jest.clearAllMocks()
 
     // Reset environment variables
-    delete process.env.ACROLINX_API_TOKEN
+    delete process.env.MARKUP_AI_TOKEN
     delete process.env.GITHUB_TOKEN
     delete process.env.GITHUB_REPOSITORY
   })
 
   afterEach(() => {
-    delete process.env.ACROLINX_API_TOKEN
+    delete process.env.MARKUP_AI_TOKEN
     delete process.env.GITHUB_TOKEN
     delete process.env.GITHUB_REPOSITORY
   })
@@ -37,7 +37,7 @@ describe('Action Config', () => {
         dialect: 'british_english',
         tone: 'informal',
         styleGuide: 'chicago',
-        acrolinxApiToken: 'token',
+        apiToken: 'token',
         githubToken: 'github-token',
         addCommitStatus: true
       }
@@ -56,7 +56,7 @@ describe('Action Config', () => {
         dialect: '',
         tone: '',
         styleGuide: '',
-        acrolinxApiToken: 'token',
+        apiToken: 'token',
         githubToken: 'github-token',
         addCommitStatus: true
       }
@@ -77,7 +77,7 @@ describe('Action Config', () => {
         dialect: 'american_english',
         tone: 'formal',
         styleGuide: 'ap',
-        acrolinxApiToken: 'valid-token',
+        apiToken: 'valid-token',
         githubToken: 'valid-github-token',
         addCommitStatus: true
       }
@@ -85,19 +85,17 @@ describe('Action Config', () => {
       expect(() => validateConfig(config)).not.toThrow()
     })
 
-    it('should throw error for missing Acrolinx token', () => {
+    it('should throw error for missing token', () => {
       const config = {
         dialect: 'american_english',
         tone: 'formal',
         styleGuide: 'ap',
-        acrolinxApiToken: '',
+        apiToken: '',
         githubToken: 'valid-github-token',
         addCommitStatus: true
       }
 
-      expect(() => validateConfig(config)).toThrow(
-        'Acrolinx API token is required'
-      )
+      expect(() => validateConfig(config)).toThrow('API token is required')
     })
 
     it('should warn for missing GitHub token', () => {
@@ -105,7 +103,7 @@ describe('Action Config', () => {
         dialect: 'american_english',
         tone: 'formal',
         styleGuide: 'ap',
-        acrolinxApiToken: 'valid-token',
+        apiToken: 'valid-token',
         githubToken: ''
       }
 
@@ -118,7 +116,7 @@ describe('Action Config', () => {
         dialect: '',
         tone: 'formal',
         styleGuide: 'ap',
-        acrolinxApiToken: 'valid-token',
+        apiToken: 'valid-token',
         githubToken: 'valid-github-token'
       }
 
@@ -132,7 +130,7 @@ describe('Action Config', () => {
         dialect: 'american_english',
         tone: '',
         styleGuide: 'ap',
-        acrolinxApiToken: 'valid-token',
+        apiToken: 'valid-token',
         githubToken: 'valid-github-token'
       }
 
@@ -146,7 +144,7 @@ describe('Action Config', () => {
         dialect: 'american_english',
         tone: 'formal',
         styleGuide: '',
-        acrolinxApiToken: 'valid-token',
+        apiToken: 'valid-token',
         githubToken: 'valid-github-token'
       }
 
@@ -162,7 +160,7 @@ describe('Action Config', () => {
         dialect: 'british_english',
         tone: 'informal',
         styleGuide: 'chicago',
-        acrolinxApiToken: 'token123',
+        apiToken: 'token123',
         githubToken: 'github-token123'
       }
 
@@ -172,7 +170,7 @@ describe('Action Config', () => {
       expect(core.info).toHaveBeenCalledWith('  Dialect: british_english')
       expect(core.info).toHaveBeenCalledWith('  Tone: informal')
       expect(core.info).toHaveBeenCalledWith('  Style Guide: chicago')
-      expect(core.info).toHaveBeenCalledWith('  Acrolinx Token: [PROVIDED]')
+      expect(core.info).toHaveBeenCalledWith('  Token: [PROVIDED]')
       expect(core.info).toHaveBeenCalledWith('  GitHub Token: [PROVIDED]')
     })
 
@@ -181,7 +179,7 @@ describe('Action Config', () => {
         dialect: '',
         tone: '',
         styleGuide: '',
-        acrolinxApiToken: 'token123',
+        apiToken: 'token123',
         githubToken: 'github-token123'
       }
 
@@ -196,7 +194,7 @@ describe('Action Config', () => {
   describe('getActionConfig', () => {
     it('should return complete config from inputs', () => {
       core.getInput
-        .mockReturnValueOnce('acrolinx-token') // acrolinx_token
+        .mockReturnValueOnce('markup_ai_token') // markup_ai_token
         .mockReturnValueOnce('github-token') // github_token
         .mockReturnValueOnce('british_english') // dialect
         .mockReturnValueOnce('informal') // tone
@@ -208,7 +206,7 @@ describe('Action Config', () => {
         dialect: 'british_english',
         tone: 'informal',
         styleGuide: 'chicago',
-        acrolinxApiToken: 'acrolinx-token',
+        apiToken: 'markup_ai_token',
         githubToken: 'github-token',
         addCommitStatus: true
       })
@@ -216,7 +214,7 @@ describe('Action Config', () => {
 
     it('should return config with environment variables when inputs are empty', () => {
       core.getInput.mockReturnValue('')
-      process.env.ACROLINX_TOKEN = 'env-acrolinx-token'
+      process.env.MARKUP_AI_TOKEN = 'env-markup-ai-token'
       process.env.GITHUB_TOKEN = 'env-github-token'
 
       const config = getActionConfig()
@@ -225,7 +223,7 @@ describe('Action Config', () => {
         dialect: 'american_english',
         tone: 'formal',
         styleGuide: 'ap',
-        acrolinxApiToken: 'env-acrolinx-token',
+        apiToken: 'env-markup-ai-token',
         githubToken: 'env-github-token',
         addCommitStatus: true
       })
@@ -233,24 +231,24 @@ describe('Action Config', () => {
 
     it('should prioritize inputs over environment variables', () => {
       core.getInput
-        .mockReturnValueOnce('input-acrolinx-token') // acrolinx_token
+        .mockReturnValueOnce('input-markup-ai-token') // markup_ai_token
         .mockReturnValueOnce('input-github-token') // github_token
         .mockReturnValueOnce('british_english') // dialect
         .mockReturnValueOnce('informal') // tone
         .mockReturnValueOnce('chicago') // style-guide
 
-      process.env.ACROLINX_TOKEN = 'env-acrolinx-token'
+      process.env.MARKUP_AI_TOKEN = 'env-markup-ai-token'
       process.env.GITHUB_TOKEN = 'env-github-token'
 
       const config = getActionConfig()
 
-      expect(config.acrolinxApiToken).toBe('input-acrolinx-token')
+      expect(config.apiToken).toBe('input-markup-ai-token')
       expect(config.githubToken).toBe('input-github-token')
     })
 
     it('should use default values for optional inputs', () => {
       core.getInput
-        .mockReturnValueOnce('acrolinx-token') // acrolinx_token
+        .mockReturnValueOnce('markup-ai-token') // markup_ai_token
         .mockReturnValueOnce('github-token') // github_token
         .mockReturnValueOnce('') // dialect
         .mockReturnValueOnce('') // tone
@@ -262,7 +260,7 @@ describe('Action Config', () => {
         dialect: 'american_english',
         tone: 'formal',
         styleGuide: 'ap',
-        acrolinxApiToken: 'acrolinx-token',
+        apiToken: 'markup-ai-token',
         githubToken: 'github-token',
         addCommitStatus: true
       })

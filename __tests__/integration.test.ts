@@ -56,7 +56,6 @@ jest.unstable_mockModule('@actions/github', () => ({
   }
 }))
 
-// Mock the Acrolinx SDK
 jest.unstable_mockModule('@acrolinx/nextgen-toolkit', () => ({
   styleCheck: jest.fn(() =>
     Promise.resolve({
@@ -135,7 +134,7 @@ jest.unstable_mockModule('@acrolinx/nextgen-toolkit', () => ({
 
 // Mock fs/promises
 jest.unstable_mockModule('fs/promises', () => ({
-  readFile: jest.fn(() => Promise.resolve('Test content for Acrolinx analysis'))
+  readFile: jest.fn(() => Promise.resolve('Test content for analysis'))
 }))
 
 const { run } = await import('../src/main.js')
@@ -145,8 +144,8 @@ describe('Integration Tests', () => {
     // Set the action's inputs as return values from core.getInput().
     core.getInput.mockImplementation((name: string) => {
       switch (name) {
-        case 'acrolinx_token':
-          return 'test-acrolinx-token'
+        case 'markup_ai_token':
+          return 'test-markup_ai_token'
         case 'dialect':
           return 'american_english'
         case 'tone':
@@ -178,14 +177,11 @@ describe('Integration Tests', () => {
       // Verify the outputs were set correctly
       expect(core.setOutput).toHaveBeenCalledWith('event-type', 'push')
       expect(core.setOutput).toHaveBeenCalledWith('files-analyzed', '1')
-      expect(core.setOutput).toHaveBeenCalledWith(
-        'acrolinx-results',
-        expect.any(String)
-      )
+      expect(core.setOutput).toHaveBeenCalledWith('results', expect.any(String))
 
       // Verify the results contain the expected data
       const resultsCall = core.setOutput.mock.calls.find(
-        (call) => call[0] === 'acrolinx-results'
+        (call) => call[0] === 'results'
       )
       expect(resultsCall).toBeDefined()
       const results = JSON.parse(resultsCall![1])
@@ -195,10 +191,10 @@ describe('Integration Tests', () => {
       expect(results[0].result.quality.score).toBe(85.2)
     })
 
-    it('should handle missing Acrolinx token', async () => {
+    it('should handle missing token', async () => {
       core.getInput.mockImplementation((name: string) => {
         switch (name) {
-          case 'acrolinx_token':
+          case 'markup_ai_token':
             return ''
           case 'dialect':
             return 'american_english'
@@ -216,15 +212,15 @@ describe('Integration Tests', () => {
       await run()
 
       expect(core.setFailed).toHaveBeenCalledWith(
-        "Required input 'acrolinx_token' or environment variable 'ACROLINX_TOKEN' is not provided"
+        "Required input 'markup_ai_token' or environment variable 'MARKUP_AI_TOKEN' is not provided"
       )
     })
 
     it('should handle missing GitHub token', async () => {
       core.getInput.mockImplementation((name: string) => {
         switch (name) {
-          case 'acrolinx_token':
-            return 'test-acrolinx-token'
+          case 'markup_ai_token':
+            return 'test-markup_ai_token'
           case 'dialect':
             return 'american_english'
           case 'tone':
@@ -250,8 +246,8 @@ describe('Integration Tests', () => {
     it('should handle custom analysis options', async () => {
       core.getInput.mockImplementation((name: string) => {
         switch (name) {
-          case 'acrolinx_token':
-            return 'test-acrolinx-token'
+          case 'markup_ai_token':
+            return 'test-markup_ai_token'
           case 'dialect':
             return 'british_english'
           case 'tone':
@@ -270,7 +266,7 @@ describe('Integration Tests', () => {
       // Verify the action completed successfully with custom options
       expect(core.setOutput).toHaveBeenCalledWith('event-type', 'push')
       expect(core.setOutput).toHaveBeenCalledWith('files-analyzed', '0')
-      expect(core.setOutput).toHaveBeenCalledWith('acrolinx-results', '[]')
+      expect(core.setOutput).toHaveBeenCalledWith('results', '[]')
     })
   })
 
@@ -288,7 +284,7 @@ describe('Integration Tests', () => {
 
     it('should use environment variables as fallback', async () => {
       core.getInput.mockReturnValue('')
-      process.env.ACROLINX_TOKEN = 'env-acrolinx-token'
+      process.env.MARKUP_AI_TOKEN = 'env-markup_ai_token'
       process.env.GITHUB_TOKEN = 'env-github-token'
 
       await run()

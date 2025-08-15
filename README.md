@@ -1,11 +1,11 @@
-# Acrolinx Analyzer
+# Markup AI Github Action
 
-[![Build and Test](https://github.com/acrolinx/nextgen-analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/acrolinx/nextgen-analyzer/actions/workflows/ci.yml)
-[![Coverage](https://github.com/acrolinx/nextgen-analyzer/blob/main/badges/coverage.svg)](https://github.com/acrolinx/nextgen-analyzer)
+[![Build and Test](https://github.com/markupai/markup-ai-github-action/actions/workflows/ci.yml/badge.svg)](https://github.com/markupai/markup-ai-github-action/actions/workflows/ci.yml)
+[![Coverage](https://github.com/markupai/markup-ai-github-action/blob/main/badges/coverage.svg)](https://github.com/markupai/markup-ai-github-action)
 
-A GitHub Action that analyzes commit changes and runs Acrolinx style checks on
-modified files. Automatically adapts to different GitHub events and provides
-detailed quality analysis with commit status updates and PR comments.
+A GitHub Action that analyzes commit changes and runs style checks on modified
+files. Automatically adapts to different GitHub events and provides detailed
+quality analysis with commit status updates and PR comments.
 
 ## Features
 
@@ -13,8 +13,6 @@ detailed quality analysis with commit status updates and PR comments.
   GitHub event type
 - 📝 **Event-Based Analysis**: Optimized behavior for push, pull request,
   manual, and scheduled events
-- ✨ **Acrolinx Integration**: Comprehensive grammar, tone, and style guide
-  checking
 - 📊 **Quality Scoring**: Detailed quality, clarity, grammar, and tone metrics
 - 🏷️ **Visual Feedback**: Commit status updates
 - 🔄 **Batch Processing**: Efficient analysis of multiple files
@@ -30,24 +28,24 @@ detailed quality analysis with commit status updates and PR comments.
 ### Basic Usage
 
 ```yaml
-name: Analyze with Acrolinx
+name: Analyze with Markup AI
 on: [push, pull_request]
 jobs:
   analyze:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run Acrolinx Analysis
-        uses: acrolinx/nextgen-analyzer@v0.0.6
+      - name: Run Analysis
+        uses: markupai/markup-ai-github-action@v0.0.6
         with:
-          acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+          markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Advanced Configuration
 
 ```yaml
-name: Custom Acrolinx Analysis
+name: Custom Analysis
 on: [push]
 jobs:
   analyze:
@@ -55,9 +53,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run Custom Analysis
-        uses: acrolinx/nextgen-analyzer@v0.0.6
+        uses: markupai/markup-ai-github-action@v0.0.6
         with:
-          acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+          markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           dialect: 'british_english'
           tone: 'academic'
@@ -70,12 +68,12 @@ jobs:
 The action requires two tokens to function properly. You can provide them either
 as action inputs or environment variables:
 
-### Acrolinx Token
+### API Token
 
 - **Required**: Yes
-- **Input name**: `acrolinx_token`
-- **Environment variable**: `ACROLINX_TOKEN`
-- **Purpose**: Authenticates with Acrolinx API for style checking
+- **Input name**: `markup_ai_token`
+- **Environment variable**: `MARKUP_AI_TOKEN`
+- **Purpose**: Authenticates with API for style checking
 
 ### GitHub Token
 
@@ -89,52 +87,52 @@ as action inputs or environment variables:
 **Option 1: As Action Inputs (Recommended)**
 
 ```yaml
-- name: Run Acrolinx Analysis
-  uses: acrolinx/nextgen-analyzer@v0.0.6
+- name: Run Analysis
+  uses: markupai/markup-ai-github-action@v0.0.6
   with:
-    acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+    markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
     github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 **Option 2: As Environment Variables**
 
 ```yaml
-- name: Run Acrolinx Analysis
-  uses: acrolinx/nextgen-analyzer@v0.0.6
+- name: Run Analysis
+  uses: markupai/markup-ai-github-action@v0.0.6
   env:
-    ACROLINX_TOKEN: ${{ secrets.ACROLINX_TOKEN }}
+    MARKUP_AI_TOKEN: ${{ secrets.MARKUP_AI_TOKEN }}
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 **Option 3: Mixed (Input takes precedence)**
 
 ```yaml
-- name: Run Acrolinx Analysis
-  uses: acrolinx/nextgen-analyzer@v0.0.6
+- name: Run Analysis
+  uses: markupai/markup-ai-github-action@v0.0.6
   with:
-    acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+    markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Inputs
 
-| Input               | Description                                                                                           | Required | Default            |
-| ------------------- | ----------------------------------------------------------------------------------------------------- | -------- | ------------------ |
-| `acrolinx_token`    | Acrolinx API token for style checking. Can also be provided via `ACROLINX_TOKEN` environment variable | Yes      | -                  |
-| `github_token`      | GitHub token for API access. Can also be provided via `GITHUB_TOKEN` environment variable             | Yes      | -                  |
-| `dialect`           | Language dialect for analysis (e.g., `american_english`, `british_english`)                           | No       | `american_english` |
-| `tone`              | Tone for analysis (e.g., `formal`, `informal`, `academic`)                                            | No       | `formal`           |
-| `style-guide`       | Style guide for analysis (e.g., `ap`, `chicago`, `apa`)                                               | No       | `ap`               |
-| `add_commit_status` | Whether to add commit status updates                                                                  | No       | `true`             |
+| Input               | Description                                                                                   | Required | Default            |
+| ------------------- | --------------------------------------------------------------------------------------------- | -------- | ------------------ |
+| `markup_ai_token`   | API token for style checking. Can also be provided via `MARKUP_AI_TOKEN` environment variable | Yes      | -                  |
+| `github_token`      | GitHub token for API access. Can also be provided via `GITHUB_TOKEN` environment variable     | Yes      | -                  |
+| `dialect`           | Language dialect for analysis (e.g., `american_english`, `british_english`)                   | No       | `american_english` |
+| `tone`              | Tone for analysis (e.g., `formal`, `informal`, `academic`)                                    | No       | `formal`           |
+| `style-guide`       | Style guide for analysis (e.g., `ap`, `chicago`, `apa`)                                       | No       | `ap`               |
+| `add_commit_status` | Whether to add commit status updates                                                          | No       | `true`             |
 
 ## Outputs
 
-| Output             | Description                                      |
-| ------------------ | ------------------------------------------------ |
-| `event-type`       | Type of GitHub event that triggered the action   |
-| `files-analyzed`   | Number of files analyzed                         |
-| `acrolinx-results` | JSON string containing Acrolinx analysis results |
+| Output           | Description                                    |
+| ---------------- | ---------------------------------------------- |
+| `event-type`     | Type of GitHub event that triggered the action |
+| `files-analyzed` | Number of files analyzed                       |
+| `results`        | JSON string containing analysis results        |
 
 ## Event Types and Behavior
 
@@ -177,9 +175,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Analyze Changes
-        uses: acrolinx/nextgen-analyzer@v0.0.6
+        uses: markupai/markup-ai-github-action@v0.0.6
         with:
-          acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+          markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
@@ -195,9 +193,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Quality Analysis
         id: analysis
-        uses: acrolinx/nextgen-analyzer@v0.0.6
+        uses: markupai/markup-ai-github-action@v0.0.6
         with:
-          acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+          markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           dialect: 'american_english'
           tone: 'formal'
@@ -205,7 +203,7 @@ jobs:
 
       - name: Check Quality Score
         run: |
-          results='${{ steps.analysis.outputs.acrolinx-results }}'
+          results='${{ steps.analysis.outputs.results }}'
           # Add your quality threshold logic here
 ```
 
@@ -224,9 +222,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Full Repository Analysis
-        uses: acrolinx/nextgen-analyzer@v0.0.6
+        uses: markupai/markup-ai-github-action@v0.0.6
         with:
-          acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+          markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
@@ -241,18 +239,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run Analysis
-        id: acrolinx
-        uses: acrolinx/nextgen-analyzer@v0.0.6
+        id: markup-ai-github-action
+        uses: markupai/markup-ai-github-action@v0.0.6
         with:
-          acrolinx_token: ${{ secrets.ACROLINX_TOKEN }}
+          markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
       - name: Display Results
         run: |
-          echo "Event: ${{ steps.acrolinx.outputs.event-type }}"
-          echo "Files: ${{ steps.acrolinx.outputs.files-analyzed }}"
-          echo "Results: ${{ steps.acrolinx.outputs.acrolinx-results }}"
+          echo "Event: ${{ steps.markup-ai-github-action.outputs.event-type }}"
+          echo "Files: ${{ steps.markup-ai-github-action.outputs.files-analyzed }}"
+          echo "Results: ${{ steps.markup-ai-github-action.outputs.results }}"
 
 ```
 
@@ -262,21 +260,18 @@ jobs:
 
 - `american_english` - American English
 - `british_english` - British English
-- And more supported by Acrolinx
 
 ### Available Tones
 
 - `formal` - Formal writing style
 - `informal` - Informal writing style
 - `academic` - Academic writing style
-- And more supported by Acrolinx
 
 ### Available Style Guides
 
 - `ap` - Associated Press Style Guide
 - `chicago` - Chicago Manual of Style
 - `apa` - American Psychological Association
-- And more supported by Acrolinx
 
 ## Quality Scoring
 
@@ -320,9 +315,9 @@ For pull request events, the action creates detailed comments with:
 
 ```
 
-🔍 Running Acrolinx analysis on modified files... 📄 File: README.md 📈 Quality
-Score: 85.2 📝 Clarity Score: 78.5 🔤 Grammar Issues: 2 📋 Style Guide Issues: 1
-🎭 Tone Score: 82.3 📚 Terminology Issues: 0
+🔍 Running analysis on modified files... 📄 File: README.md 📈 Quality Score:
+85.2 📝 Clarity Score: 78.5 🔤 Grammar Issues: 2 📋 Style Guide Issues: 1 🎭
+Tone Score: 82.3 📚 Terminology Issues: 0
 
 ⚠️ Issues Found:
 
@@ -337,7 +332,7 @@ Score: 85.2 📝 Clarity Score: 78.5 🔤 Grammar Issues: 2 📋 Style Guide Iss
 
 The action gracefully handles various scenarios:
 
-- **Missing Acrolinx token**: Fails with clear error message
+- **Missing token**: Fails with clear error message
 - **Missing GitHub token**: Shows warning and continues
 - **API rate limits**: Logs error and continues execution
 - **Invalid commit data**: Skips problematic commits
@@ -346,7 +341,7 @@ The action gracefully handles various scenarios:
 
 ## Security
 
-- **API Token**: Store Acrolinx API token as GitHub secret
+- **API Token**: Store API token as GitHub secret
 - **Token Validation**: Action validates required tokens
 - **Secure Handling**: Tokens handled securely and not logged
 
@@ -355,20 +350,20 @@ The action gracefully handles various scenarios:
 ### Prerequisites
 
 - Node.js 20+
-- Acrolinx API token
+- API token
 
 ### Setup
 
 ```bash
 # Clone the repository
-git clone https://github.com/acrolinx/nextgen-analyzer.git
+git clone https://github.com/markupai/markup-ai-github-action.git
 cd nextgen-analyzer
 
 # Install dependencies
 npm install
 
 # Set up environment variables
-export ACROLINX_TOKEN=your-acrolinx-token
+export MARKUP_AI_TOKEN=your-token
 export GITHUB_TOKEN=your-github-token
 
 # Run locally
@@ -409,14 +404,7 @@ This project is licensed under the Apache-2.0 License - see the
 
 ## Support
 
-- 📖 [Documentation](https://github.com/acrolinx/nextgen-analyzer#readme)
-- 🐛 [Issues](https://github.com/acrolinx/nextgen-analyzer/issues)
-- 💬 [Discussions](https://github.com/acrolinx/nextgen-analyzer/discussions)
-
-## Related
-
-- [Acrolinx Platform](https://www.acrolinx.com/) - Content quality platform
-- [Acrolinx TypeScript SDK](https://github.com/acrolinx/typescript-sdk) -
-  Official SDK
-- [GitHub Actions Documentation](https://docs.github.com/en/actions) - Learn
-  more about GitHub Actions
+- 📖 [Documentation](https://github.com/markupai/markup-ai-github-action#readme)
+- 🐛 [Issues](https://github.com/markupai/markup-ai-github-action/issues)
+- 💬
+  [Discussions](https://github.com/markupai/markup-ai-github-action/discussions)

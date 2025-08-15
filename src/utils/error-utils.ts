@@ -38,14 +38,14 @@ export class GitHubAPIError extends Error {
   }
 }
 
-export class AcrolinxAPIError extends Error {
+export class ApiError extends Error {
   constructor(
     message: string,
     public status?: number,
     public code?: string
   ) {
     super(message)
-    this.name = 'AcrolinxAPIError'
+    this.name = 'ApiError'
   }
 }
 
@@ -129,25 +129,22 @@ export function handleGitHubError(
 }
 
 /**
- * Handle Acrolinx API errors with proper typing
+ * Handle API errors with proper typing
  */
-export function handleAcrolinxError(
-  error: unknown,
-  context: string
-): AcrolinxAPIError {
-  if (error instanceof AcrolinxAPIError) {
+export function handleApiError(error: unknown, context: string): ApiError {
+  if (error instanceof ApiError) {
     return error
   }
 
   if (error && typeof error === 'object' && 'status' in error) {
-    const acrolinxError = error as { status?: number; message?: string }
-    return new AcrolinxAPIError(
-      `${context}: ${acrolinxError.message || 'Unknown Acrolinx API error'}`,
-      acrolinxError.status
+    const apiError = error as { status?: number; message?: string }
+    return new ApiError(
+      `${context}: ${apiError.message || 'Unknown API error'}`,
+      apiError.status
     )
   }
 
-  return new AcrolinxAPIError(
+  return new ApiError(
     `${context}: ${error instanceof Error ? error.message : String(error)}`
   )
 }

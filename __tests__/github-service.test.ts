@@ -363,7 +363,7 @@ describe('GitHub Service', () => {
         sha: 'abc123def456',
         state: 'success',
         description: 'Quality: 85 | Files: 5',
-        context: 'Acrolinx'
+        context: 'Markup AI'
       })
 
       expect(core.info).toHaveBeenCalledWith(
@@ -375,7 +375,7 @@ describe('GitHub Service', () => {
       expect(core.info).toHaveBeenCalledWith(
         '🔗 Target URL: https://github.com/test-owner/test-repo/actions/runs/123456789'
       )
-      expect(core.info).toHaveBeenCalledWith('📝 Context: Acrolinx')
+      expect(core.info).toHaveBeenCalledWith('📝 Context: Markup AI')
       expect(core.info).toHaveBeenCalledWith(
         '✅ Updated commit status: success - Quality: 85 | Files: 5'
       )
