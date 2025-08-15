@@ -31239,9 +31239,6 @@ var githubExports = requireGithub();
 /**
  * Application constants and configuration
  */
-/**
- * Supported file extensions for Acrolinx analysis
- */
 const SUPPORTED_EXTENSIONS = ['.md', '.txt', '.markdown'];
 /**
  * Default analysis options
@@ -31275,7 +31272,7 @@ const ENV_VARS = {
 const OUTPUT_NAMES = {
     EVENT_TYPE: 'event-type',
     FILES_ANALYZED: 'files-analyzed',
-    ACROLINX_RESULTS: 'results'
+    RESULTS: 'results'
 };
 /**
  * Event types supported by the action
@@ -31297,7 +31294,7 @@ const DISPLAY = {
  * Error messages
  */
 const ERROR_MESSAGES = {
-    ACROLINX_TOKEN_REQUIRED: 'Acrolinx API token is required',
+    API_TOKEN_REQUIRED: 'API token is required',
     GITHUB_TOKEN_WARNING: 'GitHub token not provided. Cannot fetch commit information.'};
 
 var Ye = /* @__PURE__ */ ((e) => (e.Check = "check", e.Suggestions = "suggestions", e.Rewrite = "rewrite", e))(Ye || {}), Jt = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {};
@@ -41279,7 +41276,7 @@ function Oc(e, i, o = {}) {
  * File utility functions
  */
 /**
- * Check if a file is supported for Acrolinx analysis
+ * Check if a file is supported for analysis
  */
 function isSupportedFile(filename) {
     const ext = path.extname(filename).toLowerCase();
@@ -41452,21 +41449,15 @@ async function processFileReading(filePaths, readFileContent, config = DEFAULT_B
     return fileContents.filter((item) => item !== null);
 }
 
-/**
- * Acrolinx service for handling style analysis
- */
-/**
- * Create Acrolinx configuration
- */
-function createAcrolinxConfig(apiToken) {
+function createConfig(apiToken) {
     return { apiKey: apiToken };
 }
 /**
- * Run Acrolinx style check on a single file
+ * Run style check on a single file
  */
 async function analyzeFile(filePath, content, options, config) {
     try {
-        coreExports.info(`🔍 Running Acrolinx check on: ${filePath}`);
+        coreExports.info(`🔍 Running check on: ${filePath}`);
         const request = {
             content,
             dialect: options.dialect,
@@ -41482,12 +41473,12 @@ async function analyzeFile(filePath, content, options, config) {
         };
     }
     catch (error) {
-        coreExports.error(`Failed to run Acrolinx check on ${filePath}: ${error}`);
+        coreExports.error(`Failed to run check on ${filePath}: ${error}`);
         return null;
     }
 }
 /**
- * Run Acrolinx analysis on multiple files using batch processing
+ * Run analysis on multiple files using batch processing
  */
 async function analyzeFilesBatch(files, options, config, readFileContent) {
     if (files.length === 0) {
@@ -41555,7 +41546,7 @@ async function analyzeFilesBatch(files, options, config, readFileContent) {
     }
 }
 /**
- * Run Acrolinx analysis on multiple files
+ * Run analysis on multiple files
  *
  * Uses batch processing for multiple files and sequential processing for small batches
  */
@@ -41809,7 +41800,7 @@ async function getRepositoryFiles(octokit, owner, repo, ref = 'main') {
     }
 }
 /**
- * Update commit status with Acrolinx quality score
+ * Update commit status with quality score
  */
 async function updateCommitStatus(octokit, owner, repo, sha, qualityScore, filesAnalyzed) {
     try {
@@ -41838,7 +41829,7 @@ async function updateCommitStatus(octokit, owner, repo, sha, qualityScore, files
         coreExports.info(`🔍 Creating commit status for ${owner}/${repo}@${sha}`);
         coreExports.info(`📊 Status: ${status}, Description: "${description}"`);
         coreExports.info(`🔗 Target URL: ${targetUrl}`);
-        coreExports.info(`📝 Context: Acrolinx`);
+        coreExports.info(`📝 Context: Markup AI`);
         // Try with minimal parameters first
         const statusData = {
             owner,
@@ -41846,7 +41837,7 @@ async function updateCommitStatus(octokit, owner, repo, sha, qualityScore, files
             sha,
             state: status,
             description,
-            context: 'Acrolinx'
+            context: 'Markup AI'
         };
         coreExports.info(`📋 Status data: ${JSON.stringify(statusData, null, 2)}`);
         await octokit.rest.repos.createCommitStatus(statusData);
@@ -42016,7 +42007,7 @@ function getBooleanInput(inputName, defaultValue) {
  */
 function validateConfig(config) {
     if (!config.apiToken) {
-        throw new Error(ERROR_MESSAGES.ACROLINX_TOKEN_REQUIRED);
+        throw new Error(ERROR_MESSAGES.API_TOKEN_REQUIRED);
     }
     if (!config.githubToken) {
         coreExports.warning(ERROR_MESSAGES.GITHUB_TOKEN_WARNING);
@@ -42042,7 +42033,7 @@ function logConfiguration(config) {
     coreExports.info(`  Dialect: ${config.dialect}`);
     coreExports.info(`  Tone: ${config.tone}`);
     coreExports.info(`  Style Guide: ${config.styleGuide}`);
-    coreExports.info(`  Acrolinx Token: ${config.apiToken ? '[PROVIDED]' : '[MISSING]'}`);
+    coreExports.info(`  API Token: ${config.apiToken ? '[PROVIDED]' : '[MISSING]'}`);
     coreExports.info(`  GitHub Token: ${config.githubToken ? '[PROVIDED]' : '[MISSING]'}`);
 }
 
@@ -42064,14 +42055,14 @@ function displayEventInfo(eventInfo) {
     }
 }
 /**
- * Display Acrolinx analysis results in a formatted way
+ * Display analysis results in a formatted way
  */
 function displayResults(results) {
     if (results.length === 0) {
-        coreExports.info('📊 No Acrolinx analysis results to display.');
+        coreExports.info('📊 No analysis results to display.');
         return;
     }
-    coreExports.info('📊 Acrolinx Analysis Results:');
+    coreExports.info('📊 Analysis Results:');
     coreExports.info('='.repeat(DISPLAY.SEPARATOR_LENGTH));
     results.forEach((analysis, index) => {
         const { filePath, result } = analysis;
@@ -42112,7 +42103,7 @@ function displaySectionHeader(title) {
 }
 
 /**
- * Markdown generation utility functions for Acrolinx analysis results
+ * Markdown generation utility functions for analysis results
  */
 /**
  * Generate markdown table for analysis results
@@ -42193,26 +42184,26 @@ ${footer}`;
  * Generate complete comment body
  */
 function generateCommentBody(results, config, eventType) {
-    const header = `## 🔍 Acrolinx Analysis Results
+    const header = `## 🔍 Analysis Results
 
-This comment was automatically generated by the Acrolinx Analyzer GitHub Action for **${eventType}** event.`;
+This comment was automatically generated by the Markup AI GitHub Action for **${eventType}** event.`;
     return generateAnalysisContent(results, config, header, eventType);
 }
 /**
- * Find existing Acrolinx comment on PR
+ * Find existing  comment on PR
  */
-async function findExistingAcrolinxComment(octokit, owner, repo, prNumber) {
+async function findExistingComment(octokit, owner, repo, prNumber) {
     try {
         const response = await octokit.rest.issues.listComments({
             owner,
             repo,
             issue_number: prNumber
         });
-        const acrolinxComment = response.data.find((comment) => comment.body?.includes('## 🔍 Acrolinx Analysis Results'));
-        return acrolinxComment?.id || null;
+        const comment = response.data.find((comment) => comment.body?.includes('## 🔍 Analysis Results'));
+        return comment?.id || null;
     }
     catch (error) {
-        coreExports.warning(`Failed to find existing Acrolinx comment: ${error}`);
+        coreExports.warning(`Failed to find existing comment: ${error}`);
         return null;
     }
 }
@@ -42238,7 +42229,7 @@ async function createOrUpdatePRComment(octokit, commentData) {
             throw error;
         }
         const commentBody = generateCommentBody(results, config, commentData.eventType);
-        const existingCommentId = await findExistingAcrolinxComment(octokit, owner, repo, prNumber);
+        const existingCommentId = await findExistingComment(octokit, owner, repo, prNumber);
         if (existingCommentId) {
             // Update existing comment
             await octokit.rest.issues.updateComment({
@@ -42247,7 +42238,7 @@ async function createOrUpdatePRComment(octokit, commentData) {
                 comment_id: existingCommentId,
                 body: commentBody
             });
-            coreExports.info(`✅ Updated existing Acrolinx comment on PR #${prNumber}`);
+            coreExports.info(`✅ Updated existing comment on PR #${prNumber}`);
         }
         else {
             // Create new comment
@@ -42257,7 +42248,7 @@ async function createOrUpdatePRComment(octokit, commentData) {
                 issue_number: prNumber,
                 body: commentBody
             });
-            coreExports.info(`✅ Created new Acrolinx comment on PR #${prNumber}`);
+            coreExports.info(`✅ Created new comment on PR #${prNumber}`);
         }
     }
     catch (error) {
@@ -42297,9 +42288,9 @@ function getPRNumber() {
  * Generate complete job summary
  */
 function generateJobSummary(results, config, eventType) {
-    const header = `# 🔍 Acrolinx Analysis Results
+    const header = `# 🔍 Analysis Results
 
-This summary was automatically generated by the Acrolinx Analyzer GitHub Action for **${eventType}** event.`;
+This summary was automatically generated by the Markup AI GitHub Action for **${eventType}** event.`;
     return generateAnalysisContent(results, config, header, eventType);
 }
 /**
@@ -42309,7 +42300,7 @@ async function createJobSummary(results, config, eventType) {
     try {
         if (results.length === 0) {
             await coreExports.summary
-                .addHeading('🔍 Acrolinx Analysis Results')
+                .addHeading('🔍 Analysis Results')
                 .addRaw('No files were analyzed.')
                 .write();
             return;
@@ -42324,7 +42315,7 @@ async function createJobSummary(results, config, eventType) {
 }
 
 /**
- * Post-analysis service for handling actions after Acrolinx analysis
+ * Post-analysis service for handling actions after analysis
  */
 /**
  * Handle post-analysis actions based on event type
@@ -42401,7 +42392,7 @@ async function handlePostAnalysisActions(eventInfo, results, config, analysisOpt
 function setOutputs(eventInfo, results) {
     coreExports.setOutput(OUTPUT_NAMES.EVENT_TYPE, eventInfo.eventType);
     coreExports.setOutput(OUTPUT_NAMES.FILES_ANALYZED, results.length.toString());
-    coreExports.setOutput(OUTPUT_NAMES.ACROLINX_RESULTS, JSON.stringify(results));
+    coreExports.setOutput(OUTPUT_NAMES.RESULTS, JSON.stringify(results));
 }
 /**
  * Display analysis summary
@@ -42433,7 +42424,7 @@ async function runAction() {
     try {
         // Load and validate configuration
         const config = getActionConfig();
-        const acrolinxConfig = createAcrolinxConfig(config.apiToken);
+        const apiConfig = createConfig(config.apiToken);
         validateConfig(config);
         logConfiguration(config);
         // Initialize file discovery strategy
@@ -42457,10 +42448,9 @@ async function runAction() {
         }
         // Display files being analyzed
         displayFilesToAnalyze(supportedFiles);
-        // Run Acrolinx analysis
-        displaySectionHeader('🔍 Running Acrolinx Analysis');
+        displaySectionHeader('🔍 Running Analysis');
         const analysisOptions = getAnalysisOptions(config);
-        const results = await analyzeFiles(supportedFiles, analysisOptions, acrolinxConfig, readFileContent);
+        const results = await analyzeFiles(supportedFiles, analysisOptions, apiConfig, readFileContent);
         // Display results
         displayResults(results);
         // Set outputs
