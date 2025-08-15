@@ -10,7 +10,7 @@ jest.unstable_mockModule('@actions/core', () => core)
 
 const {
   displayEventInfo,
-  displayAcrolinxResults,
+  displayResults,
   displayFilesToAnalyze,
   displaySectionHeader,
   displaySubsectionHeader
@@ -81,7 +81,7 @@ describe('Display Utils', () => {
     })
   })
 
-  describe('displayAcrolinxResults', () => {
+  describe('displayResults', () => {
     it('should display results for single file', () => {
       const results = [
         {
@@ -98,9 +98,9 @@ describe('Display Utils', () => {
         }
       ]
 
-      displayAcrolinxResults(results)
+      displayResults(results)
 
-      expect(core.info).toHaveBeenCalledWith('📊 Acrolinx Analysis Results:')
+      expect(core.info).toHaveBeenCalledWith('📊 Analysis Results:')
       expect(core.info).toHaveBeenCalledWith('='.repeat(50))
       expect(core.info).toHaveBeenCalledWith('\n📄 File: test.md')
       expect(core.info).toHaveBeenCalledWith('📈 Quality Score: 85')
@@ -139,9 +139,9 @@ describe('Display Utils', () => {
         }
       ]
 
-      displayAcrolinxResults(results)
+      displayResults(results)
 
-      expect(core.info).toHaveBeenCalledWith('📊 Acrolinx Analysis Results:')
+      expect(core.info).toHaveBeenCalledWith('📊 Analysis Results:')
       expect(core.info).toHaveBeenCalledWith('='.repeat(50))
 
       // First file
@@ -167,14 +167,12 @@ describe('Display Utils', () => {
     })
 
     it('should handle empty results array', () => {
-      displayAcrolinxResults([])
+      displayResults([])
 
       expect(core.info).toHaveBeenCalledWith(
-        '📊 No Acrolinx analysis results to display.'
+        '📊 No analysis results to display.'
       )
-      expect(core.info).not.toHaveBeenCalledWith(
-        '📊 Acrolinx Analysis Results:'
-      )
+      expect(core.info).not.toHaveBeenCalledWith('📊 Analysis Results:')
     })
 
     it('should not add separator after last file', () => {
@@ -193,7 +191,7 @@ describe('Display Utils', () => {
         }
       ]
 
-      displayAcrolinxResults(results)
+      displayResults(results)
 
       // Should not call separator for single file
       expect(core.info).not.toHaveBeenCalledWith('─'.repeat(50))

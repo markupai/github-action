@@ -1,12 +1,12 @@
 /**
- * Post-analysis service for handling actions after Acrolinx analysis
+ * Post-analysis service for handling actions after analysis
  */
 
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import { AcrolinxAnalysisResult, EventInfo } from '../types/index.js'
+import { AnalysisResult, EventInfo } from '../types/index.js'
 import { EVENT_TYPES } from '../constants/index.js'
-import { getAnalysisSummary } from './acrolinx-service.js'
+import { getAnalysisSummary } from './api-service.js'
 import {
   createOrUpdatePRComment,
   isPullRequestEvent,
@@ -22,7 +22,7 @@ import { displaySectionHeader } from '../utils/display-utils.js'
  */
 export async function handlePostAnalysisActions(
   eventInfo: EventInfo,
-  results: AcrolinxAnalysisResult[],
+  results: AnalysisResult[],
   config: { githubToken: string; addCommitStatus: boolean },
   analysisOptions: ReturnType<typeof getAnalysisOptions>
 ): Promise<void> {

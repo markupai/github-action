@@ -4,13 +4,13 @@
 
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import { AcrolinxAnalysisResult, EventInfo } from './types/index.js'
+import { AnalysisResult, EventInfo } from './types/index.js'
 import { OUTPUT_NAMES } from './constants/index.js'
 import {
-  createAcrolinxConfig,
+  createConfig,
   analyzeFiles,
   getAnalysisSummary
-} from './services/acrolinx-service.js'
+} from './services/api-service.js'
 import { createFileDiscoveryStrategy } from './strategies/index.js'
 import {
   getActionConfig,
@@ -22,7 +22,7 @@ import { filterSupportedFiles, readFileContent } from './utils/index.js'
 import {
   displayEventInfo,
   displayFilesToAnalyze,
-  displayAcrolinxResults,
+  displayResults,
   displaySectionHeader
 } from './utils/index.js'
 import { logError } from './utils/error-utils.js'
@@ -31,19 +31,16 @@ import { handlePostAnalysisActions } from './services/post-analysis-service.js'
 /**
  * Set GitHub Action outputs
  */
-function setOutputs(
-  eventInfo: EventInfo,
-  results: AcrolinxAnalysisResult[]
-): void {
+function setOutputs(eventInfo: EventInfo, results: AnalysisResult[]): void {
   core.setOutput(OUTPUT_NAMES.EVENT_TYPE, eventInfo.eventType)
   core.setOutput(OUTPUT_NAMES.FILES_ANALYZED, results.length.toString())
-  core.setOutput(OUTPUT_NAMES.ACROLINX_RESULTS, JSON.stringify(results))
+  core.setOutput(OUTPUT_NAMES.RESULTS, JSON.stringify(results))
 }
 
 /**
  * Display analysis summary
  */
-function displaySummary(results: AcrolinxAnalysisResult[]): void {
+function displaySummary(results: AnalysisResult[]): void {
   const summary = getAnalysisSummary(results)
 
   displaySectionHeader('📊 Analysis Summary')
@@ -72,7 +69,7 @@ export async function runAction(): Promise<void> {
   try {
     // Load and validate configuration
     const config = getActionConfig()
-    const acrolinxConfig = createAcrolinxConfig(config.acrolinxApiToken)
+    const apiConfig = createConfig(config.apiToken)
 
     validateConfig(config)
     logConfiguration(config)
@@ -109,18 +106,17 @@ export async function runAction(): Promise<void> {
     // Display files being analyzed
     displayFilesToAnalyze(supportedFiles)
 
-    // Run Acrolinx analysis
-    displaySectionHeader('🔍 Running Acrolinx Analysis')
+    displaySectionHeader('🔍 Running Analysis')
     const analysisOptions = getAnalysisOptions(config)
     const results = await analyzeFiles(
       supportedFiles,
       analysisOptions,
-      acrolinxConfig,
+      apiConfig,
       readFileContent
     )
 
     // Display results
-    displayAcrolinxResults(results)
+    displayResults(results)
 
     // Set outputs
     setOutputs(eventInfo, results)

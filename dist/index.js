@@ -31255,7 +31255,7 @@ const DEFAULT_ANALYSIS_OPTIONS = {
  * Input names for GitHub Actions
  */
 const INPUT_NAMES = {
-    ACROLINX_TOKEN: 'acrolinx_token',
+    MARKUP_AI_TOKEN: 'markup_ai_token',
     DIALECT: 'dialect',
     TONE: 'tone',
     STYLE_GUIDE: 'style-guide',
@@ -31266,7 +31266,7 @@ const INPUT_NAMES = {
  * Environment variable names
  */
 const ENV_VARS = {
-    ACROLINX_TOKEN: 'ACROLINX_TOKEN',
+    MARKUP_AI_TOKEN: 'MARKUP_AI_TOKEN',
     GITHUB_TOKEN: 'GITHUB_TOKEN'
 };
 /**
@@ -31275,7 +31275,7 @@ const ENV_VARS = {
 const OUTPUT_NAMES = {
     EVENT_TYPE: 'event-type',
     FILES_ANALYZED: 'files-analyzed',
-    ACROLINX_RESULTS: 'acrolinx-results'
+    ACROLINX_RESULTS: 'results'
 };
 /**
  * Event types supported by the action
@@ -41958,14 +41958,14 @@ function createFileDiscoveryStrategy(context, githubToken) {
  * Get and validate action configuration from inputs
  */
 function getActionConfig() {
-    const acrolinxApiToken = getRequiredInput(INPUT_NAMES.ACROLINX_TOKEN, ENV_VARS.ACROLINX_TOKEN);
+    const apiToken = getRequiredInput(INPUT_NAMES.MARKUP_AI_TOKEN, ENV_VARS.MARKUP_AI_TOKEN);
     const githubToken = getRequiredInput(INPUT_NAMES.GITHUB_TOKEN, ENV_VARS.GITHUB_TOKEN);
     const dialect = getOptionalInput(INPUT_NAMES.DIALECT, DEFAULT_ANALYSIS_OPTIONS.dialect);
     const tone = getOptionalInput(INPUT_NAMES.TONE, DEFAULT_ANALYSIS_OPTIONS.tone);
     const styleGuide = getOptionalInput(INPUT_NAMES.STYLE_GUIDE, DEFAULT_ANALYSIS_OPTIONS.styleGuide);
     const addCommitStatus = getBooleanInput(INPUT_NAMES.ADD_COMMIT_STATUS, true);
     return {
-        acrolinxApiToken,
+        apiToken,
         githubToken,
         dialect,
         tone,
@@ -42015,7 +42015,7 @@ function getBooleanInput(inputName, defaultValue) {
  * Validate configuration
  */
 function validateConfig(config) {
-    if (!config.acrolinxApiToken) {
+    if (!config.apiToken) {
         throw new Error(ERROR_MESSAGES.ACROLINX_TOKEN_REQUIRED);
     }
     if (!config.githubToken) {
@@ -42042,7 +42042,7 @@ function logConfiguration(config) {
     coreExports.info(`  Dialect: ${config.dialect}`);
     coreExports.info(`  Tone: ${config.tone}`);
     coreExports.info(`  Style Guide: ${config.styleGuide}`);
-    coreExports.info(`  Acrolinx Token: ${config.acrolinxApiToken ? '[PROVIDED]' : '[MISSING]'}`);
+    coreExports.info(`  Acrolinx Token: ${config.apiToken ? '[PROVIDED]' : '[MISSING]'}`);
     coreExports.info(`  GitHub Token: ${config.githubToken ? '[PROVIDED]' : '[MISSING]'}`);
 }
 
@@ -42066,7 +42066,7 @@ function displayEventInfo(eventInfo) {
 /**
  * Display Acrolinx analysis results in a formatted way
  */
-function displayAcrolinxResults(results) {
+function displayResults(results) {
     if (results.length === 0) {
         coreExports.info('📊 No Acrolinx analysis results to display.');
         return;
@@ -42433,7 +42433,7 @@ async function runAction() {
     try {
         // Load and validate configuration
         const config = getActionConfig();
-        const acrolinxConfig = createAcrolinxConfig(config.acrolinxApiToken);
+        const acrolinxConfig = createAcrolinxConfig(config.apiToken);
         validateConfig(config);
         logConfiguration(config);
         // Initialize file discovery strategy
@@ -42462,7 +42462,7 @@ async function runAction() {
         const analysisOptions = getAnalysisOptions(config);
         const results = await analyzeFiles(supportedFiles, analysisOptions, acrolinxConfig, readFileContent);
         // Display results
-        displayAcrolinxResults(results);
+        displayResults(results);
         // Set outputs
         setOutputs(eventInfo, results);
         // Display summary

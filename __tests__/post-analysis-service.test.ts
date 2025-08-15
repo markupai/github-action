@@ -119,7 +119,7 @@ describe('Post Analysis Service', () => {
       },
       timestamp: '2024-01-15T10:30:00Z'
     }
-  ] as import('../src/types/index.js').AcrolinxAnalysisResult[]
+  ] as import('../src/types/index.js').AnalysisResult[]
 
   const mockConfig = {
     githubToken: 'test-token',

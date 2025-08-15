@@ -182,7 +182,7 @@ export async function getRepositoryInfo(
 }
 
 /**
- * Update commit status with Acrolinx quality score
+ * Update commit status with quality score
  */
 export async function updateCommitStatus(
   octokit: ReturnType<typeof github.getOctokit>,
@@ -224,7 +224,7 @@ export async function updateCommitStatus(
     core.info(`🔍 Creating commit status for ${owner}/${repo}@${sha}`)
     core.info(`📊 Status: ${status}, Description: "${description}"`)
     core.info(`🔗 Target URL: ${targetUrl}`)
-    core.info(`📝 Context: Acrolinx`)
+    core.info(`📝 Context: Markup AI`)
 
     // Try with minimal parameters first
     const statusData = {
@@ -233,7 +233,7 @@ export async function updateCommitStatus(
       sha,
       state: status,
       description,
-      context: 'Acrolinx'
+      context: 'Markup AI'
     }
 
     core.info(`📋 Status data: ${JSON.stringify(statusData, null, 2)}`)

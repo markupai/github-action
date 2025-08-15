@@ -1,14 +1,9 @@
-/**
- * Tests for Acrolinx service batch functionality
- */
-
 import { jest } from '@jest/globals'
 import * as core from '../__fixtures__/core.js'
 
 // Mock @actions/core
 jest.unstable_mockModule('@actions/core', () => core)
 
-// Mock the Acrolinx SDK
 jest.unstable_mockModule('@acrolinx/nextgen-toolkit', () => ({
   styleCheck: jest.fn(),
   styleBatchCheckRequests: jest.fn(),
@@ -17,11 +12,11 @@ jest.unstable_mockModule('@acrolinx/nextgen-toolkit', () => ({
 
 // Import the module after mocking
 const { analyzeFiles, analyzeFilesBatch } = await import(
-  '../src/services/acrolinx-service.js'
+  '../src/services/api-service.js'
 )
 import type { AnalysisOptions } from '../src/types/index.js'
 
-describe('Acrolinx Service Batch Functionality', () => {
+describe('Markup AI Service Batch Functionality', () => {
   let mockConfig: { apiKey: string; platform: { type: string; value: string } }
   let mockOptions: AnalysisOptions
   let mockReadFileContent: (filePath: string) => Promise<string | null>
@@ -31,7 +26,7 @@ describe('Acrolinx Service Batch Functionality', () => {
 
     mockConfig = {
       apiKey: 'test-api-key',
-      platform: { type: 'url', value: 'https://test.acrolinx.com' }
+      platform: { type: 'url', value: 'https://test.markup.ai' }
     }
 
     mockOptions = {

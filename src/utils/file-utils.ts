@@ -8,7 +8,7 @@ import * as path from 'path'
 import { SUPPORTED_EXTENSIONS } from '../constants/index.js'
 
 /**
- * Check if a file is supported for Acrolinx analysis
+ * Check if a file is supported for analysis
  */
 export function isSupportedFile(filename: string): boolean {
   const ext = path.extname(filename).toLowerCase()

@@ -1,7 +1,3 @@
-/**
- * Acrolinx service for handling style analysis
- */
-
 import * as core from '@actions/core'
 import {
   styleCheck,
@@ -10,29 +6,26 @@ import {
   StyleAnalysisReq,
   StyleScores
 } from '@acrolinx/nextgen-toolkit'
-import { AcrolinxAnalysisResult, AnalysisOptions } from '../types/index.js'
+import { AnalysisResult, AnalysisOptions } from '../types/index.js'
 import { getFileBasename } from '../utils/file-utils.js'
 import { calculateScoreSummary, ScoreSummary } from '../utils/score-utils.js'
 import { processFileReading } from '../utils/batch-utils.js'
 
-/**
- * Create Acrolinx configuration
- */
-export function createAcrolinxConfig(apiToken: string): Config {
+export function createConfig(apiToken: string): Config {
   return { apiKey: apiToken }
 }
 
 /**
- * Run Acrolinx style check on a single file
+ * Run style check on a single file
  */
 export async function analyzeFile(
   filePath: string,
   content: string,
   options: AnalysisOptions,
   config: Config
-): Promise<AcrolinxAnalysisResult | null> {
+): Promise<AnalysisResult | null> {
   try {
-    core.info(`🔍 Running Acrolinx check on: ${filePath}`)
+    core.info(`🔍 Running check on: ${filePath}`)
 
     const request: StyleAnalysisReq = {
       content,
@@ -50,20 +43,20 @@ export async function analyzeFile(
       timestamp: new Date().toISOString()
     }
   } catch (error) {
-    core.error(`Failed to run Acrolinx check on ${filePath}: ${error}`)
+    core.error(`Failed to run check on ${filePath}: ${error}`)
     return null
   }
 }
 
 /**
- * Run Acrolinx analysis on multiple files using batch processing
+ * Run analysis on multiple files using batch processing
  */
 export async function analyzeFilesBatch(
   files: string[],
   options: AnalysisOptions,
   config: Config,
   readFileContent: (filePath: string) => Promise<string | null>
-): Promise<AcrolinxAnalysisResult[]> {
+): Promise<AnalysisResult[]> {
   if (files.length === 0) {
     return []
   }
@@ -126,7 +119,7 @@ export async function analyzeFilesBatch(
     clearInterval(progressInterval)
 
     // Process results
-    const results: AcrolinxAnalysisResult[] = []
+    const results: AnalysisResult[] = []
     finalProgress.results.forEach(
       (
         batchResult: {
@@ -163,7 +156,7 @@ export async function analyzeFilesBatch(
 }
 
 /**
- * Run Acrolinx analysis on multiple files
+ * Run analysis on multiple files
  *
  * Uses batch processing for multiple files and sequential processing for small batches
  */
@@ -172,10 +165,10 @@ export async function analyzeFiles(
   options: AnalysisOptions,
   config: Config,
   readFileContent: (filePath: string) => Promise<string | null>
-): Promise<AcrolinxAnalysisResult[]> {
+): Promise<AnalysisResult[]> {
   // For small batches, use sequential processing
   if (files.length <= 3) {
-    const results: AcrolinxAnalysisResult[] = []
+    const results: AnalysisResult[] = []
 
     // Process files sequentially to avoid overwhelming the API
     for (const filePath of files) {
@@ -198,9 +191,7 @@ export async function analyzeFiles(
 /**
  * Get analysis summary statistics
  */
-export function getAnalysisSummary(
-  results: AcrolinxAnalysisResult[]
-): ScoreSummary {
+export function getAnalysisSummary(results: AnalysisResult[]): ScoreSummary {
   const summary = calculateScoreSummary(results)
   return {
     totalFiles: summary.totalFiles,
