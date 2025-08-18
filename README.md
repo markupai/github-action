@@ -1,4 +1,4 @@
-# Markup AI Github Action
+# Markup AI GitHub Action
 
 [![Build and Test](https://github.com/markupai/markup-ai-github-action/actions/workflows/ci.yml/badge.svg)](https://github.com/markupai/markup-ai-github-action/actions/workflows/ci.yml)
 [![Coverage](https://github.com/markupai/markup-ai-github-action/blob/main/badges/coverage.svg)](https://github.com/markupai/markup-ai-github-action)
