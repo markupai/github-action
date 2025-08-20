@@ -5,7 +5,7 @@ import {
   Config,
   StyleAnalysisReq,
   StyleScores
-} from '@acrolinx/nextgen-toolkit'
+} from '@markupai/toolkit'
 import { AnalysisResult, AnalysisOptions } from '../types/index.js'
 import { getFileBasename } from '../utils/file-utils.js'
 import { calculateScoreSummary, ScoreSummary } from '../utils/score-utils.js'
