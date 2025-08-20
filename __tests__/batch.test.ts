@@ -4,7 +4,7 @@ import * as core from '../__fixtures__/core.js'
 // Mock @actions/core
 jest.unstable_mockModule('@actions/core', () => core)
 
-jest.unstable_mockModule('@acrolinx/nextgen-toolkit', () => ({
+jest.unstable_mockModule('@markupai/toolkit', () => ({
   styleCheck: jest.fn(),
   styleBatchCheckRequests: jest.fn(),
   Config: jest.fn()
@@ -66,9 +66,7 @@ describe('Markup AI Service Batch Functionality', () => {
     })
 
     it('should process multiple files using batch API', async () => {
-      const { styleBatchCheckRequests } = await import(
-        '@acrolinx/nextgen-toolkit'
-      )
+      const { styleBatchCheckRequests } = await import('@markupai/toolkit')
       const mockBatchResponse = {
         progress: {
           total: 2,
@@ -194,9 +192,7 @@ describe('Markup AI Service Batch Functionality', () => {
     })
 
     it('should handle failed batch requests', async () => {
-      const { styleBatchCheckRequests } = await import(
-        '@acrolinx/nextgen-toolkit'
-      )
+      const { styleBatchCheckRequests } = await import('@markupai/toolkit')
       const mockBatchResponse = {
         progress: {
           total: 2,
@@ -267,9 +263,7 @@ describe('Markup AI Service Batch Functionality', () => {
     })
 
     it('should handle batch processing errors', async () => {
-      const { styleBatchCheckRequests } = await import(
-        '@acrolinx/nextgen-toolkit'
-      )
+      const { styleBatchCheckRequests } = await import('@markupai/toolkit')
       jest.mocked(styleBatchCheckRequests).mockImplementation(() => {
         throw new Error('Batch processing failed')
       })
@@ -287,7 +281,7 @@ describe('Markup AI Service Batch Functionality', () => {
 
   describe('analyzeFiles with batch processing', () => {
     it('should use sequential processing for small batches (≤3 files)', async () => {
-      const { styleCheck } = await import('@acrolinx/nextgen-toolkit')
+      const { styleCheck } = await import('@markupai/toolkit')
       jest.mocked(styleCheck).mockResolvedValue({
         scores: {
           quality: { score: 85 },
@@ -308,9 +302,7 @@ describe('Markup AI Service Batch Functionality', () => {
     })
 
     it('should use batch processing for larger batches (>3 files)', async () => {
-      const { styleBatchCheckRequests } = await import(
-        '@acrolinx/nextgen-toolkit'
-      )
+      const { styleBatchCheckRequests } = await import('@markupai/toolkit')
       const mockBatchResponse = {
         progress: {
           total: 4,

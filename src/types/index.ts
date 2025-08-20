@@ -25,7 +25,7 @@ export interface FileChange {
   patch?: string
 }
 
-import type { StyleScores } from '@acrolinx/nextgen-toolkit'
+import type { StyleScores } from '@markupai/toolkit'
 
 /**
  * Interface for analysis result
@@ -76,4 +76,4 @@ export interface AnalysisOptions {
 }
 
 // Re-export types from SDK
-export type { StyleAnalysisReq, Config } from '@acrolinx/nextgen-toolkit'
+export type { StyleAnalysisReq, Config } from '@markupai/toolkit'
