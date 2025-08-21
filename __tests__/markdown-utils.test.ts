@@ -11,65 +11,46 @@ jest.unstable_mockModule('../src/utils/score-utils.js', () => ({
     if (score >= 60) return '🟡'
     return '🔴'
   }),
-  calculateScoreSummary: jest.fn(
-    (results: Array<{ result: Record<string, unknown> }>) => {
-      if (results.length === 0) {
-        return {
-          totalFiles: 0,
-          averageQualityScore: 0,
-          averageClarityScore: 0,
-          averageToneScore: 0,
-          averageGrammarScore: 0,
-          averageStyleGuideScore: 0,
-          averageTerminologyScore: 0
-        }
-      }
-
-      // Type assertion for mock data structure
-      const typedResults = results as Array<{
-        result: {
-          quality: {
-            score: number
-            grammar: { score: number }
-            style_guide: { score: number }
-            terminology: { score: number }
-          }
-          analysis: { clarity: { score: number }; tone: { score: number } }
-        }
-      }>
-
-      const qualityScores = typedResults.map((r) => r.result.quality.score)
-      const clarityScores = typedResults.map(
-        (r) => r.result.analysis.clarity.score
-      )
-      const toneScores = typedResults.map((r) => r.result.analysis.tone.score)
-      const grammarScores = typedResults.map(
-        (r) => r.result.quality.grammar.score
-      )
-      const styleGuideScores = typedResults.map(
-        (r) => r.result.quality.style_guide.score
-      )
-      const terminologyScores = typedResults.map(
-        (r) => r.result.quality.terminology.score
-      )
-
-      const calculateAverage = (scores: number[]) => {
-        if (scores.length === 0) return 0
-        const sum = scores.reduce((acc, score) => acc + score, 0)
-        return Math.round((sum / scores.length) * 100) / 100
-      }
-
+  calculateScoreSummary: jest.fn((results: Array<{ result: StyleScores }>) => {
+    if (results.length === 0) {
       return {
-        totalFiles: results.length,
-        averageQualityScore: calculateAverage(qualityScores),
-        averageClarityScore: calculateAverage(clarityScores),
-        averageToneScore: calculateAverage(toneScores),
-        averageGrammarScore: calculateAverage(grammarScores),
-        averageStyleGuideScore: calculateAverage(styleGuideScores),
-        averageTerminologyScore: calculateAverage(terminologyScores)
+        totalFiles: 0,
+        averageQualityScore: 0,
+        averageClarityScore: 0,
+        averageToneScore: 0,
+        averageGrammarScore: 0,
+        averageStyleGuideScore: 0,
+        averageTerminologyScore: 0
       }
     }
-  )
+
+    const qualityScores = results.map((r) => r.result.quality.score)
+    const clarityScores = results.map((r) => r.result.analysis.clarity.score)
+    const toneScores = results.map((r) => r.result.analysis.tone.score)
+    const grammarScores = results.map((r) => r.result.quality.grammar.score)
+    const styleGuideScores = results.map(
+      (r) => r.result.quality.style_guide.score
+    )
+    const terminologyScores = results.map(
+      (r) => r.result.quality.terminology.score
+    )
+
+    const calculateAverage = (scores: number[]) => {
+      if (scores.length === 0) return 0
+      const sum = scores.reduce((acc, score) => acc + score, 0)
+      return Math.round((sum / scores.length) * 100) / 100
+    }
+
+    return {
+      totalFiles: results.length,
+      averageQualityScore: calculateAverage(qualityScores),
+      averageClarityScore: calculateAverage(clarityScores),
+      averageToneScore: calculateAverage(toneScores),
+      averageGrammarScore: calculateAverage(grammarScores),
+      averageStyleGuideScore: calculateAverage(styleGuideScores),
+      averageTerminologyScore: calculateAverage(terminologyScores)
+    }
+  })
 }))
 
 const {
@@ -79,6 +60,7 @@ const {
   generateAnalysisContent
 } = await import('../src/utils/markdown-utils.js')
 import { AnalysisResult, AnalysisOptions } from '../src/types/index.js'
+import { StyleScores } from '@markupai/toolkit'
 
 describe('Markdown Utils', () => {
   const mockAnalysisOptions: AnalysisOptions = {

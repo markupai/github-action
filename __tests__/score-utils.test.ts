@@ -116,8 +116,22 @@ describe('Score Utils', () => {
               terminology: { score: 95, issues: 0 }
             },
             analysis: {
-              clarity: { score: 78 },
-              tone: { score: 82 }
+              clarity: {
+                score: 78,
+                word_count: 100,
+                sentence_count: 5,
+                average_sentence_length: 20,
+                flesch_reading_ease: 70,
+                vocabulary_complexity: 0.5,
+                sentence_complexity: 0.4
+              },
+              tone: {
+                score: 82,
+                informality: 0,
+                liveliness: 0,
+                informality_alignment: 0,
+                liveliness_alignment: 0
+              }
             }
           },
           timestamp: '2024-01-15T10:30:00Z'
@@ -132,8 +146,22 @@ describe('Score Utils', () => {
               terminology: { score: 89, issues: 1 }
             },
             analysis: {
-              clarity: { score: 85 },
-              tone: { score: 87 }
+              clarity: {
+                score: 85,
+                word_count: 100,
+                sentence_count: 5,
+                average_sentence_length: 20,
+                flesch_reading_ease: 70,
+                vocabulary_complexity: 0.5,
+                sentence_complexity: 0.4
+              },
+              tone: {
+                score: 87,
+                informality: 0,
+                liveliness: 0,
+                informality_alignment: 0,
+                liveliness_alignment: 0
+              }
             }
           },
           timestamp: '2024-01-15T10:35:00Z'
@@ -174,13 +202,27 @@ describe('Score Utils', () => {
           result: {
             quality: {
               score: 85,
-              grammar: { score: 90 }, // Missing issues
-              style_guide: { score: 88 }, // Missing issues
-              terminology: { score: 95 } // Missing issues
+              grammar: { score: 90, issues: 2 }, // Missing issues
+              style_guide: { score: 88, issues: 1 }, // Missing issues
+              terminology: { score: 95, issues: 0 } // Missing issues
             },
             analysis: {
-              clarity: { score: 78 },
-              tone: { score: 82 }
+              clarity: {
+                score: 78,
+                word_count: 100,
+                sentence_count: 5,
+                average_sentence_length: 20,
+                flesch_reading_ease: 70,
+                vocabulary_complexity: 0.5,
+                sentence_complexity: 0.4
+              },
+              tone: {
+                score: 82,
+                informality: 0,
+                liveliness: 0,
+                informality_alignment: 0,
+                liveliness_alignment: 0
+              }
             }
           },
           timestamp: '2024-01-15T10:30:00Z'
@@ -212,8 +254,22 @@ describe('Score Utils', () => {
               terminology: { score: 95, issues: 0 }
             },
             analysis: {
-              clarity: { score: 78 },
-              tone: { score: 82 }
+              clarity: {
+                score: 78,
+                word_count: 100,
+                sentence_count: 5,
+                average_sentence_length: 20,
+                flesch_reading_ease: 70,
+                vocabulary_complexity: 0.5,
+                sentence_complexity: 0.4
+              },
+              tone: {
+                score: 82,
+                informality: 0,
+                liveliness: 0,
+                informality_alignment: 0,
+                liveliness_alignment: 0
+              }
             }
           },
           timestamp: '2024-01-15T10:30:00Z'
@@ -245,8 +301,22 @@ describe('Score Utils', () => {
               terminology: { score: 95.75, issues: 0 }
             },
             analysis: {
-              clarity: { score: 78.25 },
-              tone: { score: 82.25 }
+              clarity: {
+                score: 78.25,
+                word_count: 100,
+                sentence_count: 5,
+                average_sentence_length: 20,
+                flesch_reading_ease: 70,
+                vocabulary_complexity: 0.5,
+                sentence_complexity: 0.4
+              },
+              tone: {
+                score: 82.25,
+                informality: 0,
+                liveliness: 0,
+                informality_alignment: 0,
+                liveliness_alignment: 0
+              }
             }
           },
           timestamp: '2024-01-15T10:30:00Z'
