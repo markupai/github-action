@@ -21,7 +21,7 @@ export function generateResultsTable(results: AnalysisResult[]): string {
       const { filePath, result: scores } = result
       const qualityEmoji = getQualityEmoji(scores.quality.score)
 
-      return `| ${filePath} | ${qualityEmoji} ${Math.round(scores.quality.score)} | ${Math.round(scores.clarity.score)} | ${Math.round(scores.grammar.score)} | ${Math.round(scores.style_guide.score)} | ${Math.round(scores.tone.score)} | ${Math.round(scores.terminology.score)} |`
+      return `| ${filePath} | ${qualityEmoji} ${Math.round(scores.quality.score)} | ${Math.round(scores.analysis.clarity.score)} | ${Math.round(scores.quality.grammar.score)} | ${Math.round(scores.quality.style_guide.score)} | ${Math.round(scores.analysis.tone.score)} | ${Math.round(scores.quality.terminology.score)} |`
     })
     .join('\n')
 

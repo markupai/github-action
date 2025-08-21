@@ -40,24 +40,32 @@ describe('Job Summary Service', () => {
     {
       filePath: 'test.md',
       result: {
-        quality: { score: 85 },
-        clarity: { score: 78 },
-        grammar: { score: 90, issues: 2 },
-        style_guide: { score: 88, issues: 1 },
-        tone: { score: 82 },
-        terminology: { score: 95, issues: 0 }
+        quality: {
+          score: 85,
+          grammar: { score: 90, issues: 2 },
+          style_guide: { score: 88, issues: 1 },
+          terminology: { score: 95, issues: 0 }
+        },
+        analysis: {
+          clarity: { score: 78 },
+          tone: { score: 82 }
+        }
       },
       timestamp: '2024-01-15T10:30:00Z'
     },
     {
       filePath: 'example.md',
       result: {
-        quality: { score: 75 },
-        clarity: { score: 72 },
-        grammar: { score: 85, issues: 1 },
-        style_guide: { score: 80, issues: 2 },
-        tone: { score: 78 },
-        terminology: { score: 88, issues: 1 }
+        quality: {
+          score: 75,
+          grammar: { score: 85, issues: 1 },
+          style_guide: { score: 80, issues: 2 },
+          terminology: { score: 88, issues: 1 }
+        },
+        analysis: {
+          clarity: { score: 72 },
+          tone: { score: 78 }
+        }
       },
       timestamp: '2024-01-15T10:35:00Z'
     }

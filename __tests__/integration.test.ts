@@ -62,12 +62,16 @@ jest.unstable_mockModule('@markupai/toolkit', () => ({
       workflow_id: 'test-workflow-123',
       status: 'completed',
       scores: {
-        quality: { score: 85.2 },
-        clarity: { score: 78.5 },
-        grammar: { score: 90.1, issues: 2 },
-        style_guide: { score: 88.3, issues: 1 },
-        tone: { score: 82.3 },
-        terminology: { score: 95.0, issues: 0 }
+        quality: {
+          score: 85.2,
+          grammar: { score: 90.1, issues: 2 },
+          style_guide: { score: 88.3, issues: 1 },
+          terminology: { score: 95.0, issues: 0 }
+        },
+        analysis: {
+          clarity: { score: 78.5 },
+          tone: { score: 82.3 }
+        }
       },
       issues: [
         {
@@ -92,12 +96,16 @@ jest.unstable_mockModule('@markupai/toolkit', () => ({
           status: 'completed',
           result: {
             scores: {
-              quality: { score: 85.2 },
-              clarity: { score: 78.5 },
-              grammar: { score: 90.1, issues: 2 },
-              style_guide: { score: 88.3, issues: 1 },
-              tone: { score: 82.3 },
-              terminology: { score: 95.0, issues: 0 }
+              quality: {
+                score: 85.2,
+                grammar: { score: 90.1, issues: 2 },
+                style_guide: { score: 88.3, issues: 1 },
+                terminology: { score: 95.0, issues: 0 }
+              },
+              analysis: {
+                clarity: { score: 78.5 },
+                tone: { score: 82.3 }
+              }
             }
           }
         }
@@ -116,12 +124,16 @@ jest.unstable_mockModule('@markupai/toolkit', () => ({
           status: 'completed',
           result: {
             scores: {
-              quality: { score: 85.2 },
-              clarity: { score: 78.5 },
-              grammar: { score: 90.1, issues: 2 },
-              style_guide: { score: 88.3, issues: 1 },
-              tone: { score: 82.3 },
-              terminology: { score: 95.0, issues: 0 }
+              quality: {
+                score: 85.2,
+                grammar: { score: 90.1, issues: 2 },
+                style_guide: { score: 88.3, issues: 1 },
+                terminology: { score: 95.0, issues: 0 }
+              },
+              analysis: {
+                clarity: { score: 78.5 },
+                tone: { score: 82.3 }
+              }
             }
           }
         }

@@ -41370,11 +41370,11 @@ function calculateScoreSummary(results) {
         };
     }
     const qualityScores = results.map((r) => r.result.quality.score);
-    const clarityScores = results.map((r) => r.result.clarity.score);
-    const toneScores = results.map((r) => r.result.tone.score);
-    const grammarScores = results.map((r) => r.result.grammar.score);
-    const styleGuideScores = results.map((r) => r.result.style_guide.score);
-    const terminologyScores = results.map((r) => r.result.terminology.score);
+    const clarityScores = results.map((r) => r.result.analysis.clarity.score);
+    const toneScores = results.map((r) => r.result.analysis.tone.score);
+    const grammarScores = results.map((r) => r.result.quality.grammar.score);
+    const styleGuideScores = results.map((r) => r.result.quality.style_guide.score);
+    const terminologyScores = results.map((r) => r.result.quality.terminology.score);
     return {
         totalFiles: results.length,
         averageQualityScore: calculateAverageScore(qualityScores),
@@ -42073,11 +42073,11 @@ function displayResults(results) {
         const { filePath, result } = analysis;
         coreExports.info(`\n📄 File: ${filePath}`);
         coreExports.info(`📈 Quality Score: ${result.quality.score}`);
-        coreExports.info(`📝 Clarity Score: ${result.clarity.score}`);
-        coreExports.info(`🔤 Grammar Score: ${result.grammar.score}`);
-        coreExports.info(`📋 Style Guide Score: ${result.style_guide.score}`);
-        coreExports.info(`🎭 Tone Score: ${result.tone.score}`);
-        coreExports.info(`📚 Terminology Score: ${result.terminology.score}`);
+        coreExports.info(`📝 Clarity Score: ${result.analysis.clarity.score}`);
+        coreExports.info(`🔤 Grammar Score: ${result.quality.grammar.score}`);
+        coreExports.info(`📋 Style Guide Score: ${result.quality.style_guide.score}`);
+        coreExports.info(`🎭 Tone Score: ${result.analysis.tone.score}`);
+        coreExports.info(`📚 Terminology Score: ${result.quality.terminology.score}`);
         if (index < results.length - 1) {
             coreExports.info('─'.repeat(DISPLAY.SEPARATOR_LENGTH));
         }
@@ -42123,7 +42123,7 @@ function generateResultsTable(results) {
         .map((result) => {
         const { filePath, result: scores } = result;
         const qualityEmoji = getQualityEmoji(scores.quality.score);
-        return `| ${filePath} | ${qualityEmoji} ${Math.round(scores.quality.score)} | ${Math.round(scores.clarity.score)} | ${Math.round(scores.grammar.score)} | ${Math.round(scores.style_guide.score)} | ${Math.round(scores.tone.score)} | ${Math.round(scores.terminology.score)} |`;
+        return `| ${filePath} | ${qualityEmoji} ${Math.round(scores.quality.score)} | ${Math.round(scores.analysis.clarity.score)} | ${Math.round(scores.quality.grammar.score)} | ${Math.round(scores.quality.style_guide.score)} | ${Math.round(scores.analysis.tone.score)} | ${Math.round(scores.quality.terminology.score)} |`;
     })
         .join('\n');
     return `${tableHeader}\n${tableRows}`;

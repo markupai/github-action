@@ -2,6 +2,8 @@
  * Centralized score calculation and quality evaluation utilities
  */
 
+import { StyleScores } from '@markupai/toolkit'
+
 /**
  * Quality score thresholds
  */
@@ -39,18 +41,6 @@ export interface ScoreSummary {
 }
 
 /**
- * Interface for individual scores
- */
-export interface ScoreData {
-  quality: { score: number }
-  clarity: { score: number }
-  tone: { score: number }
-  grammar: { score: number }
-  style_guide: { score: number }
-  terminology: { score: number }
-}
-
-/**
  * Get quality status based on score
  */
 export function getQualityStatus(score: number): QualityStatus {
@@ -81,7 +71,7 @@ export function calculateAverageScore(scores: number[]): number {
  * Calculate comprehensive score summary from analysis results
  */
 export function calculateScoreSummary(
-  results: Array<{ result: ScoreData }>
+  results: Array<{ result: StyleScores }>
 ): ScoreSummary {
   if (results.length === 0) {
     return {
@@ -96,11 +86,15 @@ export function calculateScoreSummary(
   }
 
   const qualityScores = results.map((r) => r.result.quality.score)
-  const clarityScores = results.map((r) => r.result.clarity.score)
-  const toneScores = results.map((r) => r.result.tone.score)
-  const grammarScores = results.map((r) => r.result.grammar.score)
-  const styleGuideScores = results.map((r) => r.result.style_guide.score)
-  const terminologyScores = results.map((r) => r.result.terminology.score)
+  const clarityScores = results.map((r) => r.result.analysis.clarity.score)
+  const toneScores = results.map((r) => r.result.analysis.tone.score)
+  const grammarScores = results.map((r) => r.result.quality.grammar.score)
+  const styleGuideScores = results.map(
+    (r) => r.result.quality.style_guide.score
+  )
+  const terminologyScores = results.map(
+    (r) => r.result.quality.terminology.score
+  )
 
   return {
     totalFiles: results.length,

@@ -87,12 +87,16 @@ describe('Display Utils', () => {
         {
           filePath: 'test.md',
           result: {
-            quality: { score: 85 },
-            clarity: { score: 78 },
-            grammar: { score: 90 },
-            style_guide: { score: 88 },
-            tone: { score: 82 },
-            terminology: { score: 95 }
+            quality: {
+              score: 85,
+              grammar: { score: 90 },
+              style_guide: { score: 88 },
+              terminology: { score: 95 }
+            },
+            analysis: {
+              clarity: { score: 78 },
+              tone: { score: 82 }
+            }
           },
           timestamp: '2024-01-15T10:30:00Z'
         }
@@ -116,24 +120,32 @@ describe('Display Utils', () => {
         {
           filePath: 'file1.md',
           result: {
-            quality: { score: 85 },
-            clarity: { score: 78 },
-            grammar: { score: 90 },
-            style_guide: { score: 88 },
-            tone: { score: 82 },
-            terminology: { score: 95 }
+            quality: {
+              score: 85,
+              grammar: { score: 90 },
+              style_guide: { score: 88 },
+              terminology: { score: 95 }
+            },
+            analysis: {
+              clarity: { score: 78 },
+              tone: { score: 82 }
+            }
           },
           timestamp: '2024-01-15T10:30:00Z'
         },
         {
           filePath: 'file2.md',
           result: {
-            quality: { score: 92 },
-            clarity: { score: 85 },
-            grammar: { score: 88 },
-            style_guide: { score: 90 },
-            tone: { score: 87 },
-            terminology: { score: 93 }
+            quality: {
+              score: 92,
+              grammar: { score: 88 },
+              style_guide: { score: 90 },
+              terminology: { score: 93 }
+            },
+            analysis: {
+              clarity: { score: 85 },
+              tone: { score: 87 }
+            }
           },
           timestamp: '2024-01-15T10:31:00Z'
         }
@@ -180,12 +192,16 @@ describe('Display Utils', () => {
         {
           filePath: 'file1.md',
           result: {
-            quality: { score: 85 },
-            clarity: { score: 78 },
-            grammar: { score: 90 },
-            style_guide: { score: 88 },
-            tone: { score: 82 },
-            terminology: { score: 95 }
+            quality: {
+              score: 85,
+              grammar: { score: 90 },
+              style_guide: { score: 88 },
+              terminology: { score: 95 }
+            },
+            analysis: {
+              clarity: { score: 78 },
+              tone: { score: 82 }
+            }
           },
           timestamp: '2024-01-15T10:30:00Z'
         }

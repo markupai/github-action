@@ -25,12 +25,33 @@ jest.unstable_mockModule('../src/utils/score-utils.js', () => ({
         }
       }
 
-      const qualityScores = results.map((r) => r.result.quality.score)
-      const clarityScores = results.map((r) => r.result.clarity.score)
-      const toneScores = results.map((r) => r.result.tone.score)
-      const grammarScores = results.map((r) => r.result.grammar.score)
-      const styleGuideScores = results.map((r) => r.result.style_guide.score)
-      const terminologyScores = results.map((r) => r.result.terminology.score)
+      // Type assertion for mock data structure
+      const typedResults = results as Array<{
+        result: {
+          quality: {
+            score: number
+            grammar: { score: number }
+            style_guide: { score: number }
+            terminology: { score: number }
+          }
+          analysis: { clarity: { score: number }; tone: { score: number } }
+        }
+      }>
+
+      const qualityScores = typedResults.map((r) => r.result.quality.score)
+      const clarityScores = typedResults.map(
+        (r) => r.result.analysis.clarity.score
+      )
+      const toneScores = typedResults.map((r) => r.result.analysis.tone.score)
+      const grammarScores = typedResults.map(
+        (r) => r.result.quality.grammar.score
+      )
+      const styleGuideScores = typedResults.map(
+        (r) => r.result.quality.style_guide.score
+      )
+      const terminologyScores = typedResults.map(
+        (r) => r.result.quality.terminology.score
+      )
 
       const calculateAverage = (scores: number[]) => {
         if (scores.length === 0) return 0
@@ -79,22 +100,30 @@ describe('Markdown Utils', () => {
   ): AnalysisResult => ({
     filePath,
     result: {
-      quality: { score: scores.quality },
-      clarity: {
-        score: scores.clarity,
-        word_count: 100,
-        sentence_count: 5,
-        average_sentence_length: 20,
-        flesch_reading_ease: 70,
-        vocabulary_complexity: 0.5,
-        flesch_kincaid_grade: 8,
-        lexical_diversity: 0.6,
-        sentence_complexity: 0.4
+      quality: {
+        score: scores.quality,
+        grammar: { score: scores.grammar, issues: 0 },
+        style_guide: { score: scores.style_guide, issues: 0 },
+        terminology: { score: scores.terminology, issues: 0 }
       },
-      grammar: { score: scores.grammar, issues: 0 },
-      style_guide: { score: scores.style_guide, issues: 0 },
-      tone: { score: scores.tone, informality: 0, liveliness: 0 },
-      terminology: { score: scores.terminology, issues: 0 }
+      analysis: {
+        clarity: {
+          score: scores.clarity,
+          word_count: 100,
+          sentence_count: 5,
+          average_sentence_length: 20,
+          flesch_reading_ease: 70,
+          vocabulary_complexity: 0.5,
+          sentence_complexity: 0.4
+        },
+        tone: {
+          score: scores.tone,
+          informality: 0,
+          liveliness: 0,
+          informality_alignment: 0,
+          liveliness_alignment: 0
+        }
+      }
     },
     timestamp: '2024-01-01T00:00:00Z'
   })

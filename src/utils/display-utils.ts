@@ -38,11 +38,11 @@ export function displayResults(results: AnalysisResult[]): void {
     const { filePath, result } = analysis
     core.info(`\n📄 File: ${filePath}`)
     core.info(`📈 Quality Score: ${result.quality.score}`)
-    core.info(`📝 Clarity Score: ${result.clarity.score}`)
-    core.info(`🔤 Grammar Score: ${result.grammar.score}`)
-    core.info(`📋 Style Guide Score: ${result.style_guide.score}`)
-    core.info(`🎭 Tone Score: ${result.tone.score}`)
-    core.info(`📚 Terminology Score: ${result.terminology.score}`)
+    core.info(`📝 Clarity Score: ${result.analysis.clarity.score}`)
+    core.info(`🔤 Grammar Score: ${result.quality.grammar.score}`)
+    core.info(`📋 Style Guide Score: ${result.quality.style_guide.score}`)
+    core.info(`🎭 Tone Score: ${result.analysis.tone.score}`)
+    core.info(`📚 Terminology Score: ${result.quality.terminology.score}`)
 
     if (index < results.length - 1) {
       core.info('─'.repeat(DISPLAY.SEPARATOR_LENGTH))
