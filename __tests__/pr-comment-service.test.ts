@@ -86,12 +86,16 @@ const mockOctokit: MockOctokitInstance = {
 const createMockAnalysisResult = (overrides: Record<string, unknown> = {}) => ({
   filePath: 'test.md',
   result: {
-    quality: { score: 85 },
-    clarity: { score: 78 },
-    grammar: { score: 90, issues: 2 },
-    style_guide: { score: 88, issues: 1 },
-    tone: { score: 82 },
-    terminology: { score: 95, issues: 0 }
+    quality: {
+      score: 85,
+      grammar: { score: 90, issues: 2 },
+      style_guide: { score: 88, issues: 1 },
+      terminology: { score: 95, issues: 0 }
+    },
+    analysis: {
+      clarity: { score: 78 },
+      tone: { score: 82 }
+    }
   },
   timestamp: '2024-01-15T10:30:00Z',
   ...overrides
@@ -385,34 +389,46 @@ describe('PR Comment Service', () => {
         createMockAnalysisResult({
           filePath: 'file1.md',
           result: {
-            quality: { score: 95 },
-            clarity: { score: 78 },
-            grammar: { score: 90, issues: 2 },
-            style_guide: { score: 88, issues: 1 },
-            tone: { score: 82 },
-            terminology: { score: 95, issues: 0 }
+            quality: {
+              score: 95,
+              grammar: { score: 90, issues: 2 },
+              style_guide: { score: 88, issues: 1 },
+              terminology: { score: 95, issues: 0 }
+            },
+            analysis: {
+              clarity: { score: 78 },
+              tone: { score: 82 }
+            }
           }
         }),
         createMockAnalysisResult({
           filePath: 'file2.md',
           result: {
-            quality: { score: 65 },
-            clarity: { score: 78 },
-            grammar: { score: 90, issues: 2 },
-            style_guide: { score: 88, issues: 1 },
-            tone: { score: 82 },
-            terminology: { score: 95, issues: 0 }
+            quality: {
+              score: 65,
+              grammar: { score: 90, issues: 2 },
+              style_guide: { score: 88, issues: 1 },
+              terminology: { score: 95, issues: 0 }
+            },
+            analysis: {
+              clarity: { score: 78 },
+              tone: { score: 82 }
+            }
           }
         }),
         createMockAnalysisResult({
           filePath: 'file3.md',
           result: {
-            quality: { score: 45 },
-            clarity: { score: 78 },
-            grammar: { score: 90, issues: 2 },
-            style_guide: { score: 88, issues: 1 },
-            tone: { score: 82 },
-            terminology: { score: 95, issues: 0 }
+            quality: {
+              score: 45,
+              grammar: { score: 90, issues: 2 },
+              style_guide: { score: 88, issues: 1 },
+              terminology: { score: 95, issues: 0 }
+            },
+            analysis: {
+              clarity: { score: 78 },
+              tone: { score: 82 }
+            }
           }
         })
       ]

@@ -109,24 +109,32 @@ describe('Score Utils', () => {
         {
           filePath: 'file1.md',
           result: {
-            quality: { score: 85 },
-            clarity: { score: 78 },
-            grammar: { score: 90, issues: 2 },
-            style_guide: { score: 88, issues: 1 },
-            tone: { score: 82 },
-            terminology: { score: 95, issues: 0 }
+            quality: {
+              score: 85,
+              grammar: { score: 90, issues: 2 },
+              style_guide: { score: 88, issues: 1 },
+              terminology: { score: 95, issues: 0 }
+            },
+            analysis: {
+              clarity: { score: 78 },
+              tone: { score: 82 }
+            }
           },
           timestamp: '2024-01-15T10:30:00Z'
         },
         {
           filePath: 'file2.md',
           result: {
-            quality: { score: 90 },
-            clarity: { score: 85 },
-            grammar: { score: 88, issues: 1 },
-            style_guide: { score: 92, issues: 0 },
-            tone: { score: 87 },
-            terminology: { score: 89, issues: 1 }
+            quality: {
+              score: 90,
+              grammar: { score: 88, issues: 1 },
+              style_guide: { score: 92, issues: 0 },
+              terminology: { score: 89, issues: 1 }
+            },
+            analysis: {
+              clarity: { score: 85 },
+              tone: { score: 87 }
+            }
           },
           timestamp: '2024-01-15T10:35:00Z'
         }
@@ -164,12 +172,16 @@ describe('Score Utils', () => {
         {
           filePath: 'file1.md',
           result: {
-            quality: { score: 85 },
-            clarity: { score: 78 },
-            grammar: { score: 90 }, // Missing issues
-            style_guide: { score: 88 }, // Missing issues
-            tone: { score: 82 },
-            terminology: { score: 95 } // Missing issues
+            quality: {
+              score: 85,
+              grammar: { score: 90 }, // Missing issues
+              style_guide: { score: 88 }, // Missing issues
+              terminology: { score: 95 } // Missing issues
+            },
+            analysis: {
+              clarity: { score: 78 },
+              tone: { score: 82 }
+            }
           },
           timestamp: '2024-01-15T10:30:00Z'
         }
@@ -193,12 +205,16 @@ describe('Score Utils', () => {
         {
           filePath: 'file1.md',
           result: {
-            quality: { score: 85 },
-            clarity: { score: 78 },
-            grammar: { score: 90, issues: 2 },
-            style_guide: { score: 88, issues: 1 },
-            tone: { score: 82 },
-            terminology: { score: 95, issues: 0 }
+            quality: {
+              score: 85,
+              grammar: { score: 90, issues: 2 },
+              style_guide: { score: 88, issues: 1 },
+              terminology: { score: 95, issues: 0 }
+            },
+            analysis: {
+              clarity: { score: 78 },
+              tone: { score: 82 }
+            }
           },
           timestamp: '2024-01-15T10:30:00Z'
         }
@@ -222,12 +238,16 @@ describe('Score Utils', () => {
         {
           filePath: 'file1.md',
           result: {
-            quality: { score: 85.5 },
-            clarity: { score: 78.25 },
-            grammar: { score: 90.75, issues: 2 },
-            style_guide: { score: 88.5, issues: 1 },
-            tone: { score: 82.25 },
-            terminology: { score: 95.75, issues: 0 }
+            quality: {
+              score: 85.5,
+              grammar: { score: 90.75, issues: 2 },
+              style_guide: { score: 88.5, issues: 1 },
+              terminology: { score: 95.75, issues: 0 }
+            },
+            analysis: {
+              clarity: { score: 78.25 },
+              tone: { score: 82.25 }
+            }
           },
           timestamp: '2024-01-15T10:30:00Z'
         }
