@@ -15,9 +15,13 @@ const { analyzeFiles, analyzeFilesBatch } = await import(
   '../src/services/api-service.js'
 )
 import type { AnalysisOptions } from '../src/types/index.js'
+import { PlatformType } from '@markupai/toolkit'
 
 describe('Markup AI Service Batch Functionality', () => {
-  let mockConfig: { apiKey: string; platform: { type: string; value: string } }
+  let mockConfig: {
+    apiKey: string
+    platform: { type: PlatformType.Url; value: string }
+  }
   let mockOptions: AnalysisOptions
   let mockReadFileContent: (filePath: string) => Promise<string | null>
 
