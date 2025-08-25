@@ -1,5 +1,6 @@
 .DS_Store
 .licenses/
+.github/workflows/
 dist/
 node_modules/
 coverage/
