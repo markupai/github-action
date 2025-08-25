@@ -89,13 +89,27 @@ describe('Display Utils', () => {
           result: {
             quality: {
               score: 85,
-              grammar: { score: 90 },
-              style_guide: { score: 88 },
-              terminology: { score: 95 }
+              grammar: { score: 90, issues: 2 },
+              style_guide: { score: 88, issues: 1 },
+              terminology: { score: 95, issues: 0 }
             },
             analysis: {
-              clarity: { score: 78 },
-              tone: { score: 82 }
+              clarity: {
+                score: 78,
+                word_count: 100,
+                sentence_count: 5,
+                average_sentence_length: 20,
+                flesch_reading_ease: 70,
+                vocabulary_complexity: 0.5,
+                sentence_complexity: 0.4
+              },
+              tone: {
+                score: 82,
+                informality: 0,
+                liveliness: 0,
+                informality_alignment: 0,
+                liveliness_alignment: 0
+              }
             }
           },
           timestamp: '2024-01-15T10:30:00Z'
@@ -122,13 +136,27 @@ describe('Display Utils', () => {
           result: {
             quality: {
               score: 85,
-              grammar: { score: 90 },
-              style_guide: { score: 88 },
-              terminology: { score: 95 }
+              grammar: { score: 90, issues: 2 },
+              style_guide: { score: 88, issues: 1 },
+              terminology: { score: 95, issues: 0 }
             },
             analysis: {
-              clarity: { score: 78 },
-              tone: { score: 82 }
+              clarity: {
+                score: 78,
+                word_count: 100,
+                sentence_count: 5,
+                average_sentence_length: 20,
+                flesch_reading_ease: 70,
+                vocabulary_complexity: 0.5,
+                sentence_complexity: 0.4
+              },
+              tone: {
+                score: 82,
+                informality: 0,
+                liveliness: 0,
+                informality_alignment: 0,
+                liveliness_alignment: 0
+              }
             }
           },
           timestamp: '2024-01-15T10:30:00Z'
@@ -138,13 +166,27 @@ describe('Display Utils', () => {
           result: {
             quality: {
               score: 92,
-              grammar: { score: 88 },
-              style_guide: { score: 90 },
-              terminology: { score: 93 }
+              grammar: { score: 88, issues: 2 },
+              style_guide: { score: 90, issues: 1 },
+              terminology: { score: 93, issues: 0 }
             },
             analysis: {
-              clarity: { score: 85 },
-              tone: { score: 87 }
+              clarity: {
+                score: 85,
+                word_count: 100,
+                sentence_count: 5,
+                average_sentence_length: 20,
+                flesch_reading_ease: 70,
+                vocabulary_complexity: 0.5,
+                sentence_complexity: 0.4
+              },
+              tone: {
+                score: 87,
+                informality: 0,
+                liveliness: 0,
+                informality_alignment: 0,
+                liveliness_alignment: 0
+              }
             }
           },
           timestamp: '2024-01-15T10:31:00Z'
@@ -194,13 +236,27 @@ describe('Display Utils', () => {
           result: {
             quality: {
               score: 85,
-              grammar: { score: 90 },
-              style_guide: { score: 88 },
-              terminology: { score: 95 }
+              grammar: { score: 90, issues: 2 },
+              style_guide: { score: 88, issues: 1 },
+              terminology: { score: 95, issues: 0 }
             },
             analysis: {
-              clarity: { score: 78 },
-              tone: { score: 82 }
+              clarity: {
+                score: 78,
+                word_count: 100,
+                sentence_count: 5,
+                average_sentence_length: 20,
+                flesch_reading_ease: 70,
+                vocabulary_complexity: 0.5,
+                sentence_complexity: 0.4
+              },
+              tone: {
+                score: 82,
+                informality: 0,
+                liveliness: 0,
+                informality_alignment: 0,
+                liveliness_alignment: 0
+              }
             }
           },
           timestamp: '2024-01-15T10:30:00Z'
