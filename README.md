@@ -357,7 +357,7 @@ The action gracefully handles various scenarios:
 ```bash
 # Clone the repository
 git clone https://github.com/markupai/markup-ai-github-action.git
-cd nextgen-analyzer
+cd markup-ai-github-action
 
 # Install dependencies
 npm install
