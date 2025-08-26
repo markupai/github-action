@@ -9,11 +9,11 @@ import * as core from '../__fixtures__/core.js'
 const infoSpy = jest.spyOn(core, 'info')
 const errorSpy = jest.spyOn(core, 'error')
 
-// Create mock summary object
+// Create mock summary object with proper typing
 const mockSummary = {
   addHeading: jest.fn().mockReturnThis(),
   addRaw: jest.fn().mockReturnThis(),
-  write: jest.fn().mockResolvedValue(undefined)
+  write: jest.fn()
 }
 
 // Mock @actions/core
@@ -47,8 +47,22 @@ describe('Job Summary Service', () => {
           terminology: { score: 95, issues: 0 }
         },
         analysis: {
-          clarity: { score: 78 },
-          tone: { score: 82 }
+          clarity: {
+            score: 78,
+            word_count: 100,
+            sentence_count: 5,
+            average_sentence_length: 20,
+            flesch_reading_ease: 75,
+            vocabulary_complexity: 0.3,
+            sentence_complexity: 0.4
+          },
+          tone: {
+            score: 82,
+            informality: 0.2,
+            liveliness: 0.6,
+            informality_alignment: 0.8,
+            liveliness_alignment: 0.7
+          }
         }
       },
       timestamp: '2024-01-15T10:30:00Z'
@@ -63,8 +77,22 @@ describe('Job Summary Service', () => {
           terminology: { score: 88, issues: 1 }
         },
         analysis: {
-          clarity: { score: 72 },
-          tone: { score: 78 }
+          clarity: {
+            score: 72,
+            word_count: 80,
+            sentence_count: 4,
+            average_sentence_length: 18,
+            flesch_reading_ease: 70,
+            vocabulary_complexity: 0.4,
+            sentence_complexity: 0.5
+          },
+          tone: {
+            score: 78,
+            informality: 0.3,
+            liveliness: 0.5,
+            informality_alignment: 0.7,
+            liveliness_alignment: 0.6
+          }
         }
       },
       timestamp: '2024-01-15T10:35:00Z'
@@ -123,7 +151,10 @@ describe('Job Summary Service', () => {
 
     it('should handle errors gracefully', async () => {
       const error = new Error('Summary creation failed')
-      mockSummary.write.mockRejectedValue(error)
+      const mockWrite = mockSummary.write as jest.MockedFunction<
+        () => Promise<void>
+      >
+      mockWrite.mockRejectedValue(error)
 
       await jobSummaryService.createJobSummary(
         mockResults,

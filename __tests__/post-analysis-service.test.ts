@@ -4,6 +4,7 @@
 
 import { jest } from '@jest/globals'
 import * as core from '../__fixtures__/core.js'
+import type { AnalysisResult } from '../src/types/index.js'
 
 // Spy on core methods
 const infoSpy = jest.spyOn(core, 'info')
@@ -26,8 +27,24 @@ jest.unstable_mockModule('@actions/github', () => ({
 }))
 
 // Mock dependencies
-const mockGetAnalysisSummary = jest.fn() as jest.MockedFunction<() => unknown>
-const mockCreateGitHubClient = jest.fn() as jest.MockedFunction<() => unknown>
+const mockGetAnalysisSummary = jest.fn() as jest.MockedFunction<
+  () => {
+    averageQualityScore: number
+    averageClarityScore: number
+    averageGrammarScore: number
+    averageStyleGuideScore: number
+    averageToneScore: number
+    averageTerminologyScore: number
+    totalGrammarIssues: number
+    totalStyleGuideIssues: number
+    totalTerminologyIssues: number
+    totalFiles: number
+    totalIssues: number
+  }
+>
+const mockCreateGitHubClient = jest.fn() as jest.MockedFunction<
+  () => Record<string, unknown>
+>
 const mockUpdateCommitStatus = jest.fn() as jest.MockedFunction<
   () => Promise<void>
 >
@@ -99,27 +116,46 @@ describe('Post Analysis Service', () => {
       totalGrammarIssues: 2,
       totalStyleGuideIssues: 1,
       totalTerminologyIssues: 0,
-      filesAnalyzed: 1
+      totalFiles: 1,
+      totalIssues: 2
     })
 
     mockCreateGitHubClient.mockReturnValue(mockOctokit)
   })
 
   const mockOctokit = { rest: {} }
-  const mockResults = [
+  const mockResults: AnalysisResult[] = [
     {
       filePath: 'test.md',
       result: {
-        quality: { score: 85 },
-        clarity: { score: 78 },
-        grammar: { score: 90, issues: 2 },
-        style_guide: { score: 88, issues: 1 },
-        tone: { score: 82 },
-        terminology: { score: 95, issues: 0 }
+        quality: {
+          score: 85,
+          grammar: { score: 90, issues: 2 },
+          style_guide: { score: 88, issues: 1 },
+          terminology: { score: 95, issues: 0 }
+        },
+        analysis: {
+          clarity: {
+            score: 78,
+            word_count: 100,
+            sentence_count: 5,
+            average_sentence_length: 20,
+            flesch_reading_ease: 75,
+            vocabulary_complexity: 0.3,
+            sentence_complexity: 0.4
+          },
+          tone: {
+            score: 82,
+            informality: 0.2,
+            liveliness: 0.6,
+            informality_alignment: 0.8,
+            liveliness_alignment: 0.7
+          }
+        }
       },
       timestamp: '2024-01-15T10:30:00Z'
     }
-  ] as import('../src/types/index.js').AnalysisResult[]
+  ]
 
   const mockConfig = {
     githubToken: 'test-token',
