@@ -4,6 +4,7 @@
 
 import { jest } from '@jest/globals'
 import * as core from '../__fixtures__/core.js'
+import type { ActionConfig, AnalysisOptions } from '../src/types/index.js'
 
 // Mock dependencies
 jest.unstable_mockModule('@actions/core', () => core)
@@ -33,7 +34,7 @@ describe('Action Config', () => {
 
   describe('getAnalysisOptions', () => {
     it('should return analysis options with provided values', () => {
-      const config = {
+      const config: ActionConfig = {
         dialect: 'british_english',
         tone: 'informal',
         styleGuide: 'chicago',
@@ -42,7 +43,7 @@ describe('Action Config', () => {
         addCommitStatus: true
       }
 
-      const options = getAnalysisOptions(config)
+      const options: AnalysisOptions = getAnalysisOptions(config)
 
       expect(options).toEqual({
         dialect: 'british_english',
@@ -52,7 +53,7 @@ describe('Action Config', () => {
     })
 
     it('should return analysis options as provided in config', () => {
-      const config = {
+      const config: ActionConfig = {
         dialect: '',
         tone: '',
         styleGuide: '',
@@ -61,7 +62,7 @@ describe('Action Config', () => {
         addCommitStatus: true
       }
 
-      const options = getAnalysisOptions(config)
+      const options: AnalysisOptions = getAnalysisOptions(config)
 
       expect(options).toEqual({
         dialect: '',
@@ -73,7 +74,7 @@ describe('Action Config', () => {
 
   describe('validateConfig', () => {
     it('should not throw error for valid config', () => {
-      const config = {
+      const config: ActionConfig = {
         dialect: 'american_english',
         tone: 'formal',
         styleGuide: 'ap',
@@ -86,7 +87,7 @@ describe('Action Config', () => {
     })
 
     it('should throw error for missing token', () => {
-      const config = {
+      const config: ActionConfig = {
         dialect: 'american_english',
         tone: 'formal',
         styleGuide: 'ap',
@@ -99,12 +100,13 @@ describe('Action Config', () => {
     })
 
     it('should warn for missing GitHub token', () => {
-      const config = {
+      const config: ActionConfig = {
         dialect: 'american_english',
         tone: 'formal',
         styleGuide: 'ap',
         apiToken: 'valid-token',
-        githubToken: ''
+        githubToken: '',
+        addCommitStatus: true
       }
 
       expect(() => validateConfig(config)).not.toThrow()
@@ -112,12 +114,13 @@ describe('Action Config', () => {
     })
 
     it('should throw error for empty dialect', () => {
-      const config = {
+      const config: ActionConfig = {
         dialect: '',
         tone: 'formal',
         styleGuide: 'ap',
         apiToken: 'valid-token',
-        githubToken: 'valid-github-token'
+        githubToken: 'valid-github-token',
+        addCommitStatus: true
       }
 
       expect(() => validateConfig(config)).toThrow(
@@ -126,12 +129,13 @@ describe('Action Config', () => {
     })
 
     it('should throw error for empty tone', () => {
-      const config = {
+      const config: ActionConfig = {
         dialect: 'american_english',
         tone: '',
         styleGuide: 'ap',
         apiToken: 'valid-token',
-        githubToken: 'valid-github-token'
+        githubToken: 'valid-github-token',
+        addCommitStatus: true
       }
 
       expect(() => validateConfig(config)).toThrow(
@@ -140,12 +144,13 @@ describe('Action Config', () => {
     })
 
     it('should throw error for empty style guide', () => {
-      const config = {
+      const config: ActionConfig = {
         dialect: 'american_english',
         tone: 'formal',
         styleGuide: '',
         apiToken: 'valid-token',
-        githubToken: 'valid-github-token'
+        githubToken: 'valid-github-token',
+        addCommitStatus: true
       }
 
       expect(() => validateConfig(config)).toThrow(
@@ -156,12 +161,13 @@ describe('Action Config', () => {
 
   describe('logConfiguration', () => {
     it('should log configuration correctly', () => {
-      const config = {
+      const config: ActionConfig = {
         dialect: 'british_english',
         tone: 'informal',
         styleGuide: 'chicago',
         apiToken: 'token123',
-        githubToken: 'github-token123'
+        githubToken: 'github-token123',
+        addCommitStatus: true
       }
 
       logConfiguration(config)
@@ -175,12 +181,13 @@ describe('Action Config', () => {
     })
 
     it('should log empty values when not provided', () => {
-      const config = {
+      const config: ActionConfig = {
         dialect: '',
         tone: '',
         styleGuide: '',
         apiToken: 'token123',
-        githubToken: 'github-token123'
+        githubToken: 'github-token123',
+        addCommitStatus: true
       }
 
       logConfiguration(config)
@@ -200,7 +207,7 @@ describe('Action Config', () => {
         .mockReturnValueOnce('informal') // tone
         .mockReturnValueOnce('chicago') // style-guide
 
-      const config = getActionConfig()
+      const config: ActionConfig = getActionConfig()
 
       expect(config).toEqual({
         dialect: 'british_english',
@@ -217,7 +224,7 @@ describe('Action Config', () => {
       process.env.MARKUP_AI_TOKEN = 'env-markup-ai-token'
       process.env.GITHUB_TOKEN = 'env-github-token'
 
-      const config = getActionConfig()
+      const config: ActionConfig = getActionConfig()
 
       expect(config).toEqual({
         dialect: 'american_english',
@@ -240,7 +247,7 @@ describe('Action Config', () => {
       process.env.MARKUP_AI_TOKEN = 'env-markup-ai-token'
       process.env.GITHUB_TOKEN = 'env-github-token'
 
-      const config = getActionConfig()
+      const config: ActionConfig = getActionConfig()
 
       expect(config.apiToken).toBe('input-markup-ai-token')
       expect(config.githubToken).toBe('input-github-token')
@@ -254,7 +261,7 @@ describe('Action Config', () => {
         .mockReturnValueOnce('') // tone
         .mockReturnValueOnce('') // style-guide
 
-      const config = getActionConfig()
+      const config: ActionConfig = getActionConfig()
 
       expect(config).toEqual({
         dialect: 'american_english',

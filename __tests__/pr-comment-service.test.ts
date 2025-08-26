@@ -3,6 +3,7 @@
  */
 
 import { jest } from '@jest/globals'
+import type { AnalysisResult } from '../src/types/index.js'
 
 // Type definitions for better type safety
 interface MockGitHubContext {
@@ -83,7 +84,9 @@ const mockOctokit: MockOctokitInstance = {
 }
 
 // Test data factory functions
-const createMockAnalysisResult = (overrides: Record<string, unknown> = {}) => ({
+const createMockAnalysisResult = (
+  overrides: Partial<AnalysisResult> = {}
+): AnalysisResult => ({
   filePath: 'test.md',
   result: {
     quality: {
@@ -93,24 +96,39 @@ const createMockAnalysisResult = (overrides: Record<string, unknown> = {}) => ({
       terminology: { score: 95, issues: 0 }
     },
     analysis: {
-      clarity: { score: 78 },
-      tone: { score: 82 }
+      clarity: {
+        score: 78,
+        word_count: 100,
+        sentence_count: 5,
+        average_sentence_length: 20,
+        flesch_reading_ease: 75,
+        vocabulary_complexity: 0.3,
+        sentence_complexity: 0.4
+      },
+      tone: {
+        score: 82,
+        informality: 0.2,
+        liveliness: 0.6,
+        informality_alignment: 0.8,
+        liveliness_alignment: 0.7
+      }
     }
   },
   timestamp: '2024-01-15T10:30:00Z',
   ...overrides
 })
 
-const createCommentData = (results: unknown[]): PRCommentData => ({
+const createCommentData = (results: AnalysisResult[]): PRCommentData => ({
   owner: 'test-owner',
   repo: 'test-repo',
   prNumber: 123,
-  results: results as unknown as PRCommentData['results'],
+  results,
   config: {
     dialect: 'american_english',
     tone: 'formal',
     styleGuide: 'ap'
-  }
+  },
+  eventType: 'pull_request'
 })
 
 const createGitHubError = (message: string, status?: number): GitHubError => {
@@ -124,21 +142,21 @@ const createGitHubError = (message: string, status?: number): GitHubError => {
 // Helper functions for common test setup - using explicit typing to avoid "never" issues
 const setupSuccessfulRepositoryAccess = (): void => {
   const mockFn = mockOctokit.rest.repos.get as jest.MockedFunction<
-    () => Promise<unknown>
+    () => Promise<{ data: Record<string, unknown> }>
   >
   mockFn.mockResolvedValue({ data: {} })
 }
 
 const setupNoExistingComments = (): void => {
   const mockFn = mockOctokit.rest.issues.listComments as jest.MockedFunction<
-    () => Promise<unknown>
+    () => Promise<{ data: Array<Record<string, unknown>> }>
   >
   mockFn.mockResolvedValue({ data: [] })
 }
 
 const setupExistingComment = (commentId: number): void => {
   const mockFn = mockOctokit.rest.issues.listComments as jest.MockedFunction<
-    () => Promise<unknown>
+    () => Promise<{ data: Array<{ id: number; body: string }> }>
   >
   mockFn.mockResolvedValue({
     data: [
@@ -152,7 +170,7 @@ const setupExistingComment = (commentId: number): void => {
 
 const setupSuccessfulCommentCreation = (commentId: number): void => {
   const mockFn = mockOctokit.rest.issues.createComment as jest.MockedFunction<
-    () => Promise<unknown>
+    () => Promise<{ data: { id: number } }>
   >
   mockFn.mockResolvedValue({
     data: { id: commentId }
@@ -161,7 +179,7 @@ const setupSuccessfulCommentCreation = (commentId: number): void => {
 
 const setupSuccessfulCommentUpdate = (commentId: number): void => {
   const mockFn = mockOctokit.rest.issues.updateComment as jest.MockedFunction<
-    () => Promise<unknown>
+    () => Promise<{ data: { id: number } }>
   >
   mockFn.mockResolvedValue({
     data: { id: commentId }
@@ -396,8 +414,22 @@ describe('PR Comment Service', () => {
               terminology: { score: 95, issues: 0 }
             },
             analysis: {
-              clarity: { score: 78 },
-              tone: { score: 82 }
+              clarity: {
+                score: 78,
+                word_count: 100,
+                sentence_count: 5,
+                average_sentence_length: 20,
+                flesch_reading_ease: 75,
+                vocabulary_complexity: 0.3,
+                sentence_complexity: 0.4
+              },
+              tone: {
+                score: 82,
+                informality: 0.2,
+                liveliness: 0.6,
+                informality_alignment: 0.8,
+                liveliness_alignment: 0.7
+              }
             }
           }
         }),
@@ -411,8 +443,22 @@ describe('PR Comment Service', () => {
               terminology: { score: 95, issues: 0 }
             },
             analysis: {
-              clarity: { score: 78 },
-              tone: { score: 82 }
+              clarity: {
+                score: 78,
+                word_count: 100,
+                sentence_count: 5,
+                average_sentence_length: 20,
+                flesch_reading_ease: 75,
+                vocabulary_complexity: 0.3,
+                sentence_complexity: 0.4
+              },
+              tone: {
+                score: 82,
+                informality: 0.2,
+                liveliness: 0.6,
+                informality_alignment: 0.8,
+                liveliness_alignment: 0.7
+              }
             }
           }
         }),
@@ -426,8 +472,22 @@ describe('PR Comment Service', () => {
               terminology: { score: 95, issues: 0 }
             },
             analysis: {
-              clarity: { score: 78 },
-              tone: { score: 82 }
+              clarity: {
+                score: 78,
+                word_count: 100,
+                sentence_count: 5,
+                average_sentence_length: 20,
+                flesch_reading_ease: 75,
+                vocabulary_complexity: 0.3,
+                sentence_complexity: 0.4
+              },
+              tone: {
+                score: 82,
+                informality: 0.2,
+                liveliness: 0.6,
+                informality_alignment: 0.8,
+                liveliness_alignment: 0.7
+              }
             }
           }
         })

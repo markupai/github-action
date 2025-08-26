@@ -2,7 +2,6 @@
  * Unit tests for GitHub service
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest } from '@jest/globals'
 import * as core from '../__fixtures__/core.js'
 
@@ -37,36 +36,20 @@ beforeAll(async () => {
 const mockOctokit = {
   rest: {
     repos: {
-      getCommit: jest.fn() as jest.MockedFunction<
-        (...args: unknown[]) => Promise<unknown>
-      >,
-      get: jest.fn() as jest.MockedFunction<
-        (...args: unknown[]) => Promise<unknown>
-      >,
-      createCommitStatus: jest.fn() as jest.MockedFunction<
-        (...args: unknown[]) => Promise<unknown>
-      >,
-      getContent: jest.fn() as jest.MockedFunction<
-        (...args: unknown[]) => Promise<unknown>
-      >,
-      createOrUpdateFileContents: jest.fn() as jest.MockedFunction<
-        (...args: unknown[]) => Promise<unknown>
-      >
+      getCommit: jest.fn(),
+      get: jest.fn(),
+      createCommitStatus: jest.fn(),
+      getContent: jest.fn(),
+      createOrUpdateFileContents: jest.fn()
     },
     pulls: {
-      listFiles: jest.fn() as jest.MockedFunction<
-        (...args: unknown[]) => Promise<unknown>
-      >
+      listFiles: jest.fn()
     },
     git: {
-      getTree: jest.fn() as jest.MockedFunction<
-        (...args: unknown[]) => Promise<unknown>
-      >
+      getTree: jest.fn()
     }
   },
-  paginate: jest.fn() as jest.MockedFunction<
-    (...args: unknown[]) => Promise<unknown>
-  >
+  paginate: jest.fn()
 }
 
 describe('GitHub Service', () => {
@@ -115,7 +98,7 @@ describe('GitHub Service', () => {
       })
 
       const result = await githubService.getCommitChanges(
-        mockOctokit as any,
+        mockOctokit as ReturnType<typeof mockGetOctokit>,
         'test-owner',
         'test-repo',
         'abc123'
@@ -163,7 +146,7 @@ describe('GitHub Service', () => {
       })
 
       const result = await githubService.getCommitChanges(
-        mockOctokit as any,
+        mockOctokit as ReturnType<typeof mockGetOctokit>,
         'test-owner',
         'test-repo',
         'abc123'
@@ -185,7 +168,7 @@ describe('GitHub Service', () => {
       })
 
       const result = await githubService.getCommitChanges(
-        mockOctokit as any,
+        mockOctokit as ReturnType<typeof mockGetOctokit>,
         'test-owner',
         'test-repo',
         'abc123'
@@ -201,7 +184,7 @@ describe('GitHub Service', () => {
       mockOctokit.rest.repos.getCommit.mockRejectedValue(new Error('API Error'))
 
       const result = await githubService.getCommitChanges(
-        mockOctokit as any,
+        mockOctokit as ReturnType<typeof mockGetOctokit>,
         'test-owner',
         'test-repo',
         'abc123'
@@ -223,7 +206,7 @@ describe('GitHub Service', () => {
       mockOctokit.paginate.mockResolvedValue(mockFiles)
 
       const result = await githubService.getPullRequestFiles(
-        mockOctokit as any,
+        mockOctokit as ReturnType<typeof mockGetOctokit>,
         'test-owner',
         'test-repo',
         123
@@ -249,7 +232,7 @@ describe('GitHub Service', () => {
       mockOctokit.paginate.mockRejectedValue(new Error('API Error'))
 
       const result = await githubService.getPullRequestFiles(
-        mockOctokit as any,
+        mockOctokit as ReturnType<typeof mockGetOctokit>,
         'test-owner',
         'test-repo',
         123
@@ -276,7 +259,7 @@ describe('GitHub Service', () => {
       })
 
       const result = await githubService.getRepositoryFiles(
-        mockOctokit as any,
+        mockOctokit as ReturnType<typeof mockGetOctokit>,
         'test-owner',
         'test-repo',
         'main'
@@ -291,7 +274,7 @@ describe('GitHub Service', () => {
       })
 
       const result = await githubService.getRepositoryFiles(
-        mockOctokit as any,
+        mockOctokit as ReturnType<typeof mockGetOctokit>,
         'test-owner',
         'test-repo'
       )
@@ -303,7 +286,7 @@ describe('GitHub Service', () => {
       mockOctokit.rest.git.getTree.mockRejectedValue(new Error('API Error'))
 
       const result = await githubService.getRepositoryFiles(
-        mockOctokit as any,
+        mockOctokit as ReturnType<typeof mockGetOctokit>,
         'test-owner',
         'test-repo'
       )
@@ -327,7 +310,7 @@ describe('GitHub Service', () => {
       })
 
       const result = await githubService.getRepositoryInfo(
-        mockOctokit as any,
+        mockOctokit as ReturnType<typeof mockGetOctokit>,
         'test-owner',
         'test-repo'
       )
@@ -344,7 +327,7 @@ describe('GitHub Service', () => {
       mockOctokit.rest.repos.get.mockRejectedValue(new Error('API Error'))
 
       const result = await githubService.getRepositoryInfo(
-        mockOctokit as any,
+        mockOctokit as ReturnType<typeof mockGetOctokit>,
         'test-owner',
         'test-repo'
       )
@@ -359,7 +342,7 @@ describe('GitHub Service', () => {
       mockOctokit.rest.repos.createCommitStatus.mockResolvedValue({})
 
       await githubService.updateCommitStatus(
-        mockOctokit as any,
+        mockOctokit as ReturnType<typeof mockGetOctokit>,
         'test-owner',
         'test-repo',
         'abc123def456',
@@ -393,7 +376,7 @@ describe('GitHub Service', () => {
 
     it('should handle missing parameters', async () => {
       await githubService.updateCommitStatus(
-        mockOctokit as any,
+        mockOctokit as ReturnType<typeof mockGetOctokit>,
         '',
         'test-repo',
         'abc123',
@@ -409,7 +392,7 @@ describe('GitHub Service', () => {
 
     it('should handle invalid SHA format', async () => {
       await githubService.updateCommitStatus(
-        mockOctokit as any,
+        mockOctokit as ReturnType<typeof mockGetOctokit>,
         'test-owner',
         'test-repo',
         'invalid-sha',
@@ -423,7 +406,7 @@ describe('GitHub Service', () => {
 
     it('should handle invalid quality score', async () => {
       await githubService.updateCommitStatus(
-        mockOctokit as any,
+        mockOctokit as ReturnType<typeof mockGetOctokit>,
         'test-owner',
         'test-repo',
         'abc123def456',
@@ -442,7 +425,7 @@ describe('GitHub Service', () => {
       mockOctokit.rest.repos.createCommitStatus.mockRejectedValue(error)
 
       await githubService.updateCommitStatus(
-        mockOctokit as any,
+        mockOctokit as ReturnType<typeof mockGetOctokit>,
         'test-owner',
         'test-repo',
         'abc123def456',
@@ -461,7 +444,7 @@ describe('GitHub Service', () => {
 
       // Test different score ranges
       await githubService.updateCommitStatus(
-        mockOctokit as any,
+        mockOctokit as ReturnType<typeof mockGetOctokit>,
         'test-owner',
         'test-repo',
         'abc123def456',
