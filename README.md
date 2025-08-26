@@ -1,7 +1,7 @@
 # Markup AI GitHub Action
 
-[![Build and Test](https://github.com/markupai/markup-ai-github-action/actions/workflows/ci.yml/badge.svg)](https://github.com/markupai/markup-ai-github-action/actions/workflows/ci.yml)
-[![Coverage](https://github.com/markupai/markup-ai-github-action/blob/main/badges/coverage.svg)](https://github.com/markupai/markup-ai-github-action)
+[![Build and Test](https://github.com/markupai/markupai-github-action/actions/workflows/ci.yml/badge.svg)](https://github.com/markupai/markupai-github-action/actions/workflows/ci.yml)
+[![Coverage](https://github.com/markupai/markupai-github-action/blob/main/badges/coverage.svg)](https://github.com/markupai/markupai-github-action)
 
 A GitHub Action that analyzes commit changes and runs style checks on modified
 files. Automatically adapts to different GitHub events and provides detailed
@@ -36,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run Analysis
-        uses: markupai/markup-ai-github-action@v0.0.6
+        uses: markupai/markupai-github-action@v0.0.4
         with:
           markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -45,15 +45,15 @@ jobs:
 ### Advanced Configuration
 
 ```yaml
-name: Custom Analysis
+name: Analysis
 on: [push]
 jobs:
   analyze:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run Custom Analysis
-        uses: markupai/markup-ai-github-action@v0.0.6
+      - name: Run Analysis
+        uses: markupai/markupai-github-action@v0.0.4
         with:
           markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -88,7 +88,7 @@ as action inputs or environment variables:
 
 ```yaml
 - name: Run Analysis
-  uses: markupai/markup-ai-github-action@v0.0.6
+  uses: markupai/markupai-github-action@v0.0.4
   with:
     markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
     github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -98,7 +98,7 @@ as action inputs or environment variables:
 
 ```yaml
 - name: Run Analysis
-  uses: markupai/markup-ai-github-action@v0.0.6
+  uses: markupai/markupai-github-action@v0.0.4
   env:
     MARKUP_AI_TOKEN: ${{ secrets.MARKUP_AI_TOKEN }}
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -108,7 +108,7 @@ as action inputs or environment variables:
 
 ```yaml
 - name: Run Analysis
-  uses: markupai/markup-ai-github-action@v0.0.6
+  uses: markupai/markupai-github-action@v0.0.4
   with:
     markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
   env:
@@ -175,7 +175,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Analyze Changes
-        uses: markupai/markup-ai-github-action@v0.0.6
+        uses: markupai/markupai-github-action@v0.0.4
         with:
           markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -193,7 +193,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Quality Analysis
         id: analysis
-        uses: markupai/markup-ai-github-action@v0.0.6
+        uses: markupai/markupai-github-action@v0.0.4
         with:
           markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -222,7 +222,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Full Repository Analysis
-        uses: markupai/markup-ai-github-action@v0.0.6
+        uses: markupai/markupai-github-action@v0.0.4
         with:
           markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -240,7 +240,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run Analysis
         id: markup-ai-github-action
-        uses: markupai/markup-ai-github-action@v0.0.6
+        uses: markupai/markupai-github-action@v0.0.4
         with:
           markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -356,7 +356,7 @@ The action gracefully handles various scenarios:
 
 ```bash
 # Clone the repository
-git clone https://github.com/markupai/markup-ai-github-action.git
+git clone https://github.com/markupai/markupai-github-action.git
 cd `markup-ai-github-action`
 
 # Install dependencies
@@ -404,7 +404,7 @@ This project is licensed under the Apache-2.0 License - see the
 
 ## Support
 
-- 📖 [Documentation](https://github.com/markupai/markup-ai-github-action#readme)
-- 🐛 [Issues](https://github.com/markupai/markup-ai-github-action/issues)
+- 📖 [Documentation](https://github.com/markupai/markupai-github-action#readme)
+- 🐛 [Issues](https://github.com/markupai/markupai-github-action/issues)
 - 💬
-  [Discussions](https://github.com/markupai/markup-ai-github-action/discussions)
+  [Discussions](https://github.com/markupai/markupai-github-action/discussions)
