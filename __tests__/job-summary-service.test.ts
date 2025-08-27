@@ -3,6 +3,7 @@
  */
 
 import { jest } from '@jest/globals'
+import { buildQuality, buildClarity, buildTone } from './test-helpers/scores.js'
 import * as core from '../__fixtures__/core.js'
 
 // Spy on core methods
@@ -40,29 +41,17 @@ describe('Job Summary Service', () => {
     {
       filePath: 'test.md',
       result: {
-        quality: {
-          score: 85,
-          grammar: { score: 90, issues: 2 },
-          style_guide: { score: 88, issues: 1 },
-          terminology: { score: 95, issues: 0 }
-        },
+        quality: buildQuality(85, 1, {
+          grammarScore: 90,
+          grammarIssues: 2,
+          styleGuideScore: 88,
+          styleGuideIssues: 1,
+          terminologyScore: 95,
+          terminologyIssues: 0
+        }),
         analysis: {
-          clarity: {
-            score: 78,
-            word_count: 100,
-            sentence_count: 5,
-            average_sentence_length: 20,
-            flesch_reading_ease: 75,
-            vocabulary_complexity: 0.3,
-            sentence_complexity: 0.4
-          },
-          tone: {
-            score: 82,
-            informality: 0.2,
-            liveliness: 0.6,
-            informality_alignment: 0.8,
-            liveliness_alignment: 0.7
-          }
+          clarity: buildClarity(78),
+          tone: buildTone(82)
         }
       },
       timestamp: '2024-01-15T10:30:00Z'
@@ -70,29 +59,17 @@ describe('Job Summary Service', () => {
     {
       filePath: 'example.md',
       result: {
-        quality: {
-          score: 75,
-          grammar: { score: 85, issues: 1 },
-          style_guide: { score: 80, issues: 2 },
-          terminology: { score: 88, issues: 1 }
-        },
+        quality: buildQuality(75, 1, {
+          grammarScore: 85,
+          grammarIssues: 1,
+          styleGuideScore: 80,
+          styleGuideIssues: 2,
+          terminologyScore: 88,
+          terminologyIssues: 1
+        }),
         analysis: {
-          clarity: {
-            score: 72,
-            word_count: 80,
-            sentence_count: 4,
-            average_sentence_length: 18,
-            flesch_reading_ease: 70,
-            vocabulary_complexity: 0.4,
-            sentence_complexity: 0.5
-          },
-          tone: {
-            score: 78,
-            informality: 0.3,
-            liveliness: 0.5,
-            informality_alignment: 0.7,
-            liveliness_alignment: 0.6
-          }
+          clarity: buildClarity(72),
+          tone: buildTone(78)
         }
       },
       timestamp: '2024-01-15T10:35:00Z'

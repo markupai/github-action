@@ -16,6 +16,7 @@ const { analyzeFiles, analyzeFilesBatch } = await import(
 )
 import type { AnalysisOptions } from '../src/types/index.js'
 import { PlatformType, Config, Status } from '@markupai/toolkit'
+import { buildScores } from './test-helpers/scores.js'
 
 describe('Markup AI Service Batch Functionality', () => {
   let mockConfig: Config
@@ -94,32 +95,7 @@ describe('Markup AI Service Batch Functionality', () => {
                 workflow_id: 'test-workflow-1',
                 status: Status.Completed,
                 style_guide_id: 'test-style-guide-1',
-                scores: {
-                  quality: {
-                    score: 85,
-                    grammar: { score: 85, issues: 10 },
-                    style_guide: { score: 85, issues: 10 },
-                    terminology: { score: 85, issues: 10 }
-                  },
-                  analysis: {
-                    clarity: {
-                      score: 90,
-                      word_count: 100,
-                      sentence_count: 10,
-                      average_sentence_length: 10,
-                      flesch_reading_ease: 10,
-                      vocabulary_complexity: 10,
-                      sentence_complexity: 10
-                    },
-                    tone: {
-                      score: 88,
-                      informality: 10,
-                      liveliness: 10,
-                      informality_alignment: 10,
-                      liveliness_alignment: 10
-                    }
-                  }
-                },
+                scores: buildScores(85, 90, 88),
                 issues: [],
                 check_options: {
                   style_guide: {
@@ -145,32 +121,7 @@ describe('Markup AI Service Batch Functionality', () => {
                 workflow_id: 'test-workflow-2',
                 status: Status.Completed,
                 style_guide_id: 'test-style-guide-2',
-                scores: {
-                  quality: {
-                    score: 92,
-                    grammar: { score: 92, issues: 10 },
-                    style_guide: { score: 92, issues: 10 },
-                    terminology: { score: 92, issues: 10 }
-                  },
-                  analysis: {
-                    clarity: {
-                      score: 87,
-                      word_count: 100,
-                      sentence_count: 10,
-                      average_sentence_length: 10,
-                      flesch_reading_ease: 10,
-                      vocabulary_complexity: 10,
-                      sentence_complexity: 10
-                    },
-                    tone: {
-                      score: 91,
-                      informality: 10,
-                      liveliness: 10,
-                      informality_alignment: 10,
-                      liveliness_alignment: 10
-                    }
-                  }
-                },
+                scores: buildScores(92, 87, 91),
                 issues: [],
                 check_options: {
                   style_guide: {
@@ -206,32 +157,7 @@ describe('Markup AI Service Batch Functionality', () => {
                 workflow_id: 'test-workflow-1',
                 status: Status.Completed,
                 style_guide_id: 'test-style-guide-1',
-                scores: {
-                  quality: {
-                    score: 85,
-                    grammar: { score: 85, issues: 10 },
-                    style_guide: { score: 85, issues: 10 },
-                    terminology: { score: 85, issues: 10 }
-                  },
-                  analysis: {
-                    clarity: {
-                      score: 90,
-                      word_count: 100,
-                      sentence_count: 10,
-                      average_sentence_length: 10,
-                      flesch_reading_ease: 10,
-                      vocabulary_complexity: 10,
-                      sentence_complexity: 10
-                    },
-                    tone: {
-                      score: 88,
-                      informality: 10,
-                      liveliness: 10,
-                      informality_alignment: 10,
-                      liveliness_alignment: 10
-                    }
-                  }
-                },
+                scores: buildScores(85, 90, 88),
                 issues: [],
                 check_options: {
                   style_guide: {
@@ -257,32 +183,7 @@ describe('Markup AI Service Batch Functionality', () => {
                 workflow_id: 'test-workflow-2',
                 status: Status.Completed,
                 style_guide_id: 'test-style-guide-2',
-                scores: {
-                  quality: {
-                    score: 92,
-                    grammar: { score: 92, issues: 10 },
-                    style_guide: { score: 92, issues: 10 },
-                    terminology: { score: 92, issues: 10 }
-                  },
-                  analysis: {
-                    clarity: {
-                      score: 87,
-                      word_count: 100,
-                      sentence_count: 10,
-                      average_sentence_length: 10,
-                      flesch_reading_ease: 10,
-                      vocabulary_complexity: 10,
-                      sentence_complexity: 10
-                    },
-                    tone: {
-                      score: 91,
-                      informality: 10,
-                      liveliness: 10,
-                      informality_alignment: 10,
-                      liveliness_alignment: 10
-                    }
-                  }
-                },
+                scores: buildScores(92, 87, 91),
                 issues: [],
                 check_options: {
                   style_guide: {
