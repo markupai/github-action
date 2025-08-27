@@ -28,6 +28,11 @@ quality analysis with commit status updates and PR comments.
 ### Basic Usage
 
 ```yaml
+permissions:
+  contents: write
+  pull-requests: write
+  statuses: write
+
 name: Analyze with Markup AI
 on: [push, pull_request]
 jobs:
@@ -45,6 +50,11 @@ jobs:
 ### Advanced Configuration
 
 ```yaml
+permissions:
+  contents: write
+  pull-requests: write
+  statuses: write
+
 name: Analysis
 on: [push]
 jobs:
@@ -87,6 +97,11 @@ as action inputs or environment variables:
 **Option 1: As Action Inputs (Recommended)**
 
 ```yaml
+permissions:
+  contents: write
+  pull-requests: write
+  statuses: write
+
 - name: Run Analysis
   uses: markupai/github-action@v0.0.4
   with:
@@ -97,6 +112,11 @@ as action inputs or environment variables:
 **Option 2: As Environment Variables**
 
 ```yaml
+permissions:
+  contents: write
+  pull-requests: write
+  statuses: write
+
 - name: Run Analysis
   uses: markupai/github-action@v0.0.4
   env:
@@ -107,6 +127,11 @@ as action inputs or environment variables:
 **Option 3: Mixed (Input takes precedence)**
 
 ```yaml
+permissions:
+  contents: write
+  pull-requests: write
+  statuses: write
+
 - name: Run Analysis
   uses: markupai/github-action@v0.0.4
   with:
@@ -121,9 +146,9 @@ as action inputs or environment variables:
 | ------------------- | --------------------------------------------------------------------------------------------- | -------- | ------------------ |
 | `markup_ai_token`   | API token for style checking. Can also be provided via `MARKUP_AI_TOKEN` environment variable | Yes      | -                  |
 | `github_token`      | GitHub token for API access. Can also be provided via `GITHUB_TOKEN` environment variable     | Yes      | -                  |
-| `dialect`           | Language dialect for analysis (e.g., `american_english`, `british_english`)                   | No       | `american_english` |
-| `tone`              | Tone for analysis (e.g., `formal`, `informal`, `academic`)                                    | No       | `formal`           |
-| `style-guide`       | Style guide for analysis (e.g., `ap`, `chicago`, `apa`)                                       | No       | `ap`               |
+| `dialect`           | Language dialect for analysis (for example, `american_english`, `british_english`)                   | No       | `american_english` |
+| `tone`              | Tone for analysis (for example, `formal`, `informal`, `academic`)                                    | No       | `formal`           |
+| `style-guide`       | Style guide for analysis (for example, `ap`, `chicago`, `apa`)                                       | No       | `ap`               |
 | `add_commit_status` | Whether to add commit status updates                                                          | No       | `true`             |
 
 ## Outputs
@@ -152,13 +177,13 @@ The action automatically adapts its behavior based on the GitHub event type:
 
 ### Manual Workflows (`on: [workflow_dispatch]`)
 
-- **Scope**: Analyzes all supported files in repository
+- **Scope**: Analyzes all supported files in the repository
 - **Features**: Comprehensive repository-wide analysis
 - **Use Case**: Manual quality checks and monitoring
 
 ### Scheduled Workflows (`on: [schedule]`)
 
-- **Scope**: Analyzes all supported files in repository
+- **Scope**: Analyzes all supported files in the repository
 - **Features**: Periodic quality monitoring
 - **Use Case**: Automated quality checks
 
@@ -167,6 +192,11 @@ The action automatically adapts its behavior based on the GitHub event type:
 ### Basic Push Analysis
 
 ```yaml
+permissions:
+  contents: write
+  pull-requests: write
+  statuses: write
+
 name: Push Analysis
 on: [push]
 jobs:
@@ -184,6 +214,11 @@ jobs:
 ### Pull Request Quality Gate
 
 ```yaml
+permissions:
+  contents: write
+  pull-requests: write
+  statuses: write
+
 name: PR Quality Check
 on: [pull_request]
 jobs:
@@ -256,22 +291,23 @@ jobs:
 
 ## Analysis Configuration
 
-### Available Dialects
+### Available Default Dialects
 
 - `american_english` - American English
-- `british_english` - British English
+- `british_oxford` - British English
+- `canadian_english` - Canadian English
 
-### Available Tones
+### Available Default Tones
 
 - `formal` - Formal writing style
 - `informal` - Informal writing style
 - `academic` - Academic writing style
 
-### Available Style Guides
+### Available Default Style Guides
 
 - `ap` - Associated Press Style Guide
 - `chicago` - Chicago Manual of Style
-- `apa` - American Psychological Association
+- `microsoft` - Microsoft Writing Style Guide
 
 ## Quality Scoring
 
