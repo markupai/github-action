@@ -28472,13 +28472,28 @@ const createTokenAuth = function createTokenAuth2(token) {
 // pkg/dist-src/index.js
 
 // pkg/dist-src/version.js
-var VERSION$2 = "5.2.0";
+var VERSION$2 = "5.2.2";
 
 // pkg/dist-src/index.js
 var noop = () => {
 };
 var consoleWarn = console.warn.bind(console);
 var consoleError = console.error.bind(console);
+function createLogger(logger = {}) {
+  if (typeof logger.debug !== "function") {
+    logger.debug = noop;
+  }
+  if (typeof logger.info !== "function") {
+    logger.info = noop;
+  }
+  if (typeof logger.warn !== "function") {
+    logger.warn = consoleWarn;
+  }
+  if (typeof logger.error !== "function") {
+    logger.error = consoleError;
+  }
+  return logger;
+}
 var userAgentTrail = `octokit-core.js/${VERSION$2} ${getUserAgent()}`;
 var Octokit = class {
   static {
@@ -28552,15 +28567,7 @@ var Octokit = class {
     }
     this.request = request.defaults(requestDefaults);
     this.graphql = withCustomRequest(this.request).defaults(requestDefaults);
-    this.log = Object.assign(
-      {
-        debug: noop,
-        info: noop,
-        warn: consoleWarn,
-        error: consoleError
-      },
-      options.log
-    );
+    this.log = createLogger(options.log);
     this.hook = hook;
     if (!options.authStrategy) {
       if (!options.auth) {
@@ -40720,7 +40727,7 @@ function dc() {
   }(et)), et;
 }
 var Je = dc(), st = /* @__PURE__ */ ((e) => (e.Queued = "queued", e.Running = "running", e.Completed = "completed", e.Failed = "failed", e))(st || {}), Lr = /* @__PURE__ */ ((e) => (e.Stage = "stage", e.Dev = "dev", e.Prod = "prod", e))(Lr || {}), Gs = /* @__PURE__ */ ((e) => (e.Environment = "environment", e.Url = "url", e))(Gs || {});
-const Gi = "https://app.acrolinx.cloud", pc = "https://app.stg.acrolinx-cloud.net", hc = "https://app.dev.acrolinx-cloud.net";
+const Gi = "https://app.acrolinx.cloud", pc = "https://api.stg.markup.ai", hc = "https://api.dev.markup.ai";
 function Qi(e) {
   if (e.platform)
     if (e.platform.type === Gs.Environment)
