@@ -146,9 +146,9 @@ permissions:
 | ------------------- | --------------------------------------------------------------------------------------------- | -------- | ------------------ |
 | `markup_ai_token`   | API token for style checking. Can also be provided via `MARKUP_AI_TOKEN` environment variable | Yes      | -                  |
 | `github_token`      | GitHub token for API access. Can also be provided via `GITHUB_TOKEN` environment variable     | Yes      | -                  |
-| `dialect`           | Language dialect for analysis (for example, `american_english`, `british_english`)                   | No       | `american_english` |
-| `tone`              | Tone for analysis (for example, `formal`, `informal`, `academic`)                                    | No       | `formal`           |
-| `style-guide`       | Style guide for analysis (for example, `ap`, `chicago`, `apa`)                                       | No       | `ap`               |
+| `dialect`           | Language dialect for analysis (for example, `american_english`, `british_english`)            | No       | `american_english` |
+| `tone`              | Tone for analysis (for example, `formal`, `informal`, `academic`)                             | No       | `formal`           |
+| `style-guide`       | Style guide for analysis (for example, `ap`, `chicago`, `apa`)                                | No       | `ap`               |
 | `add_commit_status` | Whether to add commit status updates                                                          | No       | `true`             |
 
 ## Outputs
