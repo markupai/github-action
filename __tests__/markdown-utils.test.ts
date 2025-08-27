@@ -155,10 +155,10 @@ describe('Markdown Utils', () => {
 
       // Check table structure
       expect(result).toContain(
-        '| File | Quality | Clarity | Grammar | Style Guide | Tone | Terminology |'
+        '| File | Quality | Grammar | Style Guide | Terminology | Clarity | Tone |'
       )
       expect(result).toContain(
-        '|------|---------|---------|---------|-------------|------|-------------|'
+        '|------|---------|---------|---------|---------|---------|------|'
       )
       expect(result).toContain('| test1.md |')
       expect(result).toContain('| test2.md |')
@@ -420,7 +420,7 @@ describe('Markdown Utils', () => {
       // Should contain all sections
       expect(result).toContain(header)
       expect(result).toContain(
-        '| File | Quality | Clarity | Grammar | Style Guide | Tone | Terminology |'
+        '| File | Quality | Grammar | Style Guide | Terminology | Clarity | Tone |'
       )
       expect(result).toContain('## 📊 Summary')
       expect(result).toContain('*Analysis performed on')

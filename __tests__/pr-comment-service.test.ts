@@ -365,7 +365,7 @@ describe('PR Comment Service', () => {
 
       // Test table structure
       expect(commentBody).toContain(
-        '| File | Quality | Clarity | Grammar | Style Guide | Tone | Terminology |'
+        '| File | Quality | Grammar | Style Guide | Terminology | Clarity | Tone |'
       )
 
       // Test emoji display

@@ -42117,13 +42117,13 @@ function generateResultsTable(results) {
     if (results.length === 0) {
         return 'No files were analyzed.';
     }
-    const tableHeader = `| File | Quality | Clarity | Grammar | Style Guide | Tone | Terminology |
-|------|---------|---------|---------|-------------|------|-------------|`;
+    const tableHeader = `| File | Quality | Grammar | Style Guide | Terminology | Clarity | Tone |
+|------|---------|---------|---------|---------|---------|------|`;
     const tableRows = results
         .map((result) => {
         const { filePath, result: scores } = result;
         const qualityEmoji = getQualityEmoji(scores.quality.score);
-        return `| ${filePath} | ${qualityEmoji} ${Math.round(scores.quality.score)} | ${Math.round(scores.analysis.clarity.score)} | ${Math.round(scores.quality.grammar.score)} | ${Math.round(scores.quality.style_guide.score)} | ${Math.round(scores.analysis.tone.score)} | ${Math.round(scores.quality.terminology.score)} |`;
+        return `| ${filePath} | ${qualityEmoji} ${Math.round(scores.quality.score)} | ${Math.round(scores.quality.grammar.score)} | ${Math.round(scores.quality.style_guide.score)} | ${Math.round(scores.quality.terminology.score)} | ${Math.round(scores.analysis.clarity.score)} | ${Math.round(scores.analysis.tone.score)} |`;
     })
         .join('\n');
     return `${tableHeader}\n${tableRows}`;
@@ -42147,12 +42147,11 @@ function generateSummary(results) {
 | Metric | Average Score |
 |--------|---------------|
 | Quality | ${Math.round(summary.averageQualityScore)} |
-| Clarity | ${Math.round(summary.averageClarityScore)} |
 | Grammar | ${Math.round(summary.averageGrammarScore)} |
 | Style Guide | ${Math.round(summary.averageStyleGuideScore)} |
-| Tone | ${Math.round(summary.averageToneScore)} |
 | Terminology | ${Math.round(summary.averageTerminologyScore)} |
-
+| Clarity | ${Math.round(summary.averageClarityScore)} |
+| Tone | ${Math.round(summary.averageToneScore)} |
 `;
 }
 /**
