@@ -118,7 +118,11 @@ describe('Error Utils', () => {
 
   describe('withRetry', () => {
     it('should return result on successful operation', async () => {
-      const operation = jest.fn().mockResolvedValue('success')
+      const operation = jest
+        .fn()
+        .mockImplementation(() =>
+          Promise.resolve('success')
+        ) as jest.MockedFunction<() => Promise<string>>
 
       const result = await withRetry(
         operation,
@@ -133,9 +137,15 @@ describe('Error Utils', () => {
     it('should retry on failure and eventually succeed', async () => {
       const operation = jest
         .fn()
-        .mockRejectedValueOnce(new Error('First failure'))
-        .mockRejectedValueOnce(new Error('Second failure'))
-        .mockResolvedValueOnce('success')
+        .mockImplementationOnce(() =>
+          Promise.reject(new Error('First failure'))
+        )
+        .mockImplementationOnce(() =>
+          Promise.reject(new Error('Second failure'))
+        )
+        .mockImplementationOnce(() =>
+          Promise.resolve('success')
+        ) as jest.MockedFunction<() => Promise<string>>
 
       const result = await withRetry(
         operation,
@@ -150,7 +160,9 @@ describe('Error Utils', () => {
     it('should throw error after max retries', async () => {
       const operation = jest
         .fn()
-        .mockRejectedValue(new Error('Persistent failure'))
+        .mockImplementation(() =>
+          Promise.reject(new Error('Persistent failure'))
+        ) as jest.MockedFunction<() => Promise<string>>
 
       await expect(
         withRetry(operation, DEFAULT_RETRY_CONFIG, 'Test Operation')
@@ -169,8 +181,12 @@ describe('Error Utils', () => {
 
       const operation = jest
         .fn()
-        .mockRejectedValueOnce(new Error('First failure'))
-        .mockResolvedValueOnce('success')
+        .mockImplementationOnce(() =>
+          Promise.reject(new Error('First failure'))
+        )
+        .mockImplementationOnce(() =>
+          Promise.resolve('success')
+        ) as jest.MockedFunction<() => Promise<string>>
 
       const result = await withRetry(operation, customConfig, 'Test Operation')
 
@@ -179,7 +195,11 @@ describe('Error Utils', () => {
     }, 10000)
 
     it('should handle non-Error exceptions', async () => {
-      const operation = jest.fn().mockRejectedValue('String error')
+      const operation = jest
+        .fn()
+        .mockImplementation(() =>
+          Promise.reject('String error')
+        ) as jest.MockedFunction<() => Promise<string>>
 
       await expect(
         withRetry(operation, DEFAULT_RETRY_CONFIG, 'Test Operation')
@@ -189,8 +209,12 @@ describe('Error Utils', () => {
     it('should log warnings during retries', async () => {
       const operation = jest
         .fn()
-        .mockRejectedValueOnce(new Error('First failure'))
-        .mockResolvedValueOnce('success')
+        .mockImplementationOnce(() =>
+          Promise.reject(new Error('First failure'))
+        )
+        .mockImplementationOnce(() =>
+          Promise.resolve('success')
+        ) as jest.MockedFunction<() => Promise<string>>
 
       await withRetry(operation, DEFAULT_RETRY_CONFIG, 'Test Operation')
 
@@ -202,7 +226,9 @@ describe('Error Utils', () => {
     it('should log error on final failure', async () => {
       const operation = jest
         .fn()
-        .mockRejectedValue(new Error('Persistent failure'))
+        .mockImplementation(() =>
+          Promise.reject(new Error('Persistent failure'))
+        ) as jest.MockedFunction<() => Promise<string>>
 
       await expect(
         withRetry(operation, DEFAULT_RETRY_CONFIG, 'Test Operation')

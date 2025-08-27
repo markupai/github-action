@@ -15,13 +15,10 @@ const { analyzeFiles, analyzeFilesBatch } = await import(
   '../src/services/api-service.js'
 )
 import type { AnalysisOptions } from '../src/types/index.js'
-import { PlatformType } from '@markupai/toolkit'
+import { PlatformType, Config, Status } from '@markupai/toolkit'
 
 describe('Markup AI Service Batch Functionality', () => {
-  let mockConfig: {
-    apiKey: string
-    platform: { type: PlatformType.Url; value: string }
-  }
+  let mockConfig: Config
   let mockOptions: AnalysisOptions
   let mockReadFileContent: (filePath: string) => Promise<string | null>
 
@@ -30,7 +27,7 @@ describe('Markup AI Service Batch Functionality', () => {
 
     mockConfig = {
       apiKey: 'test-api-key',
-      platform: { type: 'url', value: 'https://test.markup.ai' }
+      platform: { type: PlatformType.Url, value: 'https://test.markup.ai' }
     }
 
     mockOptions = {
@@ -39,9 +36,9 @@ describe('Markup AI Service Batch Functionality', () => {
       styleGuide: 'microsoft'
     }
 
-    mockReadFileContent = jest.fn().mockImplementation((filePath: string) => {
-      return Promise.resolve(`Test content for ${filePath}`)
-    })
+    mockReadFileContent = jest.fn().mockImplementation((filePath: unknown) => {
+      return Promise.resolve(`Test content for ${filePath as string}`)
+    }) as jest.MockedFunction<(filePath: string) => Promise<string | null>>
   })
 
   describe('analyzeFilesBatch', () => {
@@ -57,7 +54,11 @@ describe('Markup AI Service Batch Functionality', () => {
     })
 
     it('should handle files with no valid content', async () => {
-      const mockReadFileContentEmpty = jest.fn().mockResolvedValue(null)
+      const mockReadFileContentEmpty = jest
+        .fn()
+        .mockImplementation(() => Promise.resolve(null)) as jest.MockedFunction<
+        (filePath: string) => Promise<string | null>
+      >
 
       const result = await analyzeFilesBatch(
         ['file1.txt', 'file2.txt'],
@@ -81,23 +82,103 @@ describe('Markup AI Service Batch Functionality', () => {
           results: [
             {
               index: 0,
-              status: 'completed',
+              status: 'completed' as const,
+              request: {
+                content: 'Test content for file1.txt',
+                dialect: 'en-US',
+                tone: 'formal',
+                style_guide: 'microsoft',
+                documentName: 'file1.txt'
+              },
               result: {
+                workflow_id: 'test-workflow-1',
+                status: Status.Completed,
+                style_guide_id: 'test-style-guide-1',
                 scores: {
-                  quality: { score: 85 },
-                  clarity: { score: 90 },
-                  tone: { score: 88 }
+                  quality: {
+                    score: 85,
+                    grammar: { score: 85, issues: 10 },
+                    style_guide: { score: 85, issues: 10 },
+                    terminology: { score: 85, issues: 10 }
+                  },
+                  analysis: {
+                    clarity: {
+                      score: 90,
+                      word_count: 100,
+                      sentence_count: 10,
+                      average_sentence_length: 10,
+                      flesch_reading_ease: 10,
+                      vocabulary_complexity: 10,
+                      sentence_complexity: 10
+                    },
+                    tone: {
+                      score: 88,
+                      informality: 10,
+                      liveliness: 10,
+                      informality_alignment: 10,
+                      liveliness_alignment: 10
+                    }
+                  }
+                },
+                issues: [],
+                check_options: {
+                  style_guide: {
+                    style_guide_type: 'microsoft',
+                    style_guide_id: 'test-style-guide-1'
+                  },
+                  dialect: 'en-US',
+                  tone: 'formal'
                 }
               }
             },
             {
               index: 1,
-              status: 'completed',
+              status: 'completed' as const,
+              request: {
+                content: 'Test content for file2.txt',
+                dialect: 'en-US',
+                tone: 'formal',
+                style_guide: 'microsoft',
+                documentName: 'file2.txt'
+              },
               result: {
+                workflow_id: 'test-workflow-2',
+                status: Status.Completed,
+                style_guide_id: 'test-style-guide-2',
                 scores: {
-                  quality: { score: 92 },
-                  clarity: { score: 87 },
-                  tone: { score: 91 }
+                  quality: {
+                    score: 92,
+                    grammar: { score: 92, issues: 10 },
+                    style_guide: { score: 92, issues: 10 },
+                    terminology: { score: 92, issues: 10 }
+                  },
+                  analysis: {
+                    clarity: {
+                      score: 87,
+                      word_count: 100,
+                      sentence_count: 10,
+                      average_sentence_length: 10,
+                      flesch_reading_ease: 10,
+                      vocabulary_complexity: 10,
+                      sentence_complexity: 10
+                    },
+                    tone: {
+                      score: 91,
+                      informality: 10,
+                      liveliness: 10,
+                      informality_alignment: 10,
+                      liveliness_alignment: 10
+                    }
+                  }
+                },
+                issues: [],
+                check_options: {
+                  style_guide: {
+                    style_guide_type: 'microsoft',
+                    style_guide_id: 'test-style-guide-2'
+                  },
+                  dialect: 'en-US',
+                  tone: 'formal'
                 }
               }
             }
@@ -113,23 +194,103 @@ describe('Markup AI Service Batch Functionality', () => {
           results: [
             {
               index: 0,
-              status: 'completed',
+              status: 'completed' as const,
+              request: {
+                content: 'Test content for file1.txt',
+                dialect: 'en-US',
+                tone: 'formal',
+                style_guide: 'microsoft',
+                documentName: 'file1.txt'
+              },
               result: {
+                workflow_id: 'test-workflow-1',
+                status: Status.Completed,
+                style_guide_id: 'test-style-guide-1',
                 scores: {
-                  quality: { score: 85 },
-                  clarity: { score: 90 },
-                  tone: { score: 88 }
+                  quality: {
+                    score: 85,
+                    grammar: { score: 85, issues: 10 },
+                    style_guide: { score: 85, issues: 10 },
+                    terminology: { score: 85, issues: 10 }
+                  },
+                  analysis: {
+                    clarity: {
+                      score: 90,
+                      word_count: 100,
+                      sentence_count: 10,
+                      average_sentence_length: 10,
+                      flesch_reading_ease: 10,
+                      vocabulary_complexity: 10,
+                      sentence_complexity: 10
+                    },
+                    tone: {
+                      score: 88,
+                      informality: 10,
+                      liveliness: 10,
+                      informality_alignment: 10,
+                      liveliness_alignment: 10
+                    }
+                  }
+                },
+                issues: [],
+                check_options: {
+                  style_guide: {
+                    style_guide_type: 'microsoft',
+                    style_guide_id: 'test-style-guide-1'
+                  },
+                  dialect: 'en-US',
+                  tone: 'formal'
                 }
               }
             },
             {
               index: 1,
-              status: 'completed',
+              status: 'completed' as const,
+              request: {
+                content: 'Test content for file2.txt',
+                dialect: 'en-US',
+                tone: 'formal',
+                style_guide: 'microsoft',
+                documentName: 'file2.txt'
+              },
               result: {
+                workflow_id: 'test-workflow-2',
+                status: Status.Completed,
+                style_guide_id: 'test-style-guide-2',
                 scores: {
-                  quality: { score: 92 },
-                  clarity: { score: 87 },
-                  tone: { score: 91 }
+                  quality: {
+                    score: 92,
+                    grammar: { score: 92, issues: 10 },
+                    style_guide: { score: 92, issues: 10 },
+                    terminology: { score: 92, issues: 10 }
+                  },
+                  analysis: {
+                    clarity: {
+                      score: 87,
+                      word_count: 100,
+                      sentence_count: 10,
+                      average_sentence_length: 10,
+                      flesch_reading_ease: 10,
+                      vocabulary_complexity: 10,
+                      sentence_complexity: 10
+                    },
+                    tone: {
+                      score: 91,
+                      informality: 10,
+                      liveliness: 10,
+                      informality_alignment: 10,
+                      liveliness_alignment: 10
+                    }
+                  }
+                },
+                issues: [],
+                check_options: {
+                  style_guide: {
+                    style_guide_type: 'microsoft',
+                    style_guide_id: 'test-style-guide-2'
+                  },
+                  dialect: 'en-US',
+                  tone: 'formal'
                 }
               }
             }
@@ -175,24 +336,32 @@ describe('Markup AI Service Batch Functionality', () => {
       )
 
       expect(result).toHaveLength(2)
-      expect(result[0]).toEqual({
-        filePath: 'file1.txt',
-        result: {
-          quality: { score: 85 },
-          clarity: { score: 90 },
-          tone: { score: 88 }
-        },
-        timestamp: expect.any(String)
-      })
-      expect(result[1]).toEqual({
-        filePath: 'file2.txt',
-        result: {
-          quality: { score: 92 },
-          clarity: { score: 87 },
-          tone: { score: 91 }
-        },
-        timestamp: expect.any(String)
-      })
+      expect(result[0]).toEqual(
+        expect.objectContaining({
+          filePath: 'file1.txt',
+          result: expect.objectContaining({
+            quality: expect.objectContaining({ score: 85 }),
+            analysis: expect.objectContaining({
+              clarity: expect.objectContaining({ score: 90 }),
+              tone: expect.objectContaining({ score: 88 })
+            })
+          }),
+          timestamp: expect.any(String)
+        })
+      )
+      expect(result[1]).toEqual(
+        expect.objectContaining({
+          filePath: 'file2.txt',
+          result: expect.objectContaining({
+            quality: expect.objectContaining({ score: 92 }),
+            analysis: expect.objectContaining({
+              clarity: expect.objectContaining({ score: 87 }),
+              tone: expect.objectContaining({ score: 91 })
+            })
+          }),
+          timestamp: expect.any(String)
+        })
+      )
     })
 
     it('should handle failed batch requests', async () => {
@@ -207,18 +376,65 @@ describe('Markup AI Service Batch Functionality', () => {
           results: [
             {
               index: 0,
-              status: 'completed',
+              status: 'completed' as const,
+              request: {
+                content: 'Test content for file1.txt',
+                dialect: 'en-US',
+                tone: 'formal',
+                style_guide: 'microsoft',
+                documentName: 'file1.txt'
+              },
               result: {
+                workflow_id: 'test-workflow-1',
+                status: Status.Completed,
+                style_guide_id: 'test-style-guide-1',
                 scores: {
-                  quality: { score: 85 },
-                  clarity: { score: 90 },
-                  tone: { score: 88 }
+                  quality: {
+                    score: 85,
+                    grammar: { score: 85, issues: 10 },
+                    style_guide: { score: 85, issues: 10 },
+                    terminology: { score: 85, issues: 10 }
+                  },
+                  analysis: {
+                    clarity: {
+                      score: 90,
+                      word_count: 100,
+                      sentence_count: 10,
+                      average_sentence_length: 10,
+                      flesch_reading_ease: 10,
+                      vocabulary_complexity: 10,
+                      sentence_complexity: 10
+                    },
+                    tone: {
+                      score: 88,
+                      informality: 10,
+                      liveliness: 10,
+                      informality_alignment: 10,
+                      liveliness_alignment: 10
+                    }
+                  }
+                },
+                issues: [],
+                check_options: {
+                  style_guide: {
+                    style_guide_type: 'microsoft',
+                    style_guide_id: 'test-style-guide-1'
+                  },
+                  dialect: 'en-US',
+                  tone: 'formal'
                 }
               }
             },
             {
               index: 1,
-              status: 'failed',
+              status: 'failed' as const,
+              request: {
+                content: 'Test content for file2.txt',
+                dialect: 'en-US',
+                tone: 'formal',
+                style_guide: 'microsoft',
+                documentName: 'file2.txt'
+              },
               error: new Error('API Error')
             }
           ],
@@ -233,18 +449,65 @@ describe('Markup AI Service Batch Functionality', () => {
           results: [
             {
               index: 0,
-              status: 'completed',
+              status: 'completed' as const,
+              request: {
+                content: 'Test content for file1.txt',
+                dialect: 'en-US',
+                tone: 'formal',
+                style_guide: 'microsoft',
+                documentName: 'file1.txt'
+              },
               result: {
+                workflow_id: 'test-workflow-1',
+                status: Status.Completed,
+                style_guide_id: 'test-style-guide-1',
                 scores: {
-                  quality: { score: 85 },
-                  clarity: { score: 90 },
-                  tone: { score: 88 }
+                  quality: {
+                    score: 85,
+                    grammar: { score: 85, issues: 10 },
+                    style_guide: { score: 85, issues: 10 },
+                    terminology: { score: 85, issues: 10 }
+                  },
+                  analysis: {
+                    clarity: {
+                      score: 90,
+                      word_count: 100,
+                      sentence_count: 10,
+                      average_sentence_length: 10,
+                      flesch_reading_ease: 10,
+                      vocabulary_complexity: 10,
+                      sentence_complexity: 10
+                    },
+                    tone: {
+                      score: 88,
+                      informality: 10,
+                      liveliness: 10,
+                      informality_alignment: 10,
+                      liveliness_alignment: 10
+                    }
+                  }
+                },
+                issues: [],
+                check_options: {
+                  style_guide: {
+                    style_guide_type: 'microsoft',
+                    style_guide_id: 'test-style-guide-1'
+                  },
+                  dialect: 'en-US',
+                  tone: 'formal'
                 }
               }
             },
             {
               index: 1,
-              status: 'failed',
+              status: 'failed' as const,
+              request: {
+                content: 'Test content for file2.txt',
+                dialect: 'en-US',
+                tone: 'formal',
+                style_guide: 'microsoft',
+                documentName: 'file2.txt'
+              },
               error: new Error('API Error')
             }
           ],
@@ -287,10 +550,43 @@ describe('Markup AI Service Batch Functionality', () => {
     it('should use sequential processing for small batches (≤3 files)', async () => {
       const { styleCheck } = await import('@markupai/toolkit')
       jest.mocked(styleCheck).mockResolvedValue({
+        workflow_id: 'test-workflow-1',
+        status: Status.Completed,
+        style_guide_id: 'test-style-guide-1',
         scores: {
-          quality: { score: 85 },
-          clarity: { score: 90 },
-          tone: { score: 88 }
+          quality: {
+            score: 85,
+            grammar: { score: 85, issues: 10 },
+            style_guide: { score: 85, issues: 10 },
+            terminology: { score: 85, issues: 10 }
+          },
+          analysis: {
+            clarity: {
+              score: 90,
+              word_count: 100,
+              sentence_count: 10,
+              average_sentence_length: 10,
+              flesch_reading_ease: 10,
+              vocabulary_complexity: 10,
+              sentence_complexity: 10
+            },
+            tone: {
+              score: 88,
+              informality: 10,
+              liveliness: 10,
+              informality_alignment: 10,
+              liveliness_alignment: 10
+            }
+          }
+        },
+        issues: [],
+        check_options: {
+          style_guide: {
+            style_guide_type: 'microsoft',
+            style_guide_id: 'test-style-guide-1'
+          },
+          dialect: 'en-US',
+          tone: 'formal'
         }
       })
 
@@ -317,45 +613,205 @@ describe('Markup AI Service Batch Functionality', () => {
           results: [
             {
               index: 0,
-              status: 'completed',
+              status: 'completed' as const,
+              request: {
+                content: 'Test content for file1.txt',
+                dialect: 'en-US',
+                tone: 'formal',
+                style_guide: 'microsoft',
+                documentName: 'file1.txt'
+              },
               result: {
+                workflow_id: 'test-workflow-1',
+                status: Status.Completed,
+                style_guide_id: 'test-style-guide-1',
                 scores: {
-                  quality: { score: 85 },
-                  clarity: { score: 90 },
-                  tone: { score: 88 }
+                  quality: {
+                    score: 85,
+                    grammar: { score: 85, issues: 10 },
+                    style_guide: { score: 85, issues: 10 },
+                    terminology: { score: 85, issues: 10 }
+                  },
+                  analysis: {
+                    clarity: {
+                      score: 90,
+                      word_count: 100,
+                      sentence_count: 10,
+                      average_sentence_length: 10,
+                      flesch_reading_ease: 10,
+                      vocabulary_complexity: 10,
+                      sentence_complexity: 10
+                    },
+                    tone: {
+                      score: 88,
+                      informality: 10,
+                      liveliness: 10,
+                      informality_alignment: 10,
+                      liveliness_alignment: 10
+                    }
+                  }
+                },
+                issues: [],
+                check_options: {
+                  style_guide: {
+                    style_guide_type: 'microsoft',
+                    style_guide_id: 'test-style-guide-1'
+                  },
+                  dialect: 'en-US',
+                  tone: 'formal'
                 }
               }
             },
             {
               index: 1,
-              status: 'completed',
+              status: 'completed' as const,
+              request: {
+                content: 'Test content for file2.txt',
+                dialect: 'en-US',
+                tone: 'formal',
+                style_guide: 'microsoft',
+                documentName: 'file2.txt'
+              },
               result: {
+                workflow_id: 'test-workflow-2',
+                status: Status.Completed,
+                style_guide_id: 'test-style-guide-2',
                 scores: {
-                  quality: { score: 92 },
-                  clarity: { score: 87 },
-                  tone: { score: 91 }
+                  quality: {
+                    score: 92,
+                    grammar: { score: 92, issues: 10 },
+                    style_guide: { score: 92, issues: 10 },
+                    terminology: { score: 92, issues: 10 }
+                  },
+                  analysis: {
+                    clarity: {
+                      score: 87,
+                      word_count: 100,
+                      sentence_count: 10,
+                      average_sentence_length: 10,
+                      flesch_reading_ease: 10,
+                      vocabulary_complexity: 10,
+                      sentence_complexity: 10
+                    },
+                    tone: {
+                      score: 91,
+                      informality: 10,
+                      liveliness: 10,
+                      informality_alignment: 10,
+                      liveliness_alignment: 10
+                    }
+                  }
+                },
+                issues: [],
+                check_options: {
+                  style_guide: {
+                    style_guide_type: 'microsoft',
+                    style_guide_id: 'test-style-guide-2'
+                  },
+                  dialect: 'en-US',
+                  tone: 'formal'
                 }
               }
             },
             {
               index: 2,
-              status: 'completed',
+              status: 'completed' as const,
+              request: {
+                content: 'Test content for file3.txt',
+                dialect: 'en-US',
+                tone: 'formal',
+                style_guide: 'microsoft',
+                documentName: 'file3.txt'
+              },
               result: {
+                workflow_id: 'test-workflow-3',
+                status: Status.Completed,
+                style_guide_id: 'test-style-guide-3',
                 scores: {
-                  quality: { score: 89 },
-                  clarity: { score: 93 },
-                  tone: { score: 86 }
+                  quality: {
+                    score: 89,
+                    grammar: { score: 89, issues: 10 },
+                    style_guide: { score: 89, issues: 10 },
+                    terminology: { score: 89, issues: 10 }
+                  },
+                  analysis: {
+                    clarity: {
+                      score: 93,
+                      word_count: 100,
+                      sentence_count: 10,
+                      average_sentence_length: 10,
+                      flesch_reading_ease: 10,
+                      vocabulary_complexity: 10,
+                      sentence_complexity: 10
+                    },
+                    tone: {
+                      score: 86,
+                      informality: 10,
+                      liveliness: 10,
+                      informality_alignment: 10,
+                      liveliness_alignment: 10
+                    }
+                  }
+                },
+                issues: [],
+                check_options: {
+                  style_guide: {
+                    style_guide_type: 'microsoft',
+                    style_guide_id: 'test-style-guide-3'
+                  },
+                  dialect: 'en-US',
+                  tone: 'formal'
                 }
               }
             },
             {
               index: 3,
-              status: 'completed',
+              status: 'completed' as const,
+              request: {
+                content: 'Test content for file4.txt',
+                dialect: 'en-US',
+                tone: 'formal',
+                style_guide: 'microsoft',
+                documentName: 'file4.txt'
+              },
               result: {
+                workflow_id: 'test-workflow-4',
+                status: Status.Completed,
+                style_guide_id: 'test-style-guide-4',
                 scores: {
-                  quality: { score: 94 },
-                  clarity: { score: 88 },
-                  tone: { score: 92 }
+                  quality: {
+                    score: 94,
+                    grammar: { score: 94, issues: 10 },
+                    style_guide: { score: 94, issues: 10 },
+                    terminology: { score: 94, issues: 10 }
+                  },
+                  analysis: {
+                    clarity: {
+                      score: 88,
+                      word_count: 100,
+                      sentence_count: 10,
+                      average_sentence_length: 10,
+                      flesch_reading_ease: 10,
+                      vocabulary_complexity: 10,
+                      sentence_complexity: 10
+                    },
+                    tone: {
+                      score: 92,
+                      informality: 10,
+                      liveliness: 10,
+                      informality_alignment: 10,
+                      liveliness_alignment: 10
+                    }
+                  }
+                },
+                issues: [],
+                check_options: {
+                  style_guide: {
+                    style_guide_type: 'microsoft',
+                    style_guide_id: 'test-style-guide-4'
+                  },
+                  dialect: 'en-US',
+                  tone: 'formal'
                 }
               }
             }
@@ -371,45 +827,205 @@ describe('Markup AI Service Batch Functionality', () => {
           results: [
             {
               index: 0,
-              status: 'completed',
+              status: 'completed' as const,
+              request: {
+                content: 'Test content for file1.txt',
+                dialect: 'en-US',
+                tone: 'formal',
+                style_guide: 'microsoft',
+                documentName: 'file1.txt'
+              },
               result: {
+                workflow_id: 'test-workflow-1',
+                status: Status.Completed,
+                style_guide_id: 'test-style-guide-1',
                 scores: {
-                  quality: { score: 85 },
-                  clarity: { score: 90 },
-                  tone: { score: 88 }
+                  quality: {
+                    score: 85,
+                    grammar: { score: 85, issues: 10 },
+                    style_guide: { score: 85, issues: 10 },
+                    terminology: { score: 85, issues: 10 }
+                  },
+                  analysis: {
+                    clarity: {
+                      score: 90,
+                      word_count: 100,
+                      sentence_count: 10,
+                      average_sentence_length: 10,
+                      flesch_reading_ease: 10,
+                      vocabulary_complexity: 10,
+                      sentence_complexity: 10
+                    },
+                    tone: {
+                      score: 88,
+                      informality: 10,
+                      liveliness: 10,
+                      informality_alignment: 10,
+                      liveliness_alignment: 10
+                    }
+                  }
+                },
+                issues: [],
+                check_options: {
+                  style_guide: {
+                    style_guide_type: 'microsoft',
+                    style_guide_id: 'test-style-guide-1'
+                  },
+                  dialect: 'en-US',
+                  tone: 'formal'
                 }
               }
             },
             {
               index: 1,
-              status: 'completed',
+              status: 'completed' as const,
+              request: {
+                content: 'Test content for file2.txt',
+                dialect: 'en-US',
+                tone: 'formal',
+                style_guide: 'microsoft',
+                documentName: 'file2.txt'
+              },
               result: {
+                workflow_id: 'test-workflow-2',
+                status: Status.Completed,
+                style_guide_id: 'test-style-guide-2',
                 scores: {
-                  quality: { score: 92 },
-                  clarity: { score: 87 },
-                  tone: { score: 91 }
+                  quality: {
+                    score: 92,
+                    grammar: { score: 92, issues: 10 },
+                    style_guide: { score: 92, issues: 10 },
+                    terminology: { score: 92, issues: 10 }
+                  },
+                  analysis: {
+                    clarity: {
+                      score: 87,
+                      word_count: 100,
+                      sentence_count: 10,
+                      average_sentence_length: 10,
+                      flesch_reading_ease: 10,
+                      vocabulary_complexity: 10,
+                      sentence_complexity: 10
+                    },
+                    tone: {
+                      score: 91,
+                      informality: 10,
+                      liveliness: 10,
+                      informality_alignment: 10,
+                      liveliness_alignment: 10
+                    }
+                  }
+                },
+                issues: [],
+                check_options: {
+                  style_guide: {
+                    style_guide_type: 'microsoft',
+                    style_guide_id: 'test-style-guide-2'
+                  },
+                  dialect: 'en-US',
+                  tone: 'formal'
                 }
               }
             },
             {
               index: 2,
-              status: 'completed',
+              status: 'completed' as const,
+              request: {
+                content: 'Test content for file3.txt',
+                dialect: 'en-US',
+                tone: 'formal',
+                style_guide: 'microsoft',
+                documentName: 'file3.txt'
+              },
               result: {
+                workflow_id: 'test-workflow-3',
+                status: Status.Completed,
+                style_guide_id: 'test-style-guide-3',
                 scores: {
-                  quality: { score: 89 },
-                  clarity: { score: 93 },
-                  tone: { score: 86 }
+                  quality: {
+                    score: 89,
+                    grammar: { score: 89, issues: 10 },
+                    style_guide: { score: 89, issues: 10 },
+                    terminology: { score: 89, issues: 10 }
+                  },
+                  analysis: {
+                    clarity: {
+                      score: 93,
+                      word_count: 100,
+                      sentence_count: 10,
+                      average_sentence_length: 10,
+                      flesch_reading_ease: 10,
+                      vocabulary_complexity: 10,
+                      sentence_complexity: 10
+                    },
+                    tone: {
+                      score: 86,
+                      informality: 10,
+                      liveliness: 10,
+                      informality_alignment: 10,
+                      liveliness_alignment: 10
+                    }
+                  }
+                },
+                issues: [],
+                check_options: {
+                  style_guide: {
+                    style_guide_type: 'microsoft',
+                    style_guide_id: 'test-style-guide-3'
+                  },
+                  dialect: 'en-US',
+                  tone: 'formal'
                 }
               }
             },
             {
               index: 3,
-              status: 'completed',
+              status: 'completed' as const,
+              request: {
+                content: 'Test content for file4.txt',
+                dialect: 'en-US',
+                tone: 'formal',
+                style_guide: 'microsoft',
+                documentName: 'file4.txt'
+              },
               result: {
+                workflow_id: 'test-workflow-4',
+                status: Status.Completed,
+                style_guide_id: 'test-style-guide-4',
                 scores: {
-                  quality: { score: 94 },
-                  clarity: { score: 88 },
-                  tone: { score: 92 }
+                  quality: {
+                    score: 94,
+                    grammar: { score: 94, issues: 10 },
+                    style_guide: { score: 94, issues: 10 },
+                    terminology: { score: 94, issues: 10 }
+                  },
+                  analysis: {
+                    clarity: {
+                      score: 88,
+                      word_count: 100,
+                      sentence_count: 10,
+                      average_sentence_length: 10,
+                      flesch_reading_ease: 10,
+                      vocabulary_complexity: 10,
+                      sentence_complexity: 10
+                    },
+                    tone: {
+                      score: 92,
+                      informality: 10,
+                      liveliness: 10,
+                      informality_alignment: 10,
+                      liveliness_alignment: 10
+                    }
+                  }
+                },
+                issues: [],
+                check_options: {
+                  style_guide: {
+                    style_guide_type: 'microsoft',
+                    style_guide_id: 'test-style-guide-4'
+                  },
+                  dialect: 'en-US',
+                  tone: 'formal'
                 }
               }
             }
