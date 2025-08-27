@@ -6,13 +6,13 @@
   "type": "module",
   "license": "Apache-2.0",
   "private": true,
-  "homepage": "https://github.com/markupai/markupai-github-action",
+  "homepage": "https://github.com/markupai/github-action",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/markupai/markupai-github-action.git"
+    "url": "git+https://github.com/markupai/github-action.git"
   },
   "bugs": {
-    "url": "https://github.com/markupai/markupai-github-action/issues"
+    "url": "https://github.com/markupai/github-action/issues"
   },
   "keywords": [
     "actions"
