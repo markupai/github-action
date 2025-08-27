@@ -338,14 +338,18 @@ describe('Type Guards', () => {
       })
 
       it('should return undefined for missing properties', () => {
-        const obj = { a: 1 }
+        const obj: Record<string, unknown> = { a: 1 }
         expect(safeGet(obj, 'b')).toBeUndefined()
         expect(safeGet(obj, 'c')).toBeUndefined()
       })
 
       it('should return undefined for null/undefined objects', () => {
-        expect(safeGet(null, 'key')).toBeUndefined()
-        expect(safeGet(undefined, 'key')).toBeUndefined()
+        expect(
+          safeGet<Record<string, unknown>, string>(null, 'key')
+        ).toBeUndefined()
+        expect(
+          safeGet<Record<string, unknown>, string>(undefined, 'key')
+        ).toBeUndefined()
       })
     })
 
@@ -365,18 +369,24 @@ describe('Type Guards', () => {
       })
 
       it('should return undefined for non-arrays', () => {
-        expect(safeArrayGet('string', 0)).toBeUndefined()
-        expect(safeArrayGet(123, 0)).toBeUndefined()
-        expect(safeArrayGet(null, 0)).toBeUndefined()
-        expect(safeArrayGet(undefined, 0)).toBeUndefined()
-        expect(safeArrayGet({}, 0)).toBeUndefined()
+        expect(
+          safeArrayGet('string' as unknown as unknown[], 0)
+        ).toBeUndefined()
+        expect(safeArrayGet(123 as unknown as unknown[], 0)).toBeUndefined()
+        expect(safeArrayGet(null as unknown as unknown[], 0)).toBeUndefined()
+        expect(
+          safeArrayGet(undefined as unknown as unknown[], 0)
+        ).toBeUndefined()
+        expect(safeArrayGet({} as unknown as unknown[], 0)).toBeUndefined()
       })
 
       it('should return undefined for invalid indices', () => {
         const arr = ['a', 'b', 'c']
-        expect(safeArrayGet(arr, '0')).toBe('a') // String '0' is converted to number 0
-        expect(safeArrayGet(arr, null)).toBeUndefined()
-        expect(safeArrayGet(arr, undefined)).toBeUndefined()
+        expect(safeArrayGet(arr, '0' as unknown as number)).toBe('a') // String '0' is converted to number 0
+        expect(safeArrayGet(arr, null as unknown as number)).toBeUndefined()
+        expect(
+          safeArrayGet(arr, undefined as unknown as number)
+        ).toBeUndefined()
       })
     })
   })
