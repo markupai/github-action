@@ -1,7 +1,8 @@
-name: Markup AI GitHub Action
+name: Markup AI Content Guardian
 description:
-  A GitHub Action that analyzes and displays recent commit changes with detailed
-  diffs and file modifications, and runs style checks on modified files
+  Markup AI Content Guardian is a GitHub Action that analyzes and displays
+  recent commit changes with detailed diffs and file modifications, and runs
+  style checks on modified files
 author: Markup AI
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
