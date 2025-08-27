@@ -40727,7 +40727,7 @@ function dc() {
   }(et)), et;
 }
 var Je = dc(), st = /* @__PURE__ */ ((e) => (e.Queued = "queued", e.Running = "running", e.Completed = "completed", e.Failed = "failed", e))(st || {}), Lr = /* @__PURE__ */ ((e) => (e.Stage = "stage", e.Dev = "dev", e.Prod = "prod", e))(Lr || {}), Gs = /* @__PURE__ */ ((e) => (e.Environment = "environment", e.Url = "url", e))(Gs || {});
-const Gi = "https://app.acrolinx.cloud", pc = "https://api.stg.markup.ai", hc = "https://api.dev.markup.ai";
+const Gi = "https://api.markup.ai", pc = "https://api.stg.markup.ai", hc = "https://api.dev.markup.ai";
 function Qi(e) {
   if (e.platform)
     if (e.platform.type === Gs.Environment)
