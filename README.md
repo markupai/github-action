@@ -279,14 +279,12 @@ jobs:
         with:
           markup_ai_api_key: ${{ secrets.MARKUP_AI_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-```
 
       - name: Display Results
         run: |
           echo "Event: ${{ steps.markup-ai-github-action.outputs.event-type }}"
           echo "Files: ${{ steps.markup-ai-github-action.outputs.files-analyzed }}"
           echo "Results: ${{ steps.markup-ai-github-action.outputs.results }}"
-
 ```
 
 ## Analysis Configuration
@@ -336,8 +334,6 @@ For push events, the action automatically updates commit status with:
 - Number of files analyzed
 - Direct link to workflow run
 
-
-
 ### Pull Request Comments
 
 For pull request events, the action creates detailed comments with:
@@ -362,7 +358,7 @@ Tone Score: 82.3 📚 Terminology Issues: 0
 2. complex_sentence Original: "This document describes the new feature that was
    implemented" Category: sentence_structure Position: 67
 
-````
+```
 
 ## Error Handling
 
@@ -404,7 +400,7 @@ export GITHUB_TOKEN=your-github-token
 
 # Run locally
 npm run local-action
-````
+```
 
 ### Testing
 
