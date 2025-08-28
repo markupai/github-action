@@ -1,7 +1,7 @@
 name: Markup AI Content Guardian
 description:
-  GitHub Action that automates content quality checks to ensure consistent
-  brand alignment and proactive content governance.
+  GitHub Action that automates content quality checks to ensure consistent brand
+  alignment and proactive content governance.
 author: Markup AI
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
