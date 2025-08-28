@@ -1,14 +1,12 @@
 name: Markup AI Content Guardian
 description:
-  Markup AI Content Guardian is a GitHub Action that analyzes and displays
-  recent commit changes with detailed diffs and file modifications, and runs
-  style checks on modified files
+  Github Action that automats content quality checks to ensuring consistent brand alignment and proactive content governance.
 author: Markup AI
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: shield-check
-  color: green
+  icon: shield
+  color: coral
 
 # Define your inputs here.
 inputs:
