@@ -156,8 +156,8 @@ describe('Integration Tests', () => {
     // Set the action's inputs as return values from core.getInput().
     core.getInput.mockImplementation((name: string) => {
       switch (name) {
-        case 'markup_ai_token':
-          return 'test-markup_ai_token'
+        case 'markup_ai_api_key':
+          return 'test-markup_ai_api_key'
         case 'dialect':
           return 'american_english'
         case 'tone':
@@ -206,7 +206,7 @@ describe('Integration Tests', () => {
     it('should handle missing token', async () => {
       core.getInput.mockImplementation((name: string) => {
         switch (name) {
-          case 'markup_ai_token':
+          case 'markup_ai_api_key':
             return ''
           case 'dialect':
             return 'american_english'
@@ -224,15 +224,15 @@ describe('Integration Tests', () => {
       await run()
 
       expect(core.setFailed).toHaveBeenCalledWith(
-        "Required input 'markup_ai_token' or environment variable 'MARKUP_AI_TOKEN' is not provided"
+        "Required input 'markup_ai_api_key' or environment variable 'MARKUP_AI_API_KEY' is not provided"
       )
     })
 
     it('should handle missing GitHub token', async () => {
       core.getInput.mockImplementation((name: string) => {
         switch (name) {
-          case 'markup_ai_token':
-            return 'test-markup_ai_token'
+          case 'markup_ai_api_key':
+            return 'test-markup_ai_api_key'
           case 'dialect':
             return 'american_english'
           case 'tone':
@@ -258,8 +258,8 @@ describe('Integration Tests', () => {
     it('should handle custom analysis options', async () => {
       core.getInput.mockImplementation((name: string) => {
         switch (name) {
-          case 'markup_ai_token':
-            return 'test-markup_ai_token'
+          case 'markup_ai_api_key':
+            return 'test-markup_ai_api_key'
           case 'dialect':
             return 'british_english'
           case 'tone':
@@ -296,7 +296,7 @@ describe('Integration Tests', () => {
 
     it('should use environment variables as fallback', async () => {
       core.getInput.mockReturnValue('')
-      process.env.MARKUP_AI_TOKEN = 'env-markup_ai_token'
+      process.env.MARKUP_AI_API_KEY = 'env-markup_ai_api_key'
       process.env.GITHUB_TOKEN = 'env-github-token'
 
       await run()

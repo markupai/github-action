@@ -12,9 +12,9 @@ branding:
 
 # Define your inputs here.
 inputs:
-  markup_ai_token:
+  markup_ai_api_key:
     description:
-      API token for style checking (can also be provided via MARKUP_AI_TOKEN
+      API key for style checking (can also be provided via MARKUP_AI_API_KEY
       environment variable)
     required: true
   dialect:

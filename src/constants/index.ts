@@ -17,7 +17,7 @@ export const DEFAULT_ANALYSIS_OPTIONS = {
  * Input names for GitHub Actions
  */
 export const INPUT_NAMES = {
-  MARKUP_AI_TOKEN: 'markup_ai_token',
+  MARKUP_AI_API_KEY: 'markup_ai_api_key',
   DIALECT: 'dialect',
   TONE: 'tone',
   STYLE_GUIDE: 'style-guide',
@@ -29,7 +29,7 @@ export const INPUT_NAMES = {
  * Environment variable names
  */
 export const ENV_VARS = {
-  MARKUP_AI_TOKEN: 'MARKUP_AI_TOKEN',
+  MARKUP_AI_API_KEY: 'MARKUP_AI_API_KEY',
   GITHUB_TOKEN: 'GITHUB_TOKEN'
 } as const
 

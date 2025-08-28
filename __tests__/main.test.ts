@@ -171,8 +171,8 @@ describe('main.ts', () => {
     // Set the action's inputs as return values from core.getInput().
     core.getInput.mockImplementation((name: string) => {
       switch (name) {
-        case 'markup_ai_token':
-          return 'test-markup_ai_token'
+        case 'markup_ai_api_key':
+          return 'test-markup_ai_api_key'
         case 'dialect':
           return 'american_english'
         case 'tone':
@@ -207,10 +207,10 @@ describe('main.ts', () => {
   })
 
   it('Fails when API token is missing', async () => {
-    // Clear the getInput mock and return empty for markup_ai_token
+    // Clear the getInput mock and return empty for markup_ai_api_key
     core.getInput.mockClear().mockImplementation((name: string) => {
       switch (name) {
-        case 'markup_ai_token':
+        case 'markup_ai_api_key':
           return ''
         case 'dialect':
           return 'american_english'
@@ -229,7 +229,7 @@ describe('main.ts', () => {
 
     // Verify that the action was marked as failed.
     expect(core.setFailed).toHaveBeenCalledWith(
-      "Required input 'markup_ai_token' or environment variable 'MARKUP_AI_TOKEN' is not provided"
+      "Required input 'markup_ai_api_key' or environment variable 'MARKUP_AI_API_KEY' is not provided"
     )
   })
 })

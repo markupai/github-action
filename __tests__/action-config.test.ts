@@ -21,13 +21,13 @@ describe('Action Config', () => {
     jest.clearAllMocks()
 
     // Reset environment variables
-    delete process.env.MARKUP_AI_TOKEN
+    delete process.env.MARKUP_AI_API_KEY
     delete process.env.GITHUB_TOKEN
     delete process.env.GITHUB_REPOSITORY
   })
 
   afterEach(() => {
-    delete process.env.MARKUP_AI_TOKEN
+    delete process.env.MARKUP_AI_API_KEY
     delete process.env.GITHUB_TOKEN
     delete process.env.GITHUB_REPOSITORY
   })
@@ -201,7 +201,7 @@ describe('Action Config', () => {
   describe('getActionConfig', () => {
     it('should return complete config from inputs', () => {
       core.getInput
-        .mockReturnValueOnce('markup_ai_token') // markup_ai_token
+        .mockReturnValueOnce('markup_ai_api_key') // markup_ai_api_key
         .mockReturnValueOnce('github-token') // github_token
         .mockReturnValueOnce('british_english') // dialect
         .mockReturnValueOnce('informal') // tone
@@ -213,7 +213,7 @@ describe('Action Config', () => {
         dialect: 'british_english',
         tone: 'informal',
         styleGuide: 'chicago',
-        apiToken: 'markup_ai_token',
+        apiToken: 'markup_ai_api_key',
         githubToken: 'github-token',
         addCommitStatus: true
       })
@@ -221,7 +221,7 @@ describe('Action Config', () => {
 
     it('should return config with environment variables when inputs are empty', () => {
       core.getInput.mockReturnValue('')
-      process.env.MARKUP_AI_TOKEN = 'env-markup-ai-token'
+      process.env.MARKUP_AI_API_KEY = 'env-markup-ai-api-key'
       process.env.GITHUB_TOKEN = 'env-github-token'
 
       const config: ActionConfig = getActionConfig()
@@ -230,7 +230,7 @@ describe('Action Config', () => {
         dialect: 'american_english',
         tone: 'formal',
         styleGuide: 'ap',
-        apiToken: 'env-markup-ai-token',
+        apiToken: 'env-markup-ai-api-key',
         githubToken: 'env-github-token',
         addCommitStatus: true
       })
@@ -238,24 +238,24 @@ describe('Action Config', () => {
 
     it('should prioritize inputs over environment variables', () => {
       core.getInput
-        .mockReturnValueOnce('input-markup-ai-token') // markup_ai_token
+        .mockReturnValueOnce('input-markup-ai-api-key') // markup_ai_api_key
         .mockReturnValueOnce('input-github-token') // github_token
         .mockReturnValueOnce('british_english') // dialect
         .mockReturnValueOnce('informal') // tone
         .mockReturnValueOnce('chicago') // style-guide
 
-      process.env.MARKUP_AI_TOKEN = 'env-markup-ai-token'
+      process.env.MARKUP_AI_API_KEY = 'env-markup-ai-api-key'
       process.env.GITHUB_TOKEN = 'env-github-token'
 
       const config: ActionConfig = getActionConfig()
 
-      expect(config.apiToken).toBe('input-markup-ai-token')
+      expect(config.apiToken).toBe('input-markup-ai-api-key')
       expect(config.githubToken).toBe('input-github-token')
     })
 
     it('should use default values for optional inputs', () => {
       core.getInput
-        .mockReturnValueOnce('markup-ai-token') // markup_ai_token
+        .mockReturnValueOnce('markup-ai-api-key') // markup_ai_api_key
         .mockReturnValueOnce('github-token') // github_token
         .mockReturnValueOnce('') // dialect
         .mockReturnValueOnce('') // tone
@@ -267,7 +267,7 @@ describe('Action Config', () => {
         dialect: 'american_english',
         tone: 'formal',
         styleGuide: 'ap',
-        apiToken: 'markup-ai-token',
+        apiToken: 'markup-ai-api-key',
         githubToken: 'github-token',
         addCommitStatus: true
       })
@@ -277,7 +277,7 @@ describe('Action Config', () => {
       core.getInput.mockReturnValue('')
 
       expect(() => getActionConfig()).toThrow(
-        "Required input 'markup_ai_token' or environment variable 'MARKUP_AI_TOKEN' is not provided"
+        "Required input 'markup_ai_api_key' or environment variable 'MARKUP_AI_API_KEY' is not provided"
       )
     })
   })
