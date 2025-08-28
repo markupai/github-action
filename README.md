@@ -43,7 +43,7 @@ jobs:
       - name: Run Analysis
         uses: markupai/content-guardian-action@v0.0.5
         with:
-          markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
+          markup_ai_api_key: ${{ secrets.MARKUP_AI_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
@@ -65,7 +65,7 @@ jobs:
       - name: Run Analysis
         uses: markupai/content-guardian-action@v0.0.5
         with:
-          markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
+          markup_ai_api_key: ${{ secrets.MARKUP_AI_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           dialect: 'british_english'
           tone: 'academic'
@@ -81,8 +81,8 @@ as action inputs or environment variables:
 ### API Token
 
 - **Required**: Yes
-- **Input name**: `markup_ai_token`
-- **Environment variable**: `MARKUP_AI_TOKEN`
+- **Input name**: `markup_ai_api_key`
+- **Environment variable**: `MARKUP_AI_API_KEY`
 - **Purpose**: Authenticates with API for style checking
 
 ### GitHub Token
@@ -105,7 +105,7 @@ permissions:
 - name: Run Analysis
   uses: markupai/content-guardian-action@v0.0.5
   with:
-    markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
+    markup_ai_api_key: ${{ secrets.MARKUP_AI_API_KEY }}
     github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
@@ -120,7 +120,7 @@ permissions:
 - name: Run Analysis
   uses: markupai/content-guardian-action@v0.0.5
   env:
-    MARKUP_AI_TOKEN: ${{ secrets.MARKUP_AI_TOKEN }}
+    MARKUP_AI_API_KEY: ${{ secrets.MARKUP_AI_API_KEY }}
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
@@ -135,21 +135,21 @@ permissions:
 - name: Run Analysis
   uses: markupai/content-guardian-action@v0.0.5
   with:
-    markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
+    markup_ai_api_key: ${{ secrets.MARKUP_AI_API_KEY }}
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Inputs
 
-| Input               | Description                                                                                   | Required | Default            |
-| ------------------- | --------------------------------------------------------------------------------------------- | -------- | ------------------ |
-| `markup_ai_token`   | API token for style checking. Can also be provided via `MARKUP_AI_TOKEN` environment variable | Yes      | -                  |
-| `github_token`      | GitHub token for API access. Can also be provided via `GITHUB_TOKEN` environment variable     | Yes      | -                  |
-| `dialect`           | Language dialect for analysis (for example, `american_english`, `british_english`)            | No       | `american_english` |
-| `tone`              | Tone for analysis (for example, `formal`, `informal`, `academic`)                             | No       | `formal`           |
-| `style-guide`       | Style guide for analysis (for example, `ap`, `chicago`, `apa`)                                | No       | `ap`               |
-| `add_commit_status` | Whether to add commit status updates                                                          | No       | `true`             |
+| Input               | Description                                                                                     | Required | Default            |
+| ------------------- | ----------------------------------------------------------------------------------------------- | -------- | ------------------ |
+| `markup_ai_api_key` | API token for style checking. Can also be provided via `MARKUP_AI_API_KEY` environment variable | Yes      | -                  |
+| `github_token`      | GitHub token for API access. Can also be provided via `GITHUB_TOKEN` environment variable       | Yes      | -                  |
+| `dialect`           | Language dialect for analysis (for example, `american_english`, `british_english`)              | No       | `american_english` |
+| `tone`              | Tone for analysis (for example, `formal`, `informal`, `academic`)                               | No       | `formal`           |
+| `style-guide`       | Style guide for analysis (for example, `ap`, `chicago`, `apa`)                                  | No       | `ap`               |
+| `add_commit_status` | Whether to add commit status updates                                                            | No       | `true`             |
 
 ## Outputs
 
@@ -207,7 +207,7 @@ jobs:
       - name: Analyze Changes
         uses: markupai/content-guardian-action@v0.0.5
         with:
-          markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
+          markup_ai_api_key: ${{ secrets.MARKUP_AI_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
@@ -230,7 +230,7 @@ jobs:
         id: analysis
         uses: markupai/content-guardian-action@v0.0.5
         with:
-          markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
+          markup_ai_api_key: ${{ secrets.MARKUP_AI_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           dialect: 'american_english'
           tone: 'formal'
@@ -259,7 +259,7 @@ jobs:
       - name: Full Repository Analysis
         uses: markupai/content-guardian-action@v0.0.5
         with:
-          markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
+          markup_ai_api_key: ${{ secrets.MARKUP_AI_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
@@ -277,7 +277,7 @@ jobs:
         id: markup-ai-github-action
         uses: markupai/content-guardian-action@v0.0.5
         with:
-          markup_ai_token: ${{ secrets.MARKUP_AI_TOKEN }}
+          markup_ai_api_key: ${{ secrets.MARKUP_AI_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
@@ -368,7 +368,7 @@ Tone Score: 82.3 📚 Terminology Issues: 0
 
 The action gracefully handles various scenarios:
 
-- **Missing token**: Fails with clear error message
+- **Missing API Key**: Fails with clear error message
 - **Missing GitHub token**: Shows warning and continues
 - **API rate limits**: Logs error and continues execution
 - **Invalid commit data**: Skips problematic commits
@@ -386,7 +386,7 @@ The action gracefully handles various scenarios:
 ### Prerequisites
 
 - Node.js 20+
-- API token
+- API Key
 
 ### Setup
 
@@ -399,7 +399,7 @@ cd `markup-ai-github-action`
 npm install
 
 # Set up environment variables
-export MARKUP_AI_TOKEN=your-token
+export MARKUP_AI_API_KEY=your-api-key
 export GITHUB_TOKEN=your-github-token
 
 # Run locally

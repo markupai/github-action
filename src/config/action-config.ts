@@ -16,8 +16,8 @@ import {
  */
 export function getActionConfig(): ActionConfig {
   const apiToken = getRequiredInput(
-    INPUT_NAMES.MARKUP_AI_TOKEN,
-    ENV_VARS.MARKUP_AI_TOKEN
+    INPUT_NAMES.MARKUP_AI_API_KEY,
+    ENV_VARS.MARKUP_AI_API_KEY
   )
   const githubToken = getRequiredInput(
     INPUT_NAMES.GITHUB_TOKEN,
